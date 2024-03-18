@@ -383,18 +383,18 @@ Refer to the [Tests](https://github.com/php-forge/model/blob/main/tests) for com
 
 The following methods are available for setting and retrieving model data.
 
-| Method                 | Description                                                                                 |
-| ---------------------- | ------------------------------------------------------------------------------------------- |
-| `addProperty()`        | Add property to model.                                                                      |
-| `getData()`            | Returns the raw data for the model.                                                         |
-| `getFormName()`        | Get the form name that this field model class should use.                                   |
-| `getProperties()`      | Return The list of properties names.                                                        |
-| `getPropertyTypes()`   | Returns the list of property types indexed by property names.                               |
-| `getPropertyValue()`   | Returns the value (raw data) for the specified property.                                    |
-| `hasProperty()`        | Check if property exists.                                                                   |
-| `isEmpty()`            | Check if model is empty.                                                                    |
-| `isPropertyType()`     | Check type of property.                                                                     |
-| `load()`               | Load data into the model.                                                                   |
-| `setPropertiesValues()`| Set the values for multiple properties.                                                     |
-| `setPropertyValue()`   | Set the value for the specified property.                                                   |
-| `toArray()`            | Convert the model to an array.                                                              |
+| Method                  | Description                                                                                |
+| ----------------------- | ------------------------------------------------------------------------------------------ |
+| `addProperty()`         | Add property to model.                                                                     |
+| `getData()`             | Returns the raw data for the model.                                                        |
+| `getModelName()`        | Returns the name of the model.                                                             |
+| `getProperties()`       | Return The list of properties names.                                                       |
+| `getPropertyTypes()`    | Returns the list of property types indexed by property names.                              |
+| `getPropertyValue()`    | Returns the value (raw data) for the specified property.                                   |
+| `hasProperty()`         | Check if property exists.                                                                  |
+| `isEmpty()`             | Check if model is empty.                                                                   |
+| `isPropertyType()`      | Check type of property.                                                                    |
+| `load()`                | Load data into the model.                                                                  |
+| `setPropertiesValues()` | Set the values for multiple properties.                                                    |
+| `setPropertyValue()`    | Set the value for the specified property.                                                  |
+| `toArray()`             | Convert the model to an array.                                                             |
