@@ -7,7 +7,7 @@ for developers working with PHP.
 
 ## Usage
 
-To use this library, you need to create a class that extends the AbstractdModel class and define the property you want
+To use this library, you need to create a class that extends the `AbstractdModel` class and define the property you want
 to use. For example:
 
 ```php
@@ -27,7 +27,7 @@ final class User extends AbstractModel
 }
 ```
 
-Operations on the model are performed using the methods provided by the `AbstractModel::class`.
+Operations on the model are performed using the methods provided by the `AbstractModel` class.
 
 - [Load data from array](#load-data-from-array)
 - [Get property value](#get-property-value)
@@ -379,7 +379,7 @@ $data = $model->toArray();
 
 ### Methods
 
-Refer to the [Tests](https://github.com/php-forge/model/blob/main/tests) for comprehensive examples.
+Refer to the [Tests](https://github.com/ui-awesome/model/blob/main/tests) for comprehensive examples.
 
 The following methods are available for setting and retrieving model data.
 
