@@ -102,21 +102,6 @@ final class ModelTest extends TestCase
         );
     }
 
-    public function testLoadDataIntoModelUsingDefaultScope(): void
-    {
-        $model = new Country();
-
-        self::assertTrue(
-            $model->load(['Country' => ['name' => 'Russia']]),
-            'Should load data using the model class scope.',
-        );
-        self::assertSame(
-            'Russia',
-            $model->getPropertyValue('name'),
-            'Should set the property value from loaded data.',
-        );
-    }
-
     public function testLoadDataFromTraversablePayloadUsingModelScope(): void
     {
         $model = new Country();
@@ -141,6 +126,21 @@ final class ModelTest extends TestCase
         );
     }
 
+    public function testLoadDataIntoModelUsingDefaultScope(): void
+    {
+        $model = new Country();
+
+        self::assertTrue(
+            $model->load(['Country' => ['name' => 'Russia']]),
+            'Should load data using the model class scope.',
+        );
+        self::assertSame(
+            'Russia',
+            $model->getPropertyValue('name'),
+            'Should set the property value from loaded data.',
+        );
+    }
+
     public function testLoadPublicPropertyWhenDefinedOnModel(): void
     {
         $model = new PropertyType();
@@ -157,6 +157,32 @@ final class ModelTest extends TestCase
             'samdark',
             $model->name,
             'Should set the loaded value on the public property.',
+        );
+    }
+
+    public function testLoadUsingSnakeCaseInputMappedToCamelCase(): void
+    {
+        $model = new Profile(new Address(new Country()));
+
+        self::assertTrue(
+            $model->load([
+                'Profile' => [
+                    'bio' => 'bio',
+                    'public_email_personal' => 'admin@example.com',
+                ],
+            ]),
+            'Should load scoped payload using snake_case keys.',
+        );
+
+        self::assertSame(
+            'bio',
+            $model->getPropertyValue('bio'),
+            'Should set direct property values from scoped payload.',
+        );
+        self::assertSame(
+            'admin@example.com',
+            $model->getPropertyValue('publicEmailPersonal'),
+            'Should map snake_case input keys to camelCase properties during load.',
         );
     }
 
@@ -360,32 +386,6 @@ final class ModelTest extends TestCase
             'admin@example.com',
             $model->getPropertyValue('publicEmailPersonal'),
             'Should map snake_case input keys to camelCase model properties.',
-        );
-    }
-
-    public function testLoadUsingSnakeCaseInputMappedToCamelCase(): void
-    {
-        $model = new Profile(new Address(new Country()));
-
-        self::assertTrue(
-            $model->load([
-                'Profile' => [
-                    'bio' => 'bio',
-                    'public_email_personal' => 'admin@example.com',
-                ],
-            ]),
-            'Should load scoped payload using snake_case keys.',
-        );
-
-        self::assertSame(
-            'bio',
-            $model->getPropertyValue('bio'),
-            'Should set direct property values from scoped payload.',
-        );
-        self::assertSame(
-            'admin@example.com',
-            $model->getPropertyValue('publicEmailPersonal'),
-            'Should map snake_case input keys to camelCase properties during load.',
         );
     }
 
