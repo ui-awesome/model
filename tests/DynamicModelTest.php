@@ -8,9 +8,21 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Tests\Support\Model\{Dynamic, DynamicNested};
 
+/**
+ * Unit tests for dynamic runtime property registration, loading, and nested dynamic access.
+ *
+ * Test coverage.
+ * - Adds dynamic properties and returns synchronized property names and type metadata.
+ * - Loads values into dynamic models for flat and nested dynamic paths.
+ * - Initializes timestamp dynamic properties during model loading.
+ * - Throws invalid argument exceptions when reading unknown dynamic property paths.
+ *
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
+ */
 final class DynamicModelTest extends TestCase
 {
-    public function testAddProperty(): void
+    public function testAddDynamicPropertiesAndReturnRegisteredMetadata(): void
     {
         $model = new Dynamic();
 
@@ -25,6 +37,7 @@ final class DynamicModelTest extends TestCase
                 'email',
             ],
             $model->getProperties(),
+            'Should return registered dynamic property names in insertion order.',
         );
         self::assertSame(
             [
@@ -33,10 +46,11 @@ final class DynamicModelTest extends TestCase
                 'email' => 'string',
             ],
             $model->getPropertyTypes(),
+            'Should return registered dynamic property types keyed by property name.',
         );
     }
 
-    public function testAddPropertyWithLoadData(): void
+    public function testLoadDataIntoRegisteredDynamicProperties(): void
     {
         $model = new Dynamic();
 
@@ -52,12 +66,12 @@ final class DynamicModelTest extends TestCase
 
         $model->load($data, 'Dynamic');
 
-        self::assertSame('John Doe', $model->getPropertyValue('name'));
-        self::assertSame(30, $model->getPropertyValue('age'));
-        self::assertSame('test@example.com', $model->getPropertyValue('email'));
+        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should load the dynamic name property value.');
+        self::assertSame(30, $model->getPropertyValue('age'), 'Should load the dynamic age property value.');
+        self::assertSame('test@example.com', $model->getPropertyValue('email'), 'Should load the dynamic email property value.');
     }
 
-    public function testAddPropertyWithLoadDataAndTimestamp(): void
+    public function testInitializeTimestampWhenLoadingDynamicModelData(): void
     {
         $model = new Dynamic();
 
@@ -74,13 +88,20 @@ final class DynamicModelTest extends TestCase
 
         $model->load($data, 'Dynamic');
 
-        self::assertSame('John Doe', $model->getPropertyValue('name'));
-        self::assertSame(30, $model->getPropertyValue('age'));
-        self::assertSame('test@example.com', $model->getPropertyValue('email'));
-        self::assertTrue($model->getPropertyValue('created_at') > 0);
+        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should keep loaded string values for dynamic properties.');
+        self::assertSame(30, $model->getPropertyValue('age'), 'Should keep loaded integer values for dynamic properties.');
+        self::assertSame(
+            'test@example.com',
+            $model->getPropertyValue('email'),
+            'Should keep loaded email values for dynamic properties.',
+        );
+        self::assertTrue(
+            $model->getPropertyValue('created_at') > 0,
+            'Should auto-initialize timestamp properties with a positive integer value.',
+        );
     }
 
-    public function testNestedAddProperty(): void
+    public function testAddNestedDynamicPropertyPaths(): void
     {
         $model = new Dynamic();
 
@@ -101,6 +122,7 @@ final class DynamicModelTest extends TestCase
                 'address.zip',
             ],
             $model->getProperties(),
+            'Should return nested dynamic property paths in insertion order.',
         );
 
         self::assertSame(
@@ -113,10 +135,11 @@ final class DynamicModelTest extends TestCase
                 'address.zip' => 'string',
             ],
             $model->getPropertyTypes(),
+            'Should return types for nested dynamic property paths.',
         );
     }
 
-    public function testNestedAddPropertyWithLoadData(): void
+    public function testLoadDataIntoNestedDynamicModelProperties(): void
     {
         $modelNested = new Dynamic();
 
@@ -142,16 +165,23 @@ final class DynamicModelTest extends TestCase
 
         $model->load($data, 'DynamicNested');
 
-        self::assertSame('John Doe', $model->getPropertyValue('name'));
-        self::assertSame(30, $model->getPropertyValue('age'));
-        self::assertSame('test@example.com', $model->getPropertyValue('email'));
-        self::assertSame('New York', $model->getPropertyValue('dynamic.city'));
-        self::assertSame('NY', $model->getPropertyValue('dynamic.state'));
-        self::assertSame('10001', $model->getPropertyValue('dynamic.zip'));
-        self::assertTrue($model->getPropertyValue('dynamic.createdAt') > 0);
+        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should load top-level dynamic name values.');
+        self::assertSame(30, $model->getPropertyValue('age'), 'Should load top-level dynamic age values.');
+        self::assertSame(
+            'test@example.com',
+            $model->getPropertyValue('email'),
+            'Should load top-level dynamic email values.',
+        );
+        self::assertSame('New York', $model->getPropertyValue('dynamic.city'), 'Should load nested city values.');
+        self::assertSame('NY', $model->getPropertyValue('dynamic.state'), 'Should load nested state values.');
+        self::assertSame('10001', $model->getPropertyValue('dynamic.zip'), 'Should load nested ZIP values.');
+        self::assertTrue(
+            $model->getPropertyValue('dynamic.createdAt') > 0,
+            'Should initialize nested timestamp properties with a positive integer value.',
+        );
     }
 
-    public function testPropertyDoesNotExist(): void
+    public function testThrowInvalidArgumentExceptionWhenReadingUnknownDynamicPropertyPath(): void
     {
         $model = new Dynamic();
 

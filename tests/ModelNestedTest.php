@@ -5,20 +5,39 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
+use UIAwesome\Model\Tests\Provider\ModelNestedProvider;
 use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
 
+/**
+ * Unit tests for nested property access and assignment across composed model graphs.
+ *
+ * Test coverage.
+ * - Loads and assigns deeply nested paths, then reads the expected values for each nested segment.
+ * - Returns flattened nested property lists for composed models.
+ * - Throws invalid argument exceptions for undefined nested paths and non-nested base properties.
+ *
+ * {@see ModelNestedProvider} for test case data providers.
+ *
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
+ */
 final class ModelNestedTest extends TestCase
 {
-    public function testGetPropertyValue(): void
+    public function testReturnNestedPropertyValueAfterAssignment(): void
     {
         $model = new Address(new Country());
         $model->setPropertyValue('country.name', 'Russia');
 
-        self::assertSame('Russia', $model->getPropertyValue('country.name'));
+        self::assertSame(
+            'Russia',
+            $model->getPropertyValue('country.name'),
+            'Should return the assigned value for a nested property path.',
+        );
     }
 
-    public function testGetPropertyValueUndefinedPropertyException(): void
+    public function testThrowInvalidArgumentExceptionWhenReadingUndefinedNestedProperty(): void
     {
         $model = new Address(new Country());
 
@@ -28,7 +47,7 @@ final class ModelNestedTest extends TestCase
         $model->getPropertyValue('country.noExist');
     }
 
-    public function testGetPropertyValueWithInvalidNestedProperty(): void
+    public function testThrowInvalidArgumentExceptionWhenNestedPathStartsWithUnknownProperty(): void
     {
         $user = new User(new Profile(new Address(new Country())));
 
@@ -38,7 +57,7 @@ final class ModelNestedTest extends TestCase
         $user->getPropertyValue('address.nestedAttribute');
     }
 
-    public function testGetRawDataNotNestedException(): void
+    public function testThrowInvalidArgumentExceptionWhenReadingMissingNestedBranch(): void
     {
         $model = new Address(new Country());
 
@@ -48,11 +67,11 @@ final class ModelNestedTest extends TestCase
         $model->getPropertyValue('profile.user');
     }
 
-    public function testLoadPublicField(): void
+    public function testLoadNestedPropertyFromScopedPayload(): void
     {
         $model = new Address(new Country());
 
-        self::assertEmpty($model->getPropertyValue('country.name'));
+        self::assertEmpty($model->getPropertyValue('country.name'), 'Should start with an empty nested property value.');
 
         $data = [
             'Address' => [
@@ -60,11 +79,12 @@ final class ModelNestedTest extends TestCase
             ],
         ];
 
-        self::assertTrue($model->load($data));
-        self::assertSame('Russia', $model->getPropertyValue('country.name'));
+        self::assertTrue($model->load($data), 'Should load nested properties from scoped payload data.');
+        self::assertSame('Russia', $model->getPropertyValue('country.name'), 'Should set the loaded nested property value.');
     }
 
-    public function testLoadSeveralNested(): void
+    #[DataProviderExternal(ModelNestedProvider::class, 'nestedPropertyValues')]
+    public function testLoadSeveralNestedProperties(string $property, string $expectedValue): void
     {
         $user = new User(new Profile(new Address(new Country())));
 
@@ -78,15 +98,15 @@ final class ModelNestedTest extends TestCase
             ],
         ];
 
-        self::assertTrue($user->load($data));
-        self::assertSame('valery', $user->getPropertyValue('name'));
-        self::assertSame('senior software engineer', $user->getPropertyValue('profile.bio'));
-        self::assertSame('ulitsa 9-ya Voronezhskaya', $user->getPropertyValue('profile.address.street'));
-        self::assertSame('Voronezh', $user->getPropertyValue('profile.address.city'));
-        self::assertSame('Russia', $user->getPropertyValue('profile.address.country.name'));
+        self::assertTrue($user->load($data), 'Should load all provided nested paths in a single operation.');
+        self::assertSame(
+            $expectedValue,
+            $user->getPropertyValue($property),
+            'Should return the expected value for each loaded nested property path.',
+        );
     }
 
-    public function testProperties(): void
+    public function testReturnFlattenedPropertyPathsForNestedModels(): void
     {
         $user = new User(new Profile(new Address(new Country())));
 
@@ -101,10 +121,12 @@ final class ModelNestedTest extends TestCase
                 'profile.address.country.name',
             ],
             $user->getProperties(),
+            'Should return all nested properties as flattened dot-notated paths.',
         );
     }
 
-    public function testSetPropertyValueAndGetPropertyValueSeveralNestedLevels(): void
+    #[DataProviderExternal(ModelNestedProvider::class, 'nestedPropertyValues')]
+    public function testSetNestedPropertyValueAcrossSeveralLevels(string $property, string $expectedValue): void
     {
         $user = new User(new Profile(new Address(new Country())));
 
@@ -114,14 +136,15 @@ final class ModelNestedTest extends TestCase
         $user->setPropertyValue('profile.address.city', 'Voronezh');
         $user->setPropertyValue('profile.address.country.name', 'Russia');
 
-        self::assertSame('valery', $user->getPropertyValue('name'));
-        self::assertSame('senior software engineer', $user->getPropertyValue('profile.bio'));
-        self::assertSame('ulitsa 9-ya Voronezhskaya', $user->getPropertyValue('profile.address.street'));
-        self::assertSame('Voronezh', $user->getPropertyValue('profile.address.city'));
-        self::assertSame('Russia', $user->getPropertyValue('profile.address.country.name'));
+        self::assertSame(
+            $expectedValue,
+            $user->getPropertyValue($property),
+            'Should return the expected value after assigning each nested property path individually.',
+        );
     }
 
-    public function testSetPropertyValuesAndGetPropertyValueSeveralNestedLevels(): void
+    #[DataProviderExternal(ModelNestedProvider::class, 'nestedPropertyValues')]
+    public function testSetNestedPropertyValuesWithBulkAssignment(string $property, string $expectedValue): void
     {
         $user = new User(new Profile(new Address(new Country())));
 
@@ -135,10 +158,10 @@ final class ModelNestedTest extends TestCase
             ],
         );
 
-        self::assertSame('valery', $user->getPropertyValue('name'));
-        self::assertSame('senior software engineer', $user->getPropertyValue('profile.bio'));
-        self::assertSame('ulitsa 9-ya Voronezhskaya', $user->getPropertyValue('profile.address.street'));
-        self::assertSame('Voronezh', $user->getPropertyValue('profile.address.city'));
-        self::assertSame('Russia', $user->getPropertyValue('profile.address.country.name'));
+        self::assertSame(
+            $expectedValue,
+            $user->getPropertyValue($property),
+            'Should return the expected value after assigning nested paths with setProperties().',
+        );
     }
 }

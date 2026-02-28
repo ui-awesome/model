@@ -4,14 +4,29 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
-use stdClass;
 use TypeError;
+use UIAwesome\Model\Tests\Provider\TypeUnionProvider;
 use UIAwesome\Model\Tests\Support\Model\UnionType;
 
+/**
+ * Unit tests for union-typed property handling on model values.
+ *
+ * Test coverage.
+ * - Accepts all supported union member values and returns them without unintended transformations.
+ * - Returns union type metadata in the expected declaration order.
+ * - Throws a type error when assigning values outside the declared union.
+ * - Validates whether a candidate type belongs to the declared union.
+ *
+ * {@see TypeUnionProvider} for test case data providers.
+ *
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
+ */
 final class TypeUnionTest extends TestCase
 {
-    public function testException(): void
+    public function testThrowTypeErrorWhenAssigningUnsupportedUnionValue(): void
     {
         $this->expectException(TypeError::class);
         $this->expectExceptionMessage(
@@ -22,51 +37,41 @@ final class TypeUnionTest extends TestCase
         $model->setPropertyValue('union', 1.1);
     }
 
-    public function testGetPropertiesType(): void
+    public function testReturnUnionPropertyTypeMetadata(): void
     {
         $model = new UnionType();
 
         self::assertSame(
             ['union' => ['object', 'string', 'int', 'bool', 'null']],
             $model->getPropertyTypes(),
+            'Should return the declared union member types for the property.',
         );
     }
 
-    public function testisPropertyType(): void
+    #[DataProviderExternal(TypeUnionProvider::class, 'isPropertyTypeChecks')]
+    public function testReturnExpectedResultWhenCheckingUnionPropertyType(string $type, bool $expected): void
     {
         $model = new UnionType();
 
-        self::assertFalse($model->isPropertyType('union', 'datetime'));
-        self::assertTrue($model->isPropertyType('union', 'object'));
-        self::assertTrue($model->isPropertyType('union', 'string'));
-        self::assertTrue($model->isPropertyType('union', 'int'));
-        self::assertTrue($model->isPropertyType('union', 'bool'));
-        self::assertTrue($model->isPropertyType('union', 'null'));
+        self::assertSame(
+            $expected,
+            $model->isPropertyType('union', $type),
+            'Should return the expected boolean result for union type membership checks.',
+        );
     }
 
-    public function testPhpTypeCast(): void
+    #[DataProviderExternal(TypeUnionProvider::class, 'acceptedUnionValues')]
+    public function testReturnUnionValueForEachSupportedType(mixed $value, mixed $expected, string $expectedType): void
     {
         $model = new UnionType();
-        $object = new stdClass();
 
-        $model->setPropertyValue('union', 1);
+        $model->setPropertyValue('union', $value);
 
-        self::assertSame(1, $model->getPropertyValue('union'));
-
-        $model->setPropertyValue('union', '1');
-
-        self::assertSame('1', $model->getPropertyValue('union'));
-
-        $model->setPropertyValue('union', true);
-
-        self::assertSame(true, $model->getPropertyValue('union'));
-
-        $model->setPropertyValue('union', $object);
-
-        self::assertSame($object, $model->getPropertyValue('union'));
-
-        $model->setPropertyValue('union', null);
-
-        self::assertSame(null, $model->getPropertyValue('union'));
+        self::assertSame($expected, $model->getPropertyValue('union'), 'Should preserve the assigned value for each union member type.');
+        self::assertSame(
+            $expectedType,
+            get_debug_type($model->getPropertyValue('union')),
+            'Should preserve the expected runtime type for each union member value.',
+        );
     }
 }

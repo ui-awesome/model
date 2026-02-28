@@ -4,13 +4,35 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
+use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use TypeError;
-use UIAwesome\Model\{Tests\Support\Model\Address, Tests\Support\Model\Country, Tests\Support\Model\PropertyType, TypeCollector};
+use UIAwesome\Model\{
+    Tests\Provider\TypeCollectorProvider,
+    Tests\Support\Model\Address,
+    Tests\Support\Model\Country,
+    Tests\Support\Model\PropertyType,
+    TypeCollector
+};
 
+/**
+ * Unit tests for property collection and runtime type casting via {@see TypeCollector}.
+ *
+ * Test coverage.
+ * - Casts values to declared PHP property types, including stringable objects and nullable typed properties.
+ * - Detects property presence for flat and nested property paths.
+ * - Returns null for type casting requests targeting unknown properties.
+ * - Returns property names and type metadata collected from model declarations.
+ * - Throws type errors when assigned values violate declared property types.
+ *
+ * {@see TypeCollectorProvider} for test case data providers.
+ *
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
+ */
 final class TypeCollectorTest extends TestCase
 {
-    public function testGetProperties(): void
+    public function testReturnCollectedPropertyNames(): void
     {
         $model = new PropertyType();
 
@@ -27,10 +49,11 @@ final class TypeCollectorTest extends TestCase
                 'withoutType',
             ],
             $model->getProperties(),
+            'Should return all declared property names collected from the model.',
         );
     }
 
-    public function testGetPropertiesTypes(): void
+    public function testReturnCollectedPropertyTypes(): void
     {
         $model = new PropertyType();
 
@@ -47,61 +70,61 @@ final class TypeCollectorTest extends TestCase
                 'withoutType' => '',
             ],
             $model->getPropertyTypes(),
+            'Should return collected property types including union and untyped properties.',
         );
     }
 
-    public function testHasPropertyWithInvalidNestedPath(): void
+    public function testReturnFalseWhenNestedPropertyPathIsInvalid(): void
     {
         $model = new Address(new Country());
 
-        self::assertFalse($model->hasProperty('nonexistent.any'));
-        self::assertFalse($model->hasProperty('city.any'));
-        self::assertFalse($model->hasProperty('country.nonexistent'));
+        self::assertFalse($model->hasProperty('nonexistent.any'), 'Should return false when the root nested segment is missing.');
+        self::assertFalse($model->hasProperty('city.any'), 'Should return false when a scalar property is used as a nested branch.');
+        self::assertFalse(
+            $model->hasProperty('country.nonexistent'),
+            'Should return false when a nested property segment does not exist.',
+        );
     }
 
-    public function testHasPropertyWithNestedPath(): void
+    public function testReturnTrueWhenPropertyPathExists(): void
     {
         $model = new Address(new Country());
 
-        self::assertTrue($model->hasProperty('city'));
-        self::assertTrue($model->hasProperty('country.name'));
+        self::assertTrue($model->hasProperty('city'), 'Should return true for an existing flat property.');
+        self::assertTrue($model->hasProperty('country.name'), 'Should return true for an existing nested property path.');
     }
 
-    public function testIsPropertyType(): void
+    #[DataProviderExternal(TypeCollectorProvider::class, 'isPropertyTypeChecks')]
+    public function testReturnExpectedResultWhenCheckingPropertyType(string $property, string $type, bool $expected): void
     {
         $model = new PropertyType();
 
-        self::assertTrue($model->isPropertyType('array', 'array'));
-        self::assertTrue($model->isPropertyType('bool', 'bool'));
-        self::assertTrue($model->isPropertyType('float', 'float'));
-        self::assertTrue($model->isPropertyType('int', 'int'));
-        self::assertTrue($model->isPropertyType('nullable', 'int'));
-        self::assertTrue($model->isPropertyType('nullable', 'null'));
-        self::assertTrue($model->isPropertyType('object', 'object'));
-        self::assertTrue($model->isPropertyType('object', 'null'));
-        self::assertTrue($model->isPropertyType('string', 'string'));
-        self::assertTrue($model->isPropertyType('withoutType', ''));
+        self::assertSame(
+            $expected,
+            $model->isPropertyType($property, $type),
+            'Should return the expected boolean result when checking supported property types.',
+        );
     }
 
-    public function testPhpTypeCast(): void
+    public function testCastValueToDeclaredPhpType(): void
     {
         $model = new PropertyType();
 
         $model->setPropertyValue('string', 1.1);
         $model->setPropertyValue('float', '1.1');
 
-        self::assertSame('1.1', $model->getPropertyValue('string'));
-        self::assertSame(1.1, $model->getPropertyValue('float'));
+        self::assertSame('1.1', $model->getPropertyValue('string'), 'Should cast numeric values assigned to string properties.');
+        self::assertSame(1.1, $model->getPropertyValue('float'), 'Should cast numeric strings assigned to float properties.');
     }
 
-    public function testPhpTypeCastAttributeNoExist(): void
+    public function testReturnNullWhenCastingUnknownProperty(): void
     {
         $typeCollector = new TypeCollector(new PropertyType());
 
-        self::assertNull($typeCollector->phpTypeCast('noExist', 1));
+        self::assertNull($typeCollector->phpTypeCast('noExist', 1), 'Should return null when a property does not exist.');
     }
 
-    public function testPropertyStringable(): void
+    public function testCastStringableObjectToStringProperty(): void
     {
         $model = new PropertyType();
 
@@ -113,60 +136,24 @@ final class TypeCollectorTest extends TestCase
         };
         $model->setPropertyValue('string', $objectStringable);
 
-        self::assertSame('joe doe', $model->getPropertyValue('string'));
+        self::assertSame('joe doe', $model->getPropertyValue('string'), 'Should cast stringable objects to string properties.');
     }
 
-    public function testSetPropertyValue(): void
+    #[DataProviderExternal(TypeCollectorProvider::class, 'setPropertyValueCases')]
+    public function testSetPropertyValueWithSupportedInputs(string $property, mixed $value, mixed $expected): void
     {
         $model = new PropertyType();
 
-        // value is array
-        $model->setPropertyValue('array', []);
+        $model->setPropertyValue($property, $value);
 
-        self::assertSame([], $model->getPropertyValue('array'));
-
-        // value is string
-        $model->setPropertyValue('string', 'string');
-
-        self::assertSame('string', $model->getPropertyValue('string'));
-
-        // value is int
-        $model->setPropertyValue('int', 1);
-
-        self::assertSame(1, $model->getPropertyValue('int'));
-
-        // value is bool
-        $model->setPropertyValue('bool', true);
-
-        self::assertSame(true, $model->getPropertyValue('bool'));
-
-        // value is null
-        $model->setPropertyValue('object', null);
-
-        self::assertNull($model->getPropertyValue('object'));
-
-        // value is null
-        $model->setPropertyValue('nullable', null);
-
-        self::assertNull($model->getPropertyValue('nullable'));
-
-        // value is int
-        $model->setPropertyValue('nullable', 1);
-
-        self::assertSame(1, $model->getPropertyValue('nullable'));
-
-        // value is numeric string
-        $model->setPropertyValue('nullable', '2');
-
-        self::assertSame(2, $model->getPropertyValue('nullable'));
-
-        // value is any
-        $model->setPropertyValue('withoutType', 1);
-
-        self::assertSame(1, $model->getPropertyValue('withoutType'));
+        self::assertSame(
+            $expected,
+            $model->getPropertyValue($property),
+            'Should assign and return the expected value for each supported property input case.',
+        );
     }
 
-    public function testSetPropertyValueException(): void
+    public function testThrowTypeErrorWhenAssigningInvalidPropertyValue(): void
     {
         $model = new PropertyType();
 
@@ -178,14 +165,14 @@ final class TypeCollectorTest extends TestCase
         $model->setPropertyValue('string', []);
     }
 
-    public function testToArrayWithSnakeCaseForPascalCaseProperty(): void
+    public function testReturnSnakeCaseKeyForPascalCasePropertyWhenConvertingToArray(): void
     {
         $model = new PropertyType();
 
         $model->addProperty('Name', 'string');
         $model->setPropertyValue('Name', 'joe');
 
-        self::assertArrayHasKey('name', $model->toArray(true));
-        self::assertSame('joe', $model->toArray(true)['name']);
+        self::assertArrayHasKey('name', $model->toArray(true), 'Should expose PascalCase properties as snake_case keys.');
+        self::assertSame('joe', $model->toArray(true)['name'], 'Should keep the assigned value for converted snake_case keys.');
     }
 }
