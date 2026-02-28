@@ -28,6 +28,60 @@ use UIAwesome\Model\TypeCollector;
  */
 final class TypeCollectorTest extends TestCase
 {
+    public function testCastNullableIntPropertyWithPhpTypeCast(): void
+    {
+        $typeCollector = new TypeCollector(new PropertyType());
+
+        $castValue = $typeCollector->phpTypeCast('nullable', '2');
+
+        self::assertSame(
+            2,
+            $castValue,
+            'Should resolve nullable int property to the non-null member type for casting.',
+        );
+        self::assertIsInt(
+            $castValue,
+            'Should return int runtime type when nullable int property receives numeric string.',
+        );
+    }
+
+    public function testCastPrimitiveValuesWithPhpTypeCast(): void
+    {
+        $typeCollector = new TypeCollector(new PropertyType());
+
+        self::assertFalse(
+            $typeCollector->phpTypeCast('bool', 0),
+            'Should cast numeric zero to false for bool properties.',
+        );
+
+        $floatValue = $typeCollector->phpTypeCast('float', '1.5');
+        self::assertSame(
+            1.5,
+            $floatValue,
+            'Should cast numeric strings to float for float properties.',
+        );
+        self::assertIsFloat(
+            $floatValue,
+            'Should preserve float runtime type after casting.',
+        );
+
+        $intValue = $typeCollector->phpTypeCast('int', '2');
+        self::assertSame(
+            2,
+            $intValue,
+            'Should cast numeric strings to int for int properties.',
+        );
+        self::assertIsInt(
+            $intValue,
+            'Should preserve int runtime type after casting.',
+        );
+
+        self::assertSame(
+            '10',
+            $typeCollector->phpTypeCast('string', 10),
+            'Should cast scalar values to string for string properties.',
+        );
+    }
     public function testCastStringableObjectToStringProperty(): void
     {
         $model = new PropertyType();

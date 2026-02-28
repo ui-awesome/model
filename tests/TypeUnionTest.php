@@ -80,11 +80,11 @@ final class TypeUnionTest extends TestCase
     {
         $this->expectException(TypeError::class);
         $this->expectExceptionMessage(
-            'Cannot assign float to property UIAwesome\Model\Tests\Support\Model\UnionType::$union of type object|string|int|bool|null',
+            'Cannot assign array to property UIAwesome\Model\Tests\Support\Model\UnionType::$union of type object|string|int|bool|null',
         );
 
         $model = new UnionType();
 
-        $model->setPropertyValue('union', 1.1);
+        $model->setPropertyValue('union', []);
     }
 }

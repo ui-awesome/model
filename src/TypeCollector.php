@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
-use Closure;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -76,7 +75,7 @@ final class TypeCollector
      *
      * @phpstan-param list<string>|string $type
      */
-    public function addProperty(string $property, string|array $type): void
+    public function addProperty(string $property, array|string $type): void
     {
         $this->properties[$property] = $type;
     }
@@ -488,14 +487,7 @@ final class TypeCollector
         }
 
         if ($this->hasDeclaredProperty($property)) {
-            $getter = static function (ModelInterface $class, string $property): mixed {
-                /** @phpstan-ignore-next-line */
-                return $class->$property;
-            };
-
-            $getter = Closure::bind($getter, null, $this->model);
-
-            return $getter($this->model, $property);
+            return $this->reflection->getProperty($property)->getValue($this->model);
         }
 
         return $this->dynamicValues[$property] ?? null;
@@ -614,7 +606,7 @@ final class TypeCollector
     /**
      * Writes a value to a property, supporting both declared and dynamic properties.
      *
-     * This method checks if the property is declared in the class. If it is, it uses a closure to set the value
+     * This method checks if the property is declared in the class. If it is, it uses reflection to set the value
      * directly on the model instance.
      * - If the property is not declared, it stores the value in the `$dynamicValues` array.
      *
@@ -626,14 +618,7 @@ final class TypeCollector
         if ($this->hasDeclaredProperty($property) === false) {
             $this->dynamicValues[$property] = $value;
         } else {
-            $setter = static function (ModelInterface $class, string $property, mixed $value): void {
-                /** @phpstan-ignore-next-line */
-                $class->$property = $value;
-            };
-
-            $setter = Closure::bind($setter, null, $this->model);
-
-            $setter($this->model, $property, $value);
+            $this->reflection->getProperty($property)->setValue($this->model, $value);
         }
     }
 }
