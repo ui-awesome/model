@@ -13,8 +13,8 @@ use UIAwesome\Model\Tests\Support\Model\{Dynamic, DynamicNested};
  *
  * Test coverage.
  * - Adds dynamic properties and returns synchronized property names and type metadata.
- * - Loads values into dynamic models for flat and nested dynamic paths.
  * - Initializes timestamp dynamic properties during model loading.
+ * - Loads values into dynamic models for flat and nested dynamic paths.
  * - Throws invalid argument exceptions when reading unknown dynamic property paths.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
@@ -73,7 +73,6 @@ final class DynamicModelTest extends TestCase
             $model->getProperties(),
             'Should return nested dynamic property paths in insertion order.',
         );
-
         self::assertSame(
             [
                 'name' => 'string',
@@ -105,8 +104,16 @@ final class DynamicModelTest extends TestCase
 
         $model->load($data, 'Dynamic');
 
-        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should keep loaded string values for dynamic properties.');
-        self::assertSame(30, $model->getPropertyValue('age'), 'Should keep loaded integer values for dynamic properties.');
+        self::assertSame(
+            'John Doe',
+            $model->getPropertyValue('name'),
+            'Should keep loaded string values for dynamic properties.',
+        );
+        self::assertSame(
+            30,
+            $model->getPropertyValue('age'),
+            'Should keep loaded integer values for dynamic properties.',
+        );
         self::assertSame(
             'test@example.com',
             $model->getPropertyValue('email'),
@@ -144,16 +151,36 @@ final class DynamicModelTest extends TestCase
 
         $model->load($data, 'DynamicNested');
 
-        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should load top-level dynamic name values.');
-        self::assertSame(30, $model->getPropertyValue('age'), 'Should load top-level dynamic age values.');
+        self::assertSame(
+            'John Doe',
+            $model->getPropertyValue('name'),
+            'Should load top-level dynamic name values.',
+        );
+        self::assertSame(
+            30,
+            $model->getPropertyValue('age'),
+            'Should load top-level dynamic age values.',
+        );
         self::assertSame(
             'test@example.com',
             $model->getPropertyValue('email'),
             'Should load top-level dynamic email values.',
         );
-        self::assertSame('New York', $model->getPropertyValue('dynamic.city'), 'Should load nested city values.');
-        self::assertSame('NY', $model->getPropertyValue('dynamic.state'), 'Should load nested state values.');
-        self::assertSame('10001', $model->getPropertyValue('dynamic.zip'), 'Should load nested ZIP values.');
+        self::assertSame(
+            'New York',
+            $model->getPropertyValue('dynamic.city'),
+            'Should load nested city values.',
+        );
+        self::assertSame(
+            'NY',
+            $model->getPropertyValue('dynamic.state'),
+            'Should load nested state values.',
+        );
+        self::assertSame(
+            '10001',
+            $model->getPropertyValue('dynamic.zip'),
+            'Should load nested ZIP values.',
+        );
         self::assertTrue(
             $model->getPropertyValue('dynamic.createdAt') > 0,
             'Should initialize nested timestamp properties with a positive integer value.',
@@ -176,9 +203,21 @@ final class DynamicModelTest extends TestCase
 
         $model->load($data, 'Dynamic');
 
-        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should load the dynamic name property value.');
-        self::assertSame(30, $model->getPropertyValue('age'), 'Should load the dynamic age property value.');
-        self::assertSame('test@example.com', $model->getPropertyValue('email'), 'Should load the dynamic email property value.');
+        self::assertSame(
+            'John Doe',
+            $model->getPropertyValue('name'),
+            'Should load the dynamic name property value.',
+        );
+        self::assertSame(
+            30,
+            $model->getPropertyValue('age'),
+            'Should load the dynamic age property value.',
+        );
+        self::assertSame(
+            'test@example.com',
+            $model->getPropertyValue('email'),
+            'Should load the dynamic email property value.',
+        );
     }
 
     public function testThrowInvalidArgumentExceptionWhenReadingUnknownDynamicPropertyPath(): void

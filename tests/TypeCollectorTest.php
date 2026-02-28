@@ -7,13 +7,9 @@ namespace UIAwesome\Model\Tests;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use TypeError;
-use UIAwesome\Model\{
-    Tests\Provider\TypeCollectorProvider,
-    Tests\Support\Model\Address,
-    Tests\Support\Model\Country,
-    Tests\Support\Model\PropertyType,
-    TypeCollector
-};
+use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, PropertyType};
+use UIAwesome\Model\TypeCollector;
 
 /**
  * Unit tests for property collection and runtime type casting via {@see TypeCollector}.
@@ -42,9 +38,14 @@ final class TypeCollectorTest extends TestCase
                 return 'joe doe';
             }
         };
+
         $model->setPropertyValue('string', $objectStringable);
 
-        self::assertSame('joe doe', $model->getPropertyValue('string'), 'Should cast stringable objects to string properties.');
+        self::assertSame(
+            'joe doe',
+            $model->getPropertyValue('string'),
+            'Should cast stringable objects to string properties.',
+        );
     }
 
     public function testCastValueToDeclaredPhpType(): void
@@ -54,9 +55,18 @@ final class TypeCollectorTest extends TestCase
         $model->setPropertyValue('string', 1.1);
         $model->setPropertyValue('float', '1.1');
 
-        self::assertSame('1.1', $model->getPropertyValue('string'), 'Should cast numeric values assigned to string properties.');
-        self::assertSame(1.1, $model->getPropertyValue('float'), 'Should cast numeric strings assigned to float properties.');
+        self::assertSame(
+            '1.1',
+            $model->getPropertyValue('string'),
+            'Should cast numeric values assigned to string properties.',
+        );
+        self::assertSame(
+            1.1,
+            $model->getPropertyValue('float'),
+            'Should cast numeric strings assigned to float properties.',
+        );
     }
+
     public function testReturnCollectedPropertyNames(): void
     {
         $model = new PropertyType();
@@ -115,8 +125,14 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new Address(new Country());
 
-        self::assertFalse($model->hasProperty('nonexistent.any'), 'Should return false when the root nested segment is missing.');
-        self::assertFalse($model->hasProperty('city.any'), 'Should return false when a scalar property is used as a nested branch.');
+        self::assertFalse(
+            $model->hasProperty('nonexistent.any'),
+            'Should return false when the root nested segment is missing.',
+        );
+        self::assertFalse(
+            $model->hasProperty('city.any'),
+            'Should return false when a scalar property is used as a nested branch.',
+        );
         self::assertFalse(
             $model->hasProperty('country.nonexistent'),
             'Should return false when a nested property segment does not exist.',
@@ -127,7 +143,10 @@ final class TypeCollectorTest extends TestCase
     {
         $typeCollector = new TypeCollector(new PropertyType());
 
-        self::assertNull($typeCollector->phpTypeCast('noExist', 1), 'Should return null when a property does not exist.');
+        self::assertNull(
+            $typeCollector->phpTypeCast('noExist', 1),
+            'Should return null when a property does not exist.',
+        );
     }
 
     public function testReturnSnakeCaseKeyForPascalCasePropertyWhenConvertingToArray(): void
@@ -137,16 +156,30 @@ final class TypeCollectorTest extends TestCase
         $model->addProperty('Name', 'string');
         $model->setPropertyValue('Name', 'joe');
 
-        self::assertArrayHasKey('name', $model->toArray(true), 'Should expose PascalCase properties as snake_case keys.');
-        self::assertSame('joe', $model->toArray(true)['name'], 'Should keep the assigned value for converted snake_case keys.');
+        self::assertArrayHasKey(
+            'name',
+            $model->toArray(true),
+            'Should expose PascalCase properties as snake_case keys.',
+        );
+        self::assertSame(
+            'joe',
+            $model->toArray(true)['name'],
+            'Should keep the assigned value for converted snake_case keys.',
+        );
     }
 
     public function testReturnTrueWhenPropertyPathExists(): void
     {
         $model = new Address(new Country());
 
-        self::assertTrue($model->hasProperty('city'), 'Should return true for an existing flat property.');
-        self::assertTrue($model->hasProperty('country.name'), 'Should return true for an existing nested property path.');
+        self::assertTrue(
+            $model->hasProperty('city'),
+            'Should return true for an existing flat property.',
+        );
+        self::assertTrue(
+            $model->hasProperty('country.name'),
+            'Should return true for an existing nested property path.',
+        );
     }
 
     #[DataProviderExternal(TypeCollectorProvider::class, 'setPropertyValueCases')]

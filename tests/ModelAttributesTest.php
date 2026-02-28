@@ -42,10 +42,24 @@ final class ModelAttributesTest extends TestCase
         $createdAtTimestamp = $model->getPropertyValue('createdAt');
         $updatedAtTimestamp = $model->getPropertyValue('updatedAt');
 
-        self::assertIsInt($createdAtTimestamp, 'Should set createdAt as an integer timestamp.');
-        self::assertIsInt($updatedAtTimestamp, 'Should set updatedAt as an integer timestamp.');
-        self::assertGreaterThan(0, $createdAtTimestamp, 'Should set createdAt to a positive timestamp value.');
-        self::assertGreaterThan(0, $updatedAtTimestamp, 'Should set updatedAt to a positive timestamp value.');
+        self::assertIsInt(
+            $createdAtTimestamp,
+            'Should set createdAt as an integer timestamp.',
+        );
+        self::assertIsInt(
+            $updatedAtTimestamp,
+            'Should set updatedAt as an integer timestamp.',
+        );
+        self::assertGreaterThan(
+            0,
+            $createdAtTimestamp,
+            'Should set createdAt to a positive timestamp value.',
+        );
+        self::assertGreaterThan(
+            0,
+            $updatedAtTimestamp,
+            'Should set updatedAt to a positive timestamp value.',
+        );
         self::assertSame(
             $createdAtTimestamp,
             $model->getPropertyValue('createdAt'),
@@ -58,13 +72,23 @@ final class ModelAttributesTest extends TestCase
         );
 
         $createdAt = new DateTime();
+
         $createdAt->setTimestamp($createdAtTimestamp);
 
-        self::assertInstanceOf(DateTime::class, $createdAt, 'Should allow converting createdAt timestamp to DateTime.');
+        self::assertInstanceOf(
+            DateTime::class,
+            $createdAt,
+            'Should allow converting createdAt timestamp to DateTime.',
+        );
 
         $updatedAt = new DateTime();
+
         $updatedAt->setTimestamp($updatedAtTimestamp);
 
-        self::assertInstanceOf(DateTime::class, $updatedAt, 'Should allow converting updatedAt timestamp to DateTime.');
+        self::assertInstanceOf(
+            DateTime::class,
+            $updatedAt,
+            'Should allow converting updatedAt timestamp to DateTime.',
+        );
     }
 }

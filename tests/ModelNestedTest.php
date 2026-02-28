@@ -29,16 +29,22 @@ final class ModelNestedTest extends TestCase
     {
         $model = new Address(new Country());
 
-        self::assertEmpty($model->getPropertyValue('country.name'), 'Should start with an empty nested property value.');
+        self::assertEmpty(
+            $model->getPropertyValue('country.name'),
+            'Should start with an empty nested property value.',
+        );
 
-        $data = [
-            'Address' => [
-                'country.name' => 'Russia',
-            ],
-        ];
+        $data = ['Address' => ['country.name' => 'Russia']];
 
-        self::assertTrue($model->load($data), 'Should load nested properties from scoped payload data.');
-        self::assertSame('Russia', $model->getPropertyValue('country.name'), 'Should set the loaded nested property value.');
+        self::assertTrue(
+            $model->load($data),
+            'Should load nested properties from scoped payload data.',
+        );
+        self::assertSame(
+            'Russia',
+            $model->getPropertyValue('country.name'),
+            'Should set the loaded nested property value.',
+        );
     }
 
     #[DataProviderExternal(ModelNestedProvider::class, 'nestedPropertyValues')]
@@ -56,7 +62,10 @@ final class ModelNestedTest extends TestCase
             ],
         ];
 
-        self::assertTrue($user->load($data), 'Should load all provided nested paths in a single operation.');
+        self::assertTrue(
+            $user->load($data),
+            'Should load all provided nested paths in a single operation.',
+        );
         self::assertSame(
             $expectedValue,
             $user->getPropertyValue($property),

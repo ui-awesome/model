@@ -43,7 +43,15 @@ final class TypeUnionTest extends TestCase
         $model = new UnionType();
 
         self::assertSame(
-            ['union' => ['object', 'string', 'int', 'bool', 'null']],
+            [
+                'union' => [
+                    'object',
+                    'string',
+                    'int',
+                    'bool',
+                    'null',
+                ],
+            ],
             $model->getPropertyTypes(),
             'Should return the declared union member types for the property.',
         );
@@ -56,7 +64,11 @@ final class TypeUnionTest extends TestCase
 
         $model->setPropertyValue('union', $value);
 
-        self::assertSame($expected, $model->getPropertyValue('union'), 'Should preserve the assigned value for each union member type.');
+        self::assertSame(
+            $expected,
+            $model->getPropertyValue('union'),
+            'Should preserve the assigned value for each union member type.',
+        );
         self::assertSame(
             $expectedType,
             get_debug_type($model->getPropertyValue('union')),
@@ -71,6 +83,7 @@ final class TypeUnionTest extends TestCase
         );
 
         $model = new UnionType();
+
         $model->setPropertyValue('union', 1.1);
     }
 }
