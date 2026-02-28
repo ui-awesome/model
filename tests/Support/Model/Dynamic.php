@@ -6,4 +6,4 @@ namespace UIAwesome\Model\Tests\Support\Model;
 
 use UIAwesome\Model\AbstractModel;
 
-final class Dinamic extends AbstractModel {}
+final class Dynamic extends AbstractModel {}

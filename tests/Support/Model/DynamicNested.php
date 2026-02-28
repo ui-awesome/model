@@ -6,7 +6,7 @@ namespace UIAwesome\Model\Tests\Support\Model;
 
 use UIAwesome\Model\AbstractModel;
 
-final class DinamicNested extends AbstractModel
+final class DynamicNested extends AbstractModel
 {
-    public function __construct(private Dinamic $dinamic) {}
+    public function __construct(private readonly Dynamic $dynamic) {}
 }

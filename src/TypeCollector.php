@@ -10,27 +10,42 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
+use UIAwesome\Model\Attribute\{DoNotCollect, Timestamp};
 
 use function array_key_exists;
+use function array_key_last;
 use function array_keys;
+use function array_values;
 use function array_slice;
+use function array_filter;
 use function count;
 use function explode;
-use function get_class;
 use function implode;
 use function in_array;
+use function is_a;
 use function is_array;
+use function is_object;
+use function is_scalar;
+use function method_exists;
 use function str_contains;
 
 final class TypeCollector
 {
     /**
-     * @psalm-var array<string, list<string>|string>
+     * @phpstan-var mixed[]
+     */
+    private array $dynamicValues = [];
+    /**
+     * @phpstan-var array<string, list<string>|string>
      */
     private array $properties = [];
 
+    /** @var ReflectionClass<ModelInterface> */
+    private ReflectionClass $reflection;
+
     public function __construct(private readonly ModelInterface $model)
     {
+        $this->reflection = new ReflectionClass($this->model);
         $this->properties = $this->collectProperties();
     }
 
@@ -40,7 +55,7 @@ final class TypeCollector
      * @param string $property The name of the property.
      * @param array|string $type The type of the property.
      *
-     * @psalm-param list<string>|string $type
+     * @phpstan-param list<string>|string $type
      */
     public function addProperty(string $property, string|array $type): void
     {
@@ -50,9 +65,9 @@ final class TypeCollector
     /**
      * @return array The list of properties types indexed by property name.
      *
-     * @psalm-return array<string, list<string>|string>
+     * @phpstan-return array<string, list<string>|string>
      */
-    public function getProperties(): array
+    public function getPropertyTypes(): array
     {
         return $this->properties;
     }
@@ -60,10 +75,6 @@ final class TypeCollector
     public function getPropertyValue(string $property): mixed
     {
         [$currentProperty, $nestedProperty] = $this->splitProperty($property);
-
-        if ($this->isPropertyType($currentProperty, 'timestamp')) {
-            $this->writeProperty($currentProperty, time());
-        }
 
         $currentPropertyValue = $this->readProperty($currentProperty);
 
@@ -82,12 +93,34 @@ final class TypeCollector
     {
         [$property, $nested] = $this->splitProperty($property);
 
-        return $nested !== null || array_key_exists($property, $this->getProperties());
+        $properties = $this->getPropertyTypes();
+
+        if (!array_key_exists($property, $properties)) {
+            return false;
+        }
+
+        if ($nested === null) {
+            return true;
+        }
+
+        $propertyTypes = $properties[$property];
+
+        if (!is_string($propertyTypes) || $propertyTypes === '' || !is_a($propertyTypes, ModelInterface::class, true)) {
+            return false;
+        }
+
+        $propertyValue = $this->readProperty($property);
+
+        if (!$propertyValue instanceof ModelInterface) {
+            return false;
+        }
+
+        return $propertyValue->hasProperty($nested);
     }
 
     public function isPropertyType(string $property, string $type): bool
     {
-        $propertyTypes = $this->properties[$property] ?? [];
+        $propertyTypes = $this->properties[$property] ?? '';
 
         return is_string($propertyTypes) ? $propertyTypes === $type : in_array($type, $propertyTypes, true);
     }
@@ -114,13 +147,38 @@ final class TypeCollector
             return $value;
         }
 
-        $expectedTypes = $this->properties[$property];
+        $expectedTypes = $this->properties[$property] ?? null;
+
+        if ($expectedTypes === null) {
+            return null;
+        }
 
         if (is_array($expectedTypes)) {
-            return $value;
+            $typeForCasting = $this->resolveTypeForCasting($expectedTypes);
+
+            return $typeForCasting === null ? $value : $this->performTypeCasting($typeForCasting, $value);
         }
 
         return $this->performTypeCasting($expectedTypes, $value);
+    }
+
+    /**
+     * @phpstan-param mixed[] $data
+     * @phpstan-param mixed[] $exceptProperties Camel-case property names to exclude.
+     */
+    public function setProperties(array $data, array $exceptProperties = []): void
+    {
+        foreach ($data as $property => $value) {
+            if (is_string($property)) {
+                $camelCaseName = $this->snakeCaseToCamelCase($property);
+
+                if (in_array($camelCaseName, $exceptProperties, true)) {
+                    continue;
+                }
+
+                $this->setPropertyValue($camelCaseName, $value);
+            }
+        }
     }
 
     public function setPropertyValue(string $property, mixed $value): void
@@ -133,17 +191,18 @@ final class TypeCollector
         $propertyCount = count($properties);
 
         if ($propertyCount === 1) {
-            /** @psalm-var mixed $valueTypeCast */
             $valueTypeCast = $this->phpTypeCast($property, $value);
             $this->writeProperty($property, $valueTypeCast);
+            $this->initializeTimestampProperties();
 
             return;
         }
 
-        $lastProperty = $properties[$propertyCount - 1];
-        $nestedProperty = array_slice($properties, 0, $propertyCount - 1);
+        /** @var int<0, max> $lastPropertyKey */
+        $lastPropertyKey = array_key_last($properties);
+        $lastProperty = $properties[$lastPropertyKey];
 
-        /** @psalm-var mixed $nestedValue */
+        $nestedProperty = array_slice($properties, 0, $propertyCount - 1);
         $nestedValue = $this->model->getPropertyValue(implode('.', $nestedProperty));
 
         if ($nestedValue instanceof ModelInterface) {
@@ -151,29 +210,19 @@ final class TypeCollector
         }
     }
 
-    public function setPropertiesValues(array $data, array $exceptPropierties = []): void
+    /**
+     * @phpstan-param mixed[] $exceptProperties
+     *
+     * @phpstan-return array<string, mixed>
+     */
+    public function toArray(bool $snakeCase, array $exceptProperties = []): array
     {
-        /**
-         * @psalm-var array<string, mixed> $data
-         * @psalm-var mixed $value
-         */
-        foreach ($data as $property => $value) {
-            if (!in_array($property, $exceptPropierties, true)) {
-                $camelCaseName = $this->snakeCaseToCamelCase($property);
-
-                $this->setPropertyValue($camelCaseName, $value);
-            }
-        }
-    }
-
-    public function toArray(bool $snakeCase, array $exceptPropierties = []): array
-    {
-        /** @psalm-var string[] $properties */
-        $properties = array_keys($this->getProperties());
+        /** @var list<string> $properties */
+        $properties = array_keys($this->getPropertyTypes());
         $result = [];
 
         foreach ($properties as $property) {
-            if (!in_array($property, $exceptPropierties, true)) {
+            if (!in_array($property, $exceptProperties, true)) {
                 $value = $this->model->getPropertyValue($property);
 
                 if ($snakeCase) {
@@ -194,9 +243,9 @@ final class TypeCollector
      */
     private function camelCaseToSnakeCase(string $value): string
     {
-        $snakeCase = preg_replace('/([A-Z])/', '_$1', $value);
+        $snakeCase = preg_replace('/(?<!^)[A-Z]/', '_$0', $value);
 
-        return strtolower($snakeCase);
+        return strtolower((string) $snakeCase);
     }
 
     /**
@@ -206,14 +255,13 @@ final class TypeCollector
      *
      * @return array The list of property types indexed by property names.
      *
-     * @psalm-return array<string, list<string>|string>
+     * @phpstan-return array<string, list<string>|string>
      */
     private function collectProperties(): array
     {
-        $class = new ReflectionClass($this->model);
         $properties = [];
 
-        foreach ($class->getProperties() as $property) {
+        foreach ($this->reflection->getProperties() as $property) {
             if ($property->isStatic() === false && !$this->hasDoNotCollectAttribute($property)) {
                 /** @var ReflectionNamedType|ReflectionUnionType|null $type */
                 $type = $property->getType();
@@ -223,18 +271,26 @@ final class TypeCollector
                         $typeNames = [];
 
                         foreach ($type->getTypes() as $unionType) {
-                            $typeNames[] = $unionType->getName();
+                            if ($unionType instanceof ReflectionNamedType) {
+                                $typeNames[] = $unionType->getName();
+                            }
                         }
 
                         $properties[$property->getName()] = $typeNames;
                     } else {
-                        $properties[$property->getName()] = $type->getName();
+                        $typeName = $type->getName();
+
+                        if ($type->allowsNull() && $typeName !== 'null') {
+                            $properties[$property->getName()] = [$typeName, 'null'];
+                        } else {
+                            $properties[$property->getName()] = $typeName;
+                        }
                     }
                 } else {
                     $properties[$property->getName()] = '';
                 }
 
-                foreach ($property->getAttributes(Attribute\Timestamp::class) as $ignored) {
+                foreach ($property->getAttributes(Timestamp::class) as $ignored) {
                     $properties[$property->getName()] = 'timestamp';
                 }
             }
@@ -243,10 +299,15 @@ final class TypeCollector
         return $properties;
     }
 
+    private function hasDeclaredProperty(string $property): bool
+    {
+        return $this->reflection->hasProperty($property);
+    }
+
     private function hasDoNotCollectAttribute(ReflectionProperty $property): bool
     {
         foreach ($property->getAttributes() as $attribute) {
-            if ($attribute->getName() === Attribute\DoNotCollect::class) {
+            if ($attribute->getName() === DoNotCollect::class) {
                 return true;
             }
         }
@@ -258,28 +319,46 @@ final class TypeCollector
     {
         return match ($expectedType) {
             'bool' => (bool) $value,
-            'float' => (float) $value,
-            'int' => (int) $value,
-            'string' => (string) $value,
+            'float' => is_numeric($value) ? (float) $value : $value,
+            'int' => is_numeric($value) ? (int) $value : $value,
+            'string' => is_scalar($value) || (is_object($value) && method_exists($value, '__toString')) ? (string) $value : $value,
             default => $value,
         };
     }
 
+    /**
+     * @phpstan-param list<string> $expectedTypes
+     */
+    private function resolveTypeForCasting(array $expectedTypes): string|null
+    {
+        $typesWithoutNull = array_values(array_filter($expectedTypes, static fn (string $type): bool => $type !== 'null'));
+
+        if (count($typesWithoutNull) !== 1) {
+            return null;
+        }
+
+        return $typesWithoutNull[0];
+    }
+
     private function readProperty(string $property): mixed
     {
-        [$property, $nested] = $this->splitProperty($property);
-
-        if ($this->hasProperty($property) === false) {
+        if (!array_key_exists($property, $this->properties)) {
             throw new InvalidArgumentException(
-                'Undefined property: "' . get_class($this->model) . '::' . $property . '".'
+                'Undefined property: "' . $this->model::class . '::' . $property . '".',
             );
         }
 
-        $getter = static fn(ModelInterface $class, string $property): mixed => $class->$property;
-        $getter = Closure::bind($getter, null, $this->model);
+        if ($this->hasDeclaredProperty($property)) {
+            $getter = static function (ModelInterface $class, string $property): mixed {
+                /** @phpstan-ignore-next-line */
+                return $class->$property;
+            };
+            $getter = Closure::bind($getter, null, $this->model);
 
-        /** @psalm-var Closure $getter */
-        return $getter($this->model, $property, $nested);
+            return $getter($this->model, $property);
+        }
+
+        return $this->dynamicValues[$property] ?? null;
     }
 
     /**
@@ -310,7 +389,7 @@ final class TypeCollector
     }
 
     /**
-     * @psalm-return list{0: string, 1: null|string}
+     * @phpstan-return list{0: string, 1: null|string}
      */
     private function splitProperty(string $property): array
     {
@@ -325,14 +404,43 @@ final class TypeCollector
 
     private function writeProperty(string $property, mixed $value): void
     {
-        [$property, $nested] = $this->splitProperty($property);
+        [$property, ] = $this->splitProperty($property);
+
+        if ($this->hasDeclaredProperty($property) === false) {
+            $this->dynamicValues[$property] = $value;
+
+            return;
+        }
 
         $setter = static function (ModelInterface $class, string $property, mixed $value): void {
+            /** @phpstan-ignore-next-line */
             $class->$property = $value;
         };
         $setter = Closure::bind($setter, null, $this->model);
 
-        /** @psalm-var Closure $setter */
-        $setter($this->model, $property, $value, $nested);
+        $setter($this->model, $property, $value);
+    }
+
+    private function initializeTimestampProperties(): void
+    {
+        foreach ($this->properties as $property => $type) {
+            if (!$this->containsTimestampType($type)) {
+                continue;
+            }
+
+            $currentValue = $this->readProperty($property);
+
+            if ($currentValue === null || $currentValue === 0) {
+                $this->writeProperty($property, time());
+            }
+        }
+    }
+
+    /**
+     * @phpstan-param list<string>|string $type
+     */
+    private function containsTimestampType(string|array $type): bool
+    {
+        return is_string($type) ? $type === 'timestamp' : in_array('timestamp', $type, true);
     }
 }

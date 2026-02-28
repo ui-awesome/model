@@ -10,11 +10,11 @@ use UIAwesome\Model\Attribute\Timestamp;
 
 final class Attributes extends AbstractModel
 {
-    private string $name = '';
     #[Timestamp]
     private int $createdAt = 0;
     #[DoNotCollect]
     private string $flag = '';
+    private string $name = '';
     #[Timestamp]
     private int $updatedAt = 0;
 }

@@ -8,8 +8,8 @@ use UIAwesome\Model\AbstractModel;
 
 final class Address extends AbstractModel
 {
-    public string $street = '';
     public string $city = '';
+    public string $street = '';
 
     public function __construct(public readonly Country $country) {}
 }

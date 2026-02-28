@@ -5,33 +5,40 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests;
 
 use DateTime;
+use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Tests\Support\Model\Attributes;
 
-/**
- * @psalm-suppress PropertyNotSetInConstructor
- */
-final class ModelAttributesTest extends \PHPUnit\Framework\TestCase
+final class ModelAttributesTest extends TestCase
 {
     public function testAttributes(): void
     {
         $model = new Attributes();
 
-        $this->assertSame(
-            ['name' => 'string', 'createdAt' => 'timestamp', 'updatedAt' => 'timestamp'],
-            $model->getPropertiesTypes()
+        self::assertSame(
+            [
+                'createdAt' => 'timestamp',
+                'name' => 'string',
+                'updatedAt' => 'timestamp',
+            ],
+            $model->getPropertyTypes(),
         );
-        $this->assertTrue($model->load(['Attributes' => ['name' => 'samdark']]));
-        $this->assertTrue($model->getPropertyValue('createdAt') > 0);
-        $this->assertTrue($model->getPropertyValue('updatedAt') > 0);
+        self::assertTrue($model->load(['Attributes' => ['name' => 'samdark']]));
+        $createdAtTimestamp = $model->getPropertyValue('createdAt');
+        $updatedAtTimestamp = $model->getPropertyValue('updatedAt');
+
+        self::assertTrue($createdAtTimestamp > 0);
+        self::assertTrue($updatedAtTimestamp > 0);
+        self::assertSame($createdAtTimestamp, $model->getPropertyValue('createdAt'));
+        self::assertSame($updatedAtTimestamp, $model->getPropertyValue('updatedAt'));
 
         $createdAt = new DateTime();
-        $createdAt->setTimestamp($model->getPropertyValue('createdAt'));
+        $createdAt->setTimestamp($createdAtTimestamp);
 
-        $this->assertInstanceOf(DateTime::class, $createdAt);
+        self::assertInstanceOf(DateTime::class, $createdAt);
 
         $updatedAt = new DateTime();
-        $updatedAt->setTimestamp($model->getPropertyValue('updatedAt'));
+        $updatedAt->setTimestamp($updatedAtTimestamp);
 
-        $this->assertInstanceOf(DateTime::class, $updatedAt);
+        self::assertInstanceOf(DateTime::class, $updatedAt);
     }
 }

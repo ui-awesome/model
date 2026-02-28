@@ -4,19 +4,18 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
+use PHPUnit\Framework\TestCase;
 use stdClass;
+use TypeError;
 use UIAwesome\Model\Tests\Support\Model\UnionType;
 
-/**
- * @psalm-suppress PropertyNotSetInConstructor
- */
-final class TypeUnionTest extends \PHPUnit\Framework\TestCase
+final class TypeUnionTest extends TestCase
 {
     public function testException(): void
     {
-        $this->expectException(\TypeError::class);
+        $this->expectException(TypeError::class);
         $this->expectExceptionMessage(
-            'Cannot assign float to property UIAwesome\Model\Tests\Support\Model\UnionType::$union of type object|string|int|bool|null'
+            'Cannot assign float to property UIAwesome\Model\Tests\Support\Model\UnionType::$union of type object|string|int|bool|null',
         );
 
         $model = new UnionType();
@@ -27,22 +26,22 @@ final class TypeUnionTest extends \PHPUnit\Framework\TestCase
     {
         $model = new UnionType();
 
-        $this->assertSame(
+        self::assertSame(
             ['union' => ['object', 'string', 'int', 'bool', 'null']],
-            $model->getPropertiesTypes()
+            $model->getPropertyTypes(),
         );
     }
 
-    public function testIsPropertyType(): void
+    public function testisPropertyType(): void
     {
         $model = new UnionType();
 
-        $this->assertFalse($model->isPropertyType('union', 'datetime'));
-        $this->assertTrue($model->isPropertyType('union', 'object'));
-        $this->assertTrue($model->isPropertyType('union', 'string'));
-        $this->assertTrue($model->isPropertyType('union', 'int'));
-        $this->assertTrue($model->isPropertyType('union', 'bool'));
-        $this->assertTrue($model->isPropertyType('union', 'null'));
+        self::assertFalse($model->isPropertyType('union', 'datetime'));
+        self::assertTrue($model->isPropertyType('union', 'object'));
+        self::assertTrue($model->isPropertyType('union', 'string'));
+        self::assertTrue($model->isPropertyType('union', 'int'));
+        self::assertTrue($model->isPropertyType('union', 'bool'));
+        self::assertTrue($model->isPropertyType('union', 'null'));
     }
 
     public function testPhpTypeCast(): void
@@ -52,22 +51,22 @@ final class TypeUnionTest extends \PHPUnit\Framework\TestCase
 
         $model->setPropertyValue('union', 1);
 
-        $this->assertSame(1, $model->getPropertyValue('union'));
+        self::assertSame(1, $model->getPropertyValue('union'));
 
         $model->setPropertyValue('union', '1');
 
-        $this->assertSame('1', $model->getPropertyValue('union'));
+        self::assertSame('1', $model->getPropertyValue('union'));
 
         $model->setPropertyValue('union', true);
 
-        $this->assertSame(true, $model->getPropertyValue('union'));
+        self::assertSame(true, $model->getPropertyValue('union'));
 
         $model->setPropertyValue('union', $object);
 
-        $this->assertSame($object, $model->getPropertyValue('union'));
+        self::assertSame($object, $model->getPropertyValue('union'));
 
         $model->setPropertyValue('union', null);
 
-        $this->assertSame(null, $model->getPropertyValue('union'));
+        self::assertSame(null, $model->getPropertyValue('union'));
     }
 }
