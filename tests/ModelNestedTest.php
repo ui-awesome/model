@@ -85,6 +85,7 @@ final class ModelNestedTest extends TestCase
         self::assertSame('Voronezh', $user->getPropertyValue('profile.address.city'));
         self::assertSame('Russia', $user->getPropertyValue('profile.address.country.name'));
     }
+
     public function testProperties(): void
     {
         $user = new User(new Profile(new Address(new Country())));
