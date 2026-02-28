@@ -17,6 +17,13 @@ use function sprintf;
 enum Message: string
 {
     /**
+     * Indicates attempts to overwrite an initialized readonly property.
+     *
+     * Format: "Cannot overwrite initialized readonly property: '%s::%s'."
+     */
+    case READONLY_PROPERTY_ALREADY_INITIALIZED = "Cannot overwrite initialized readonly property: '%s::%s'.";
+
+    /**
      * Indicates an undefined property without model class context.
      *
      * Format: "Undefined property: '%s'."
@@ -29,13 +36,6 @@ enum Message: string
      * Format: "Undefined property: '%s::%s'."
      */
     case UNDEFINED_PROPERTY_WITH_CLASS = "Undefined property: '%s::%s'.";
-
-    /**
-     * Indicates attempts to overwrite an initialized readonly property.
-     *
-     * Format: "Cannot overwrite initialized readonly property: '%s::%s'."
-     */
-    case READONLY_PROPERTY_ALREADY_INITIALIZED = "Cannot overwrite initialized readonly property: '%s::%s'.";
 
     /**
      * Returns the formatted message string for the error case.
