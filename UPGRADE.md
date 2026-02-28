@@ -11,6 +11,7 @@
 - Nullable declared properties now expose type metadata including `null` (for example `int|null` is now `['int', 'null']`).
 - `setProperties($data, $exceptProperties)` now matches exclusions using camelCase property names.
 - `getPropertyValue()` no longer mutates timestamp properties while reading.
+- `load()` now uses the same key normalization as `setProperties()`, mapping snake_case payload keys to camelCase model properties.
 
 ### Migration steps
 
@@ -20,6 +21,7 @@
 - Replace all calls to `getPropertiesTypes()` with `getPropertyTypes()`.
 - If your code asserts exact output from `getPropertyTypes()`, update expectations for nullable properties to include `'null'`.
 - Update `setProperties()` exclusions to camelCase names, e.g. `publicEmailPersonal` instead of `public_email_personal`.
+- Review `load()` payload keys if your models intentionally use underscored property names, because snake_case keys are now normalized to camelCase during assignment.
 
 ```php
 <?php
@@ -43,4 +45,9 @@ $model->toArray(exceptProperties: ['pathAvatar']);
 $types = $model->getPropertyTypes();
 
 $model->setProperties($data, ['publicEmailPersonal']);
+
+$model->load(['Profile' => ['publicEmailPersonal' => 'admin@example.com']]);
+
+// snake_case now also works in load()
+$model->load(['Profile' => ['public_email_personal' => 'admin@example.com']]);
 ```

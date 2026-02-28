@@ -109,4 +109,30 @@ final class ModelAttributesTest extends TestCase
             'Should allow converting updatedAt timestamp to DateTime.',
         );
     }
+
+    public function testLoadInitializesTimestampPropertiesWhenPayloadContainsMultipleEntries(): void
+    {
+        $model = new Attributes();
+
+        self::assertTrue(
+            $model->load([
+                'Attributes' => [
+                    'name' => 'samdark',
+                    'createdAt' => 0,
+                ],
+            ]),
+            'Should report successful loading when scoped payload contains multiple entries.',
+        );
+
+        self::assertGreaterThan(
+            0,
+            $model->getPropertyValue('createdAt'),
+            'Should initialize createdAt timestamp when payload provides zero.',
+        );
+        self::assertGreaterThan(
+            0,
+            $model->getPropertyValue('updatedAt'),
+            'Should initialize updatedAt timestamp when loading related payload fields.',
+        );
+    }
 }

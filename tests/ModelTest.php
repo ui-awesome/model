@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
+use ArrayIterator;
 use InvalidArgumentException;
 use NonNamespaced;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
@@ -101,6 +102,30 @@ final class ModelTest extends TestCase
         );
     }
 
+    public function testLoadDataFromTraversablePayloadUsingModelScope(): void
+    {
+        $model = new Country();
+
+        self::assertTrue(
+            $model->load(
+                new ArrayIterator([
+                    'Country' => ['name' => 'Japan'],
+                ]),
+            ),
+            'Should load data from traversable payloads using the model class scope.',
+        );
+        self::assertSame(
+            'Japan',
+            $model->getPropertyValue('name'),
+            'Should set property values from traversable scoped payloads.',
+        );
+        self::assertSame(
+            ['name' => 'Japan'],
+            $model->getData(),
+            'Should preserve scoped payload data snapshot after loading traversable input.',
+        );
+    }
+
     public function testLoadDataIntoModelUsingDefaultScope(): void
     {
         $model = new Country();
@@ -132,6 +157,32 @@ final class ModelTest extends TestCase
             'samdark',
             $model->name,
             'Should set the loaded value on the public property.',
+        );
+    }
+
+    public function testLoadUsingSnakeCaseInputMappedToCamelCase(): void
+    {
+        $model = new Profile(new Address(new Country()));
+
+        self::assertTrue(
+            $model->load([
+                'Profile' => [
+                    'bio' => 'bio',
+                    'public_email_personal' => 'admin@example.com',
+                ],
+            ]),
+            'Should load scoped payload using snake_case keys.',
+        );
+
+        self::assertSame(
+            'bio',
+            $model->getPropertyValue('bio'),
+            'Should set direct property values from scoped payload.',
+        );
+        self::assertSame(
+            'admin@example.com',
+            $model->getPropertyValue('publicEmailPersonal'),
+            'Should map snake_case input keys to camelCase properties during load.',
         );
     }
 

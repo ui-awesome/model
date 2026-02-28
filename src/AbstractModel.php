@@ -113,9 +113,7 @@ abstract class AbstractModel implements ModelInterface
             false => $sourceData,
         };
 
-        foreach ($rawData as $property => $value) {
-            $this->setPropertyValue($property, $value);
-        }
+        $this->setProperties($rawData);
 
         $this->data = $rawData;
 
