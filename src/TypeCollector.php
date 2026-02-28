@@ -11,6 +11,7 @@ use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
 use UIAwesome\Model\Attribute\{DoNotCollect, Timestamp};
+use UIAwesome\Model\Exception\Message;
 
 use function array_filter;
 use function array_key_exists;
@@ -319,7 +320,8 @@ final class TypeCollector
             'bool' => (bool) $value,
             'float' => is_numeric($value) ? (float) $value : $value,
             'int' => is_numeric($value) ? (int) $value : $value,
-            'string' => is_scalar($value) || (is_object($value) && method_exists($value, '__toString')) ? (string) $value : $value,
+            'string' => is_scalar($value) || (is_object($value) && method_exists($value, '__toString'))
+                ? (string) $value : $value,
             default => $value,
         };
     }
@@ -328,7 +330,10 @@ final class TypeCollector
     {
         if (!array_key_exists($property, $this->properties)) {
             throw new InvalidArgumentException(
-                'Undefined property: "' . $this->model::class . '::' . $property . '".',
+                Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage(
+                    $this->model::class,
+                    $property,
+                ),
             );
         }
 
@@ -337,6 +342,7 @@ final class TypeCollector
                 /** @phpstan-ignore-next-line */
                 return $class->$property;
             };
+
             $getter = Closure::bind($getter, null, $this->model);
 
             return $getter($this->model, $property);
@@ -364,7 +370,9 @@ final class TypeCollector
         mixed $value,
     ): void {
         if ($this->hasProperty($property) === false) {
-            throw new InvalidArgumentException("Undefined property: \"$property\".");
+            throw new InvalidArgumentException(
+                Message::UNDEFINED_PROPERTY->getMessage($property),
+            );
         }
 
         $properties = explode('.', $property);
@@ -435,6 +443,7 @@ final class TypeCollector
                 /** @phpstan-ignore-next-line */
                 $class->$property = $value;
             };
+
             $setter = Closure::bind($setter, null, $this->model);
 
             $setter($this->model, $property, $value);

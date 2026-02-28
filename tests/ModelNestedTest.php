@@ -7,6 +7,7 @@ namespace UIAwesome\Model\Tests;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
+use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\ModelNestedProvider;
 use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
 
@@ -149,7 +150,12 @@ final class ModelNestedTest extends TestCase
         $user = new User(new Profile(new Address(new Country())));
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\User::address".');
+        $this->expectExceptionMessage(
+            Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage(
+                User::class,
+                'address',
+            ),
+        );
 
         $user->getPropertyValue('address.nestedAttribute');
     }
@@ -159,7 +165,12 @@ final class ModelNestedTest extends TestCase
         $model = new Address(new Country());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Address::profile".');
+        $this->expectExceptionMessage(
+            Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage(
+                Address::class,
+                'profile',
+            ),
+        );
 
         $model->getPropertyValue('profile.user');
     }
@@ -169,7 +180,12 @@ final class ModelNestedTest extends TestCase
         $model = new Address(new Country());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Country::noExist".');
+        $this->expectExceptionMessage(
+            Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage(
+                Country::class,
+                'noExist',
+            ),
+        );
 
         $model->getPropertyValue('country.noExist');
     }

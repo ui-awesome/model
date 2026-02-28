@@ -20,6 +20,23 @@ use UIAwesome\Model\Tests\Support\Model\Attributes;
  */
 final class ModelAttributesTest extends TestCase
 {
+    public function testInitializeTimestampPropertiesDuringBulkSetProperties(): void
+    {
+        $model = new Attributes();
+
+        $model->setProperties(['name' => 'samdark']);
+
+        self::assertGreaterThan(
+            0,
+            $model->getPropertyValue('createdAt'),
+            'Should initialize createdAt after bulk property assignment.',
+        );
+        self::assertGreaterThan(
+            0,
+            $model->getPropertyValue('updatedAt'),
+            'Should initialize updatedAt after bulk property assignment.',
+        );
+    }
     public function testLoadAttributesAndInitializeTimestampProperties(): void
     {
         $model = new Attributes();
@@ -89,24 +106,6 @@ final class ModelAttributesTest extends TestCase
             DateTime::class,
             $updatedAt,
             'Should allow converting updatedAt timestamp to DateTime.',
-        );
-    }
-
-    public function testInitializeTimestampPropertiesDuringBulkSetProperties(): void
-    {
-        $model = new Attributes();
-
-        $model->setProperties(['name' => 'samdark']);
-
-        self::assertGreaterThan(
-            0,
-            $model->getPropertyValue('createdAt'),
-            'Should initialize createdAt after bulk property assignment.',
-        );
-        self::assertGreaterThan(
-            0,
-            $model->getPropertyValue('updatedAt'),
-            'Should initialize updatedAt after bulk property assignment.',
         );
     }
 }

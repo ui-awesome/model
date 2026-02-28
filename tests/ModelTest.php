@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\ModelProvider;
 use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, PropertyType};
 
@@ -71,6 +72,32 @@ final class ModelTest extends TestCase
             'string',
             get_debug_type($model->getPropertyValue('string')),
             'Should keep string values as string.',
+        );
+    }
+
+    public function testContinueSettingPropertiesAfterSkippingExcludedEntry(): void
+    {
+        $model = new Profile(new Address(new Country()));
+
+        $model->setProperties(
+            [
+                'public_email_personal' => 'admin@example.com',
+                'bio' => 'bio',
+            ],
+            [
+                'publicEmailPersonal',
+            ],
+        );
+
+        self::assertSame(
+            '',
+            $model->getPropertyValue('publicEmailPersonal'),
+            'Should keep excluded properties unchanged when they appear first in the payload.',
+        );
+        self::assertSame(
+            'bio',
+            $model->getPropertyValue('bio'),
+            'Should continue assigning subsequent non-excluded properties after skipping one entry.',
         );
     }
 
@@ -350,39 +377,16 @@ final class ModelTest extends TestCase
         );
     }
 
-    public function testContinueSettingPropertiesAfterSkippingExcludedEntry(): void
-    {
-        $model = new Profile(new Address(new Country()));
-
-        $model->setProperties(
-            [
-                'public_email_personal' => 'admin@example.com',
-                'bio' => 'bio',
-            ],
-            [
-                'publicEmailPersonal',
-            ],
-        );
-
-        self::assertSame(
-            '',
-            $model->getPropertyValue('publicEmailPersonal'),
-            'Should keep excluded properties unchanged when they appear first in the payload.',
-        );
-        self::assertSame(
-            'bio',
-            $model->getPropertyValue('bio'),
-            'Should continue assigning subsequent non-excluded properties after skipping one entry.',
-        );
-    }
-
     public function testThrowInvalidArgumentExceptionWhenGettingUndefinedPropertyValue(): void
     {
         $model = new PropertyType();
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Undefined property: "UIAwesome\Model\Tests\Support\Model\PropertyType::noExist".',
+            Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage(
+                PropertyType::class,
+                'noExist',
+            ),
         );
 
         $model->getPropertyValue('noExist');
@@ -394,7 +398,9 @@ final class ModelTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Undefined property: "noExist".',
+            Message::UNDEFINED_PROPERTY->getMessage(
+                'noExist',
+            ),
         );
 
         $model->setProperties(['noExist' => []]);

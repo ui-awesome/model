@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UIAwesome\Model;
 
 use InvalidArgumentException;
+use UIAwesome\Model\Exception\Message;
 
 use function class_exists;
 use function is_array;
@@ -98,7 +99,9 @@ abstract class AbstractModel implements ModelInterface
 
         foreach ($rawData as $property => $value) {
             if (!$this->hasProperty($property)) {
-                throw new InvalidArgumentException("Undefined property: \"$property\".");
+                throw new InvalidArgumentException(
+                    Message::UNDEFINED_PROPERTY->getMessage($property),
+                );
             }
         }
 

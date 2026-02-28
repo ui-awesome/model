@@ -6,6 +6,7 @@ namespace UIAwesome\Model\Tests;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Support\Model\{Dynamic, DynamicNested};
 
 /**
@@ -225,7 +226,12 @@ final class DynamicModelTest extends TestCase
         $model = new Dynamic();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Dynamic::property".');
+        $this->expectExceptionMessage(
+            Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage(
+                Dynamic::class,
+                'property',
+            ),
+        );
 
         $model->getPropertyValue('property.name');
     }

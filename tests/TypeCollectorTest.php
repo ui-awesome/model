@@ -121,6 +121,19 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testReturnFalseWhenNestedPathTargetsNonModelTypedDynamicProperty(): void
+    {
+        $model = new PropertyType();
+
+        $model->addProperty('profile', 'string');
+        $model->setPropertyValue('profile', new Address(new Country()));
+
+        self::assertFalse(
+            $model->hasProperty('profile.city'),
+            'Should return false when nested lookup starts from a property not declared as a model type.',
+        );
+    }
+
     public function testReturnFalseWhenNestedPropertyPathIsInvalid(): void
     {
         $model = new Address(new Country());
@@ -139,16 +152,13 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testReturnFalseWhenNestedPathTargetsNonModelTypedDynamicProperty(): void
+    public function testReturnNullWhenCastingNullValueForKnownProperty(): void
     {
-        $model = new PropertyType();
+        $typeCollector = new TypeCollector(new PropertyType());
 
-        $model->addProperty('profile', 'string');
-        $model->setPropertyValue('profile', new Address(new Country()));
-
-        self::assertFalse(
-            $model->hasProperty('profile.city'),
-            'Should return false when nested lookup starts from a property not declared as a model type.',
+        self::assertNull(
+            $typeCollector->phpTypeCast('bool', null),
+            'Should return null when casting null for a known property.',
         );
     }
 
@@ -169,16 +179,6 @@ final class TypeCollectorTest extends TestCase
         self::assertNull(
             $typeCollector->phpTypeCast('noExist', []),
             'Should return null when casting an array value for an unknown property.',
-        );
-    }
-
-    public function testReturnNullWhenCastingNullValueForKnownProperty(): void
-    {
-        $typeCollector = new TypeCollector(new PropertyType());
-
-        self::assertNull(
-            $typeCollector->phpTypeCast('bool', null),
-            'Should return null when casting null for a known property.',
         );
     }
 
