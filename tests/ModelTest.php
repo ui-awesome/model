@@ -114,6 +114,7 @@ final class ModelTest extends TestCase
 
         self::assertSame(['name'], $model->getProperties(), 'Should return declared model properties in definition order.');
     }
+
     public function testReturnLoadedDataAfterSuccessfulLoad(): void
     {
         $model = new Country();

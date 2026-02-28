@@ -63,6 +63,7 @@ final class TypeUnionTest extends TestCase
             'Should preserve the expected runtime type for each union member value.',
         );
     }
+
     public function testThrowTypeErrorWhenAssigningUnsupportedUnionValue(): void
     {
         $this->expectException(TypeError::class);

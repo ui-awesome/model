@@ -57,6 +57,7 @@ final class TypeCollectorTest extends TestCase
         self::assertSame('1.1', $model->getPropertyValue('string'), 'Should cast numeric values assigned to string properties.');
         self::assertSame(1.1, $model->getPropertyValue('float'), 'Should cast numeric strings assigned to float properties.');
     }
+
     public function testReturnCollectedPropertyNames(): void
     {
         $model = new PropertyType();

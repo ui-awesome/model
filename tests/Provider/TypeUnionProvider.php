@@ -31,6 +31,7 @@ final class TypeUnionProvider
             'null value' => [null, null, 'null'],
         ];
     }
+
     /**
      * @phpstan-return array<string, array{string, bool}>
      */

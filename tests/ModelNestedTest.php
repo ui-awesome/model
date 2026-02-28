@@ -82,6 +82,7 @@ final class ModelNestedTest extends TestCase
             'Should return all nested properties as flattened dot-notated paths.',
         );
     }
+
     public function testReturnNestedPropertyValueAfterAssignment(): void
     {
         $model = new Address(new Country());
