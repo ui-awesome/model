@@ -80,10 +80,6 @@ final class TypeCollector
 
         $currentPropertyValue = $this->readProperty($currentProperty);
 
-        if ($currentPropertyValue === null) {
-            return null;
-        }
-
         if ($nestedProperty !== null && $currentPropertyValue instanceof ModelInterface) {
             return $currentPropertyValue->getPropertyValue($nestedProperty);
         }
@@ -137,16 +133,8 @@ final class TypeCollector
      */
     public function phpTypeCast(string $property, mixed $value): mixed
     {
-        if ($this->model->hasProperty($property) === false) {
-            return null;
-        }
-
         if ($value === null) {
             return null;
-        }
-
-        if (is_array($value)) {
-            return $value;
         }
 
         $expectedTypes = $this->properties[$property] ?? null;
@@ -180,7 +168,7 @@ final class TypeCollector
                     continue;
                 }
 
-                $this->setPropertyValueInternal($camelCaseName, $value, false);
+                $this->setPropertyValueInternal($camelCaseName, $value);
 
                 $hasAssignments = true;
             }
@@ -193,7 +181,8 @@ final class TypeCollector
 
     public function setPropertyValue(string $property, mixed $value): void
     {
-        $this->setPropertyValueInternal($property, $value, true);
+        $this->setPropertyValueInternal($property, $value);
+        $this->initializeTimestampProperties();
     }
 
     /**
@@ -373,7 +362,6 @@ final class TypeCollector
     private function setPropertyValueInternal(
         string $property,
         mixed $value,
-        bool $initializeTimestampProperties,
     ): void {
         if ($this->hasProperty($property) === false) {
             throw new InvalidArgumentException("Undefined property: \"$property\".");
@@ -385,10 +373,6 @@ final class TypeCollector
         if ($propertyCount === 1) {
             $valueTypeCast = $this->phpTypeCast($property, $value);
             $this->writeProperty($property, $valueTypeCast);
-
-            if ($initializeTimestampProperties) {
-                $this->initializeTimestampProperties();
-            }
 
             return;
         }
@@ -414,10 +398,6 @@ final class TypeCollector
      */
     private function snakeCaseToCamelCase(string $snakeCaseString): string
     {
-        if (str_contains($snakeCaseString, '_') === false) {
-            return $snakeCaseString;
-        }
-
         $words = explode('_', $snakeCaseString);
         $camelCase = '';
 
@@ -450,16 +430,14 @@ final class TypeCollector
     {
         if ($this->hasDeclaredProperty($property) === false) {
             $this->dynamicValues[$property] = $value;
+        } else {
+            $setter = static function (ModelInterface $class, string $property, mixed $value): void {
+                /** @phpstan-ignore-next-line */
+                $class->$property = $value;
+            };
+            $setter = Closure::bind($setter, null, $this->model);
 
-            return;
+            $setter($this->model, $property, $value);
         }
-
-        $setter = static function (ModelInterface $class, string $property, mixed $value): void {
-            /** @phpstan-ignore-next-line */
-            $class->$property = $value;
-        };
-        $setter = Closure::bind($setter, null, $this->model);
-
-        $setter($this->model, $property, $value);
     }
 }

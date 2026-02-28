@@ -139,6 +139,19 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testReturnFalseWhenNestedPathTargetsNonModelTypedDynamicProperty(): void
+    {
+        $model = new PropertyType();
+
+        $model->addProperty('profile', 'string');
+        $model->setPropertyValue('profile', new Address(new Country()));
+
+        self::assertFalse(
+            $model->hasProperty('profile.city'),
+            'Should return false when nested lookup starts from a property not declared as a model type.',
+        );
+    }
+
     public function testReturnNullWhenCastingUnknownProperty(): void
     {
         $typeCollector = new TypeCollector(new PropertyType());
@@ -146,6 +159,26 @@ final class TypeCollectorTest extends TestCase
         self::assertNull(
             $typeCollector->phpTypeCast('noExist', 1),
             'Should return null when a property does not exist.',
+        );
+    }
+
+    public function testReturnNullWhenCastingUnknownPropertyWithArrayValue(): void
+    {
+        $typeCollector = new TypeCollector(new PropertyType());
+
+        self::assertNull(
+            $typeCollector->phpTypeCast('noExist', []),
+            'Should return null when casting an array value for an unknown property.',
+        );
+    }
+
+    public function testReturnNullWhenCastingNullValueForKnownProperty(): void
+    {
+        $typeCollector = new TypeCollector(new PropertyType());
+
+        self::assertNull(
+            $typeCollector->phpTypeCast('bool', null),
+            'Should return null when casting null for a known property.',
         );
     }
 
@@ -206,5 +239,22 @@ final class TypeCollectorTest extends TestCase
         );
 
         $model->setPropertyValue('string', []);
+    }
+
+    public function testWriteDynamicPropertyOnlyToCollectorStorage(): void
+    {
+        $model = new PropertyType();
+
+        $model->addProperty('dynamicFlag', 'bool');
+        $model->setPropertyValue('dynamicFlag', true);
+
+        self::assertTrue(
+            $model->getPropertyValue('dynamicFlag'),
+            'Should store and return values assigned to dynamic properties.',
+        );
+        self::assertFalse(
+            property_exists($model, 'dynamicFlag'),
+            'Should not create runtime dynamic properties on the model instance.',
+        );
     }
 }

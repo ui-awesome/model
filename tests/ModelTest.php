@@ -350,12 +350,40 @@ final class ModelTest extends TestCase
         );
     }
 
+    public function testContinueSettingPropertiesAfterSkippingExcludedEntry(): void
+    {
+        $model = new Profile(new Address(new Country()));
+
+        $model->setProperties(
+            [
+                'public_email_personal' => 'admin@example.com',
+                'bio' => 'bio',
+            ],
+            [
+                'publicEmailPersonal',
+            ],
+        );
+
+        self::assertSame(
+            '',
+            $model->getPropertyValue('publicEmailPersonal'),
+            'Should keep excluded properties unchanged when they appear first in the payload.',
+        );
+        self::assertSame(
+            'bio',
+            $model->getPropertyValue('bio'),
+            'Should continue assigning subsequent non-excluded properties after skipping one entry.',
+        );
+    }
+
     public function testThrowInvalidArgumentExceptionWhenGettingUndefinedPropertyValue(): void
     {
         $model = new PropertyType();
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\PropertyType::noExist');
+        $this->expectExceptionMessage(
+            'Undefined property: "UIAwesome\Model\Tests\Support\Model\PropertyType::noExist".',
+        );
 
         $model->getPropertyValue('noExist');
     }
