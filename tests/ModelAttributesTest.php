@@ -15,7 +15,7 @@ use UIAwesome\Model\Tests\Support\Model\Attributes;
  * - Loads attribute-annotated models and verifies timestamp fields are initialized with positive integer values.
  * - Returns property type metadata inferred from model attributes.
  *
- * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class ModelAttributesTest extends TestCase

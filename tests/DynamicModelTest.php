@@ -18,7 +18,7 @@ use UIAwesome\Model\Tests\Support\Model\{Dynamic, DynamicNested};
  * - Loads values into dynamic models for flat and nested dynamic paths.
  * - Throws invalid argument exceptions when reading unknown dynamic property paths.
  *
- * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class DynamicModelTest extends TestCase

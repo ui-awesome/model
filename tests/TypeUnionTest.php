@@ -21,7 +21,7 @@ use UIAwesome\Model\Tests\Support\Model\UnionType;
  *
  * {@see TypeUnionProvider} for test case data providers.
  *
- * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class TypeUnionTest extends TestCase
