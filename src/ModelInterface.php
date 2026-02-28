@@ -6,16 +6,32 @@ namespace UIAwesome\Model;
 
 /**
  * Interface implemented by classes supporting model data binding.
+ *
+ * Usage example:
+ * ```php
+ * final class UserForm extends AbstractModel
+ * {
+ *     public string $name = '';
+ * }
+ *
+ * $model = new UserForm();
+ * $model->load(['UserForm' => ['name' => 'Ada']]);
+ * ```
  */
 interface ModelInterface
 {
     /**
      * Adds a new property to the model.
      *
-     * @param string $property The property name.
-     * @param array|string $type The property type. This can be a string or an array of strings representing the
-     * property type. If an array is given, the property is considered to be multi-valued and the property value should
-     * be an array of values of the given types.
+     * Usage example:
+     * ```php
+     * $model->addProperty('name', 'string');
+     * ```
+     *
+     * @param string $property Property name.
+     * @param array|string $type Property type. This can be a string or an array of strings representing the property
+     * type. If an array is given, the property is considered to be multi-valued and the property value should be an
+     * array of values of the given types.
      *
      * @phpstan-param list<string>|string $type
      */
@@ -24,7 +40,12 @@ interface ModelInterface
     /**
      * Returns the raw data for the model.
      *
-     * @return array The raw data for the model.
+     * Usage example:
+     * ```php
+     * $data = $model->getData();
+     * ```
+     *
+     * @return array Raw data for the model.
      *
      * @phpstan-return mixed[]
      */
@@ -35,33 +56,51 @@ interface ModelInterface
      *
      * The model name is mainly used by {@see AbstractModel} to decide how to name the input fields for the properties
      * in a model.
-     *
-     * If the model name is "A" and an property name is "b", then the corresponding input name would be "A[b]".
-     * If the model name is an empty string, then the input name would be "b".
+     * - If the model name is "A" and an property name is "b", then the corresponding input name would be "A[b]".
+     * - If the model name is an empty string, then the input name would be "b".
      *
      * The purpose of the above naming schema is that for forms which contain multiple different models, the properties
      * of each model are grouped in sub-arrays of the POST-data, and it's easier to differentiate between them.
+     * - By default, this method returns the model class name (without the namespace part) as the model name.
+     * - You may override it when the model is used in different forms.
      *
-     * By default, this method returns the model class name (without the namespace part) as the model name.
-     * You may override it when the model is used in different forms.
+     * Usage example:
+     * ```php
+     * public function getModelName(): string
+     * {
+     *     return 'UserForm';
+     * }
+     * ```
      *
-     * @return string The model name class, without a namespace part or empty string when class is anonymous.
+     * @return string Model name class, without a namespace part or empty string when class is anonymous.
      *
      * {@see load()}
      */
     public function getModelName(): string;
 
     /**
-     * @return array The list of properties names.
+     * Returns the list of property names.
      *
-     * @phpstan-return mixed[]
+     * Usage example:
+     * ```php
+     * $properties = $model->getProperties();
+     * ```
+     *
+     * @return list<string> List of property names.
+     *
+     * @phpstan-return list<string>
      */
     public function getProperties(): array;
 
     /**
      * Returns the list of property types indexed by property names.
      *
-     * @return array The list of property types indexed by property names.
+     * Usage example:
+     * ```php
+     * $propertyTypes = $model->getPropertyTypes();
+     * ```
+     *
+     * @return array List of property types indexed by property names.
      *
      * @phpstan-return mixed[]
      */
@@ -70,16 +109,28 @@ interface ModelInterface
     /**
      * Returns the value (raw data) for the specified property.
      *
-     * @param string $property The property name.
+     * Usage example:
+     * ```php
+     * $name = $model->getPropertyValue('name');
+     * ```
      *
-     * @return mixed The value (raw data) for the specified property.
+     * @param string $property Property name.
+     *
+     * @return mixed Value (raw data) for the specified property.
      */
     public function getPropertyValue(string $property): mixed;
 
     /**
      * Checks if the model has the specified property.
      *
-     * @param string $property The property name.
+     * Usage example:
+     * ```php
+     * if ($model->hasProperty('name')) {
+     *    // ...
+     * }
+     * ```
+     *
+     * @param string $property Property name.
      *
      * @return bool `true` if the model has the specified property, `false` otherwise.
      */
@@ -87,14 +138,29 @@ interface ModelInterface
 
     /**
      * Whether the model has no loaded raw data.
+     *
+     * Usage example:
+     * ```php
+     * if ($model->isEmpty()) {
+     *    // ...
+     * }
+     * ```
+     * @return bool `true` if the model has no loaded raw data, `false` otherwise.
      */
     public function isEmpty(): bool;
 
     /**
      * Checks if the property is of the specified type.
      *
-     * @param string $property The property name.
-     * @param string $type The type name.
+     * Usage example:
+     * ```php
+     * if ($model->isPropertyType('name', 'string')) {
+     *   // ...
+     * }
+     * ```
+     *
+     * @param string $property Property name.
+     * @param string $type Type name.
      *
      * @return bool `true` if the property is of the specified type, `false` otherwise.
      */
@@ -108,8 +174,13 @@ interface ModelInterface
      * If the model name is an empty string, `load()` populates the model with the whole `$data` array instead of
      * `$data['ModelName']`.
      *
-     * @param iterable $data The data array to load, typically server request properties.
-     * @param string|null $modelName The scope from which to get data.
+     * Usage example:
+     * ```php
+     * $model->load($_POST);
+     * ```
+     *
+     * @param iterable $data Data array to load, typically server request properties.
+     * @param string|null $modelName Scope from which to get data.
      *
      * @return bool `true` if the model is successfully populated with some data, `false` otherwise.
      *
@@ -120,31 +191,45 @@ interface ModelInterface
     /**
      * Sets values for multiple properties.
      *
-     * @param array $data The key-value pairs to set for the properties.
-     * @param array $exceptProperties The properties to exclude from the setting using camelCase names.
-     * If not empty, only the properties in this array will be set.
-     * If empty, all properties will be set.
+     * Usage example:
+     * ```php
+     * $model->setProperties(['name' => 'Ada']);
+     * ```
      *
-     * @phpstan-param mixed[] $data
-     * @phpstan-param mixed[] $exceptProperties
+     * @param array $data Key value pairs to set for the properties.
+     * @param array $exceptProperties Properties to exclude from the setting using camelCase names. If not empty, the
+     * listed properties are skipped. If empty, all properties from `$data` are applied.
+     *
+     * @phpstan-param array<array-key, mixed> $data
+     * @phpstan-param list<string> $exceptProperties
      */
     public function setProperties(array $data, array $exceptProperties = []): void;
 
     /**
      * Sets the value for the specified property.
      *
-     * @param string $property The property name.
-     * @param mixed $value The value to set.
+     * Usage example:
+     * ```php
+     * $model->setPropertyValue('name', 'Ada');
+     * ```
+     *
+     * @param string $property Property name.
+     * @param mixed $value Value to set.
      */
     public function setPropertyValue(string $property, mixed $value): void;
 
     /**
      * Returns model properties as an array.
      *
+     * Usage example:
+     * ```php
+     * $array = $model->toArray();
+     * ```
+     *
      * @param bool $snakeCase Whether keys should be converted to snake_case.
      * @param array $exceptProperties List of properties to exclude.
      *
-     * @phpstan-param mixed[] $exceptProperties
+     * @phpstan-param list<string> $exceptProperties
      *
      * @return array<string, mixed>
      */

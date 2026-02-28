@@ -33,7 +33,16 @@ enum Message: string
     /**
      * Returns the formatted message string for the error case.
      *
+     * Usage example:
+     * ```php
+     * throw new InvalidArgumentException(
+     *     \UIAwesome\Model\Exception\Message::UNDEFINED_PROPERTY->getMessage('name')
+     * );
+     * ```
+     *
      * @param int|string ...$argument Values to insert into the message template.
+     *
+     * @return string Formatted error message with interpolated arguments.
      */
     public function getMessage(int|string ...$argument): string
     {

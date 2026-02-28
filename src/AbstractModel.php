@@ -11,6 +11,20 @@ use function str_contains;
 use function strrchr;
 use function substr;
 
+/**
+ * Base implementation of {@see ModelInterface}.
+ *
+ * Usage example:
+ * ```php
+ * final class UserForm extends AbstractModel
+ * {
+ *     public string $name = '';
+ * }
+ *
+ * $model = new UserForm();
+ * $model->load(['UserForm' => ['name' => 'Ada']]);
+ * ```
+ */
 abstract class AbstractModel implements ModelInterface
 {
     /**
@@ -48,13 +62,18 @@ abstract class AbstractModel implements ModelInterface
         return substr($className, 1);
     }
 
+    /**
+     * @return list<string>
+     *
+     * @phpstan-return list<string>
+     */
     public function getProperties(): array
     {
         return $this->getNestedProperties($this, '');
     }
 
     /**
-     * @phpstan-return mixed[]
+     * @phpstan-return array<string, list<string>|string>
      */
     public function getPropertyTypes(): array
     {
@@ -104,8 +123,8 @@ abstract class AbstractModel implements ModelInterface
     }
 
     /**
-     * @phpstan-param mixed[] $data
-     * @phpstan-param mixed[] $exceptProperties
+     * @phpstan-param array<array-key, mixed> $data
+     * @phpstan-param list<string> $exceptProperties
      */
     public function setProperties(array $data, array $exceptProperties = []): void
     {
@@ -118,7 +137,7 @@ abstract class AbstractModel implements ModelInterface
     }
 
     /**
-     * @phpstan-param mixed[] $exceptProperties
+     * @phpstan-param list<string> $exceptProperties
      *
      * @return array<string, mixed>
      */
@@ -128,7 +147,9 @@ abstract class AbstractModel implements ModelInterface
     }
 
     /**
-     * @psalm-return array<string>
+     * @return list<string>
+     *
+     * @phpstan-return list<string>
      */
     private function getNestedProperties(ModelInterface $model, string $prefix): array
     {
