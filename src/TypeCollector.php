@@ -384,7 +384,7 @@ final class TypeCollector
     /**
      * Checks if the provided type or list of types contains the 'timestamp' type.
      *
-     * @param string|array $type Type or list of types to check.
+     * @param array|string $type Type or list of types to check.
      *
      * @return bool `true` if 'timestamp' is found, `false` otherwise.
      *
