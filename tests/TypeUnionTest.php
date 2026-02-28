@@ -26,15 +26,16 @@ use UIAwesome\Model\Tests\Support\Model\UnionType;
  */
 final class TypeUnionTest extends TestCase
 {
-    public function testThrowTypeErrorWhenAssigningUnsupportedUnionValue(): void
+    #[DataProviderExternal(TypeUnionProvider::class, 'isPropertyTypeChecks')]
+    public function testReturnExpectedResultWhenCheckingUnionPropertyType(string $type, bool $expected): void
     {
-        $this->expectException(TypeError::class);
-        $this->expectExceptionMessage(
-            'Cannot assign float to property UIAwesome\Model\Tests\Support\Model\UnionType::$union of type object|string|int|bool|null',
-        );
-
         $model = new UnionType();
-        $model->setPropertyValue('union', 1.1);
+
+        self::assertSame(
+            $expected,
+            $model->isPropertyType('union', $type),
+            'Should return the expected boolean result for union type membership checks.',
+        );
     }
 
     public function testReturnUnionPropertyTypeMetadata(): void
@@ -45,18 +46,6 @@ final class TypeUnionTest extends TestCase
             ['union' => ['object', 'string', 'int', 'bool', 'null']],
             $model->getPropertyTypes(),
             'Should return the declared union member types for the property.',
-        );
-    }
-
-    #[DataProviderExternal(TypeUnionProvider::class, 'isPropertyTypeChecks')]
-    public function testReturnExpectedResultWhenCheckingUnionPropertyType(string $type, bool $expected): void
-    {
-        $model = new UnionType();
-
-        self::assertSame(
-            $expected,
-            $model->isPropertyType('union', $type),
-            'Should return the expected boolean result for union type membership checks.',
         );
     }
 
@@ -73,5 +62,15 @@ final class TypeUnionTest extends TestCase
             get_debug_type($model->getPropertyValue('union')),
             'Should preserve the expected runtime type for each union member value.',
         );
+    }
+    public function testThrowTypeErrorWhenAssigningUnsupportedUnionValue(): void
+    {
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessage(
+            'Cannot assign float to property UIAwesome\Model\Tests\Support\Model\UnionType::$union of type object|string|int|bool|null',
+        );
+
+        $model = new UnionType();
+        $model->setPropertyValue('union', 1.1);
     }
 }

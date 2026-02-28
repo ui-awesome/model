@@ -50,57 +50,6 @@ final class DynamicModelTest extends TestCase
         );
     }
 
-    public function testLoadDataIntoRegisteredDynamicProperties(): void
-    {
-        $model = new Dynamic();
-
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
-
-        $data = [
-            'name' => 'John Doe',
-            'age' => 30,
-            'email' => 'test@example.com',
-        ];
-
-        $model->load($data, 'Dynamic');
-
-        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should load the dynamic name property value.');
-        self::assertSame(30, $model->getPropertyValue('age'), 'Should load the dynamic age property value.');
-        self::assertSame('test@example.com', $model->getPropertyValue('email'), 'Should load the dynamic email property value.');
-    }
-
-    public function testInitializeTimestampWhenLoadingDynamicModelData(): void
-    {
-        $model = new Dynamic();
-
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
-        $model->addProperty('created_at', 'timestamp');
-
-        $data = [
-            'name' => 'John Doe',
-            'age' => 30,
-            'email' => 'test@example.com',
-        ];
-
-        $model->load($data, 'Dynamic');
-
-        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should keep loaded string values for dynamic properties.');
-        self::assertSame(30, $model->getPropertyValue('age'), 'Should keep loaded integer values for dynamic properties.');
-        self::assertSame(
-            'test@example.com',
-            $model->getPropertyValue('email'),
-            'Should keep loaded email values for dynamic properties.',
-        );
-        self::assertTrue(
-            $model->getPropertyValue('created_at') > 0,
-            'Should auto-initialize timestamp properties with a positive integer value.',
-        );
-    }
-
     public function testAddNestedDynamicPropertyPaths(): void
     {
         $model = new Dynamic();
@@ -136,6 +85,36 @@ final class DynamicModelTest extends TestCase
             ],
             $model->getPropertyTypes(),
             'Should return types for nested dynamic property paths.',
+        );
+    }
+
+    public function testInitializeTimestampWhenLoadingDynamicModelData(): void
+    {
+        $model = new Dynamic();
+
+        $model->addProperty('name', 'string');
+        $model->addProperty('age', 'int');
+        $model->addProperty('email', 'string');
+        $model->addProperty('created_at', 'timestamp');
+
+        $data = [
+            'name' => 'John Doe',
+            'age' => 30,
+            'email' => 'test@example.com',
+        ];
+
+        $model->load($data, 'Dynamic');
+
+        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should keep loaded string values for dynamic properties.');
+        self::assertSame(30, $model->getPropertyValue('age'), 'Should keep loaded integer values for dynamic properties.');
+        self::assertSame(
+            'test@example.com',
+            $model->getPropertyValue('email'),
+            'Should keep loaded email values for dynamic properties.',
+        );
+        self::assertTrue(
+            $model->getPropertyValue('created_at') > 0,
+            'Should auto-initialize timestamp properties with a positive integer value.',
         );
     }
 
@@ -179,6 +158,27 @@ final class DynamicModelTest extends TestCase
             $model->getPropertyValue('dynamic.createdAt') > 0,
             'Should initialize nested timestamp properties with a positive integer value.',
         );
+    }
+
+    public function testLoadDataIntoRegisteredDynamicProperties(): void
+    {
+        $model = new Dynamic();
+
+        $model->addProperty('name', 'string');
+        $model->addProperty('age', 'int');
+        $model->addProperty('email', 'string');
+
+        $data = [
+            'name' => 'John Doe',
+            'age' => 30,
+            'email' => 'test@example.com',
+        ];
+
+        $model->load($data, 'Dynamic');
+
+        self::assertSame('John Doe', $model->getPropertyValue('name'), 'Should load the dynamic name property value.');
+        self::assertSame(30, $model->getPropertyValue('age'), 'Should load the dynamic age property value.');
+        self::assertSame('test@example.com', $model->getPropertyValue('email'), 'Should load the dynamic email property value.');
     }
 
     public function testThrowInvalidArgumentExceptionWhenReadingUnknownDynamicPropertyPath(): void

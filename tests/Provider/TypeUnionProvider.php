@@ -17,21 +17,6 @@ use stdClass;
 final class TypeUnionProvider
 {
     /**
-     * @phpstan-return array<string, array{string, bool}>
-     */
-    public static function isPropertyTypeChecks(): array
-    {
-        return [
-            'union does not accept datetime' => ['datetime', false],
-            'union accepts bool' => ['bool', true],
-            'union accepts int' => ['int', true],
-            'union accepts null' => ['null', true],
-            'union accepts object' => ['object', true],
-            'union accepts string' => ['string', true],
-        ];
-    }
-
-    /**
      * @phpstan-return array<string, array{mixed, mixed, string}>
      */
     public static function acceptedUnionValues(): array
@@ -44,6 +29,20 @@ final class TypeUnionProvider
             'boolean value' => [true, true, 'bool'],
             'object value' => [$object, $object, stdClass::class],
             'null value' => [null, null, 'null'],
+        ];
+    }
+    /**
+     * @phpstan-return array<string, array{string, bool}>
+     */
+    public static function isPropertyTypeChecks(): array
+    {
+        return [
+            'union does not accept datetime' => ['datetime', false],
+            'union accepts bool' => ['bool', true],
+            'union accepts int' => ['int', true],
+            'union accepts null' => ['null', true],
+            'union accepts object' => ['object', true],
+            'union accepts string' => ['string', true],
         ];
     }
 }

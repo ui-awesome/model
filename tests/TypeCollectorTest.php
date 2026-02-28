@@ -32,6 +32,31 @@ use UIAwesome\Model\{
  */
 final class TypeCollectorTest extends TestCase
 {
+    public function testCastStringableObjectToStringProperty(): void
+    {
+        $model = new PropertyType();
+
+        $objectStringable = new class {
+            public function __toString(): string
+            {
+                return 'joe doe';
+            }
+        };
+        $model->setPropertyValue('string', $objectStringable);
+
+        self::assertSame('joe doe', $model->getPropertyValue('string'), 'Should cast stringable objects to string properties.');
+    }
+
+    public function testCastValueToDeclaredPhpType(): void
+    {
+        $model = new PropertyType();
+
+        $model->setPropertyValue('string', 1.1);
+        $model->setPropertyValue('float', '1.1');
+
+        self::assertSame('1.1', $model->getPropertyValue('string'), 'Should cast numeric values assigned to string properties.');
+        self::assertSame(1.1, $model->getPropertyValue('float'), 'Should cast numeric strings assigned to float properties.');
+    }
     public function testReturnCollectedPropertyNames(): void
     {
         $model = new PropertyType();
@@ -74,26 +99,6 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testReturnFalseWhenNestedPropertyPathIsInvalid(): void
-    {
-        $model = new Address(new Country());
-
-        self::assertFalse($model->hasProperty('nonexistent.any'), 'Should return false when the root nested segment is missing.');
-        self::assertFalse($model->hasProperty('city.any'), 'Should return false when a scalar property is used as a nested branch.');
-        self::assertFalse(
-            $model->hasProperty('country.nonexistent'),
-            'Should return false when a nested property segment does not exist.',
-        );
-    }
-
-    public function testReturnTrueWhenPropertyPathExists(): void
-    {
-        $model = new Address(new Country());
-
-        self::assertTrue($model->hasProperty('city'), 'Should return true for an existing flat property.');
-        self::assertTrue($model->hasProperty('country.name'), 'Should return true for an existing nested property path.');
-    }
-
     #[DataProviderExternal(TypeCollectorProvider::class, 'isPropertyTypeChecks')]
     public function testReturnExpectedResultWhenCheckingPropertyType(string $property, string $type, bool $expected): void
     {
@@ -106,15 +111,16 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testCastValueToDeclaredPhpType(): void
+    public function testReturnFalseWhenNestedPropertyPathIsInvalid(): void
     {
-        $model = new PropertyType();
+        $model = new Address(new Country());
 
-        $model->setPropertyValue('string', 1.1);
-        $model->setPropertyValue('float', '1.1');
-
-        self::assertSame('1.1', $model->getPropertyValue('string'), 'Should cast numeric values assigned to string properties.');
-        self::assertSame(1.1, $model->getPropertyValue('float'), 'Should cast numeric strings assigned to float properties.');
+        self::assertFalse($model->hasProperty('nonexistent.any'), 'Should return false when the root nested segment is missing.');
+        self::assertFalse($model->hasProperty('city.any'), 'Should return false when a scalar property is used as a nested branch.');
+        self::assertFalse(
+            $model->hasProperty('country.nonexistent'),
+            'Should return false when a nested property segment does not exist.',
+        );
     }
 
     public function testReturnNullWhenCastingUnknownProperty(): void
@@ -124,19 +130,23 @@ final class TypeCollectorTest extends TestCase
         self::assertNull($typeCollector->phpTypeCast('noExist', 1), 'Should return null when a property does not exist.');
     }
 
-    public function testCastStringableObjectToStringProperty(): void
+    public function testReturnSnakeCaseKeyForPascalCasePropertyWhenConvertingToArray(): void
     {
         $model = new PropertyType();
 
-        $objectStringable = new class {
-            public function __toString(): string
-            {
-                return 'joe doe';
-            }
-        };
-        $model->setPropertyValue('string', $objectStringable);
+        $model->addProperty('Name', 'string');
+        $model->setPropertyValue('Name', 'joe');
 
-        self::assertSame('joe doe', $model->getPropertyValue('string'), 'Should cast stringable objects to string properties.');
+        self::assertArrayHasKey('name', $model->toArray(true), 'Should expose PascalCase properties as snake_case keys.');
+        self::assertSame('joe', $model->toArray(true)['name'], 'Should keep the assigned value for converted snake_case keys.');
+    }
+
+    public function testReturnTrueWhenPropertyPathExists(): void
+    {
+        $model = new Address(new Country());
+
+        self::assertTrue($model->hasProperty('city'), 'Should return true for an existing flat property.');
+        self::assertTrue($model->hasProperty('country.name'), 'Should return true for an existing nested property path.');
     }
 
     #[DataProviderExternal(TypeCollectorProvider::class, 'setPropertyValueCases')]
@@ -163,16 +173,5 @@ final class TypeCollectorTest extends TestCase
         );
 
         $model->setPropertyValue('string', []);
-    }
-
-    public function testReturnSnakeCaseKeyForPascalCasePropertyWhenConvertingToArray(): void
-    {
-        $model = new PropertyType();
-
-        $model->addProperty('Name', 'string');
-        $model->setPropertyValue('Name', 'joe');
-
-        self::assertArrayHasKey('name', $model->toArray(true), 'Should expose PascalCase properties as snake_case keys.');
-        self::assertSame('joe', $model->toArray(true)['name'], 'Should keep the assigned value for converted snake_case keys.');
     }
 }

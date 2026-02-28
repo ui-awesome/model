@@ -39,6 +39,81 @@ require __DIR__ . '/Support/Model/NonNamespaced.php';
  */
 final class ModelTest extends TestCase
 {
+    public function testCastValuesWhenLoadingWithEmptyScope(): void
+    {
+        $model = new class extends AbstractModel {
+            private int $int = 1;
+            private string $string = 'string';
+            private float $float = 3.14;
+            private bool $bool = true;
+        };
+
+        $model->load([
+            'int' => '2',
+            'float' => '3.15',
+            'bool' => 'false',
+            'string' => '555',
+        ], '');
+
+        self::assertSame('int', get_debug_type($model->getPropertyValue('int')), 'Should cast integer strings to int.');
+        self::assertSame('float', get_debug_type($model->getPropertyValue('float')), 'Should cast numeric strings to float.');
+        self::assertSame('bool', get_debug_type($model->getPropertyValue('bool')), 'Should cast boolean-like strings to bool.');
+        self::assertSame('string', get_debug_type($model->getPropertyValue('string')), 'Should keep string values as string.');
+    }
+
+    public function testLoadDataIntoModelUsingDefaultScope(): void
+    {
+        $model = new Country();
+
+        self::assertTrue($model->load(['Country' => ['name' => 'Russia']]), 'Should load data using the model class scope.');
+        self::assertSame('Russia', $model->getPropertyValue('name'), 'Should set the property value from loaded data.');
+    }
+
+    public function testLoadPublicPropertyWhenDefinedOnModel(): void
+    {
+        $model = new PropertyType();
+
+        self::assertEmpty($model->name, 'Should start with an empty public property value.');
+
+        $data = [
+            'PropertyType' => [
+                'name' => 'samdark',
+            ],
+        ];
+
+        self::assertTrue($model->load($data), 'Should load values for public properties.');
+        self::assertSame('samdark', $model->name, 'Should set the loaded value on the public property.');
+    }
+
+    public function testReturnArrayWithoutExcludedProperties(): void
+    {
+        $address = new Address(new Country());
+        $model = new Profile($address);
+
+        $model->setProperties(
+            [
+                'bio' => 'bio',
+                'publicEmailPersonal' => 'admin@example.com',
+            ],
+        );
+
+        self::assertSame(
+            [
+                'bio' => 'bio',
+                'publicEmailPersonal' => 'admin@example.com',
+                'address' => $address,
+            ],
+            $model->toArray(exceptProperties: ['pathAvatar']),
+            'Should convert model data to an array excluding specified properties.',
+        );
+    }
+
+    public function testReturnDeclaredProperties(): void
+    {
+        $model = new Country();
+
+        self::assertSame(['name'], $model->getProperties(), 'Should return declared model properties in definition order.');
+    }
     public function testReturnLoadedDataAfterSuccessfulLoad(): void
     {
         $model = new Country();
@@ -73,11 +148,41 @@ final class ModelTest extends TestCase
         );
     }
 
-    public function testReturnDeclaredProperties(): void
+    public function testReturnSnakeCaseKeysWhenConvertingToArray(): void
+    {
+        $address = new Address(new Country());
+        $model = new Profile($address);
+
+        $model->setProperties(
+            [
+                'bio' => 'bio',
+                'publicEmailPersonal' => 'admin@example.com',
+            ],
+        );
+
+        self::assertSame(
+            [
+                'bio' => 'bio',
+                'public_email_personal' => 'admin@example.com',
+                'address' => $address,
+            ],
+            $model->toArray(true, ['pathAvatar']),
+            'Should convert property keys to snake_case while excluding specified properties.',
+        );
+    }
+
+    public function testReturnTrueWhenModelHasNoAssignedValues(): void
     {
         $model = new Country();
 
-        self::assertSame(['name'], $model->getProperties(), 'Should return declared model properties in definition order.');
+        self::assertTrue($model->isEmpty(), 'Should return true when all model properties are empty.');
+    }
+
+    public function testReturnTrueWhenPropertyExists(): void
+    {
+        $model = new Country();
+
+        self::assertTrue($model->hasProperty('name'), 'Should return true for an existing property.');
     }
 
     #[DataProviderExternal(ModelProvider::class, 'propertyValueAssignments')]
@@ -86,8 +191,7 @@ final class ModelTest extends TestCase
         mixed $value,
         mixed $expected,
         string $expectedType,
-    ): void
-    {
+    ): void {
         $model = new PropertyType();
 
         $model->setPropertyValue($property, $value);
@@ -102,76 +206,6 @@ final class ModelTest extends TestCase
             get_debug_type($model->getPropertyValue($property)),
             'Should preserve the expected runtime type for the property value.',
         );
-    }
-
-    public function testThrowInvalidArgumentExceptionWhenGettingUndefinedPropertyValue(): void
-    {
-        $model = new PropertyType();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\PropertyType::noExist');
-
-        $model->getPropertyValue('noExist');
-    }
-
-    public function testReturnTrueWhenPropertyExists(): void
-    {
-        $model = new Country();
-
-        self::assertTrue($model->hasProperty('name'), 'Should return true for an existing property.');
-    }
-
-    public function testReturnTrueWhenModelHasNoAssignedValues(): void
-    {
-        $model = new Country();
-
-        self::assertTrue($model->isEmpty(), 'Should return true when all model properties are empty.');
-    }
-
-    public function testLoadDataIntoModelUsingDefaultScope(): void
-    {
-        $model = new Country();
-
-        self::assertTrue($model->load(['Country' => ['name' => 'Russia']]), 'Should load data using the model class scope.');
-        self::assertSame('Russia', $model->getPropertyValue('name'), 'Should set the property value from loaded data.');
-    }
-
-    public function testLoadPublicPropertyWhenDefinedOnModel(): void
-    {
-        $model = new PropertyType();
-
-        self::assertEmpty($model->name, 'Should start with an empty public property value.');
-
-        $data = [
-            'PropertyType' => [
-                'name' => 'samdark',
-            ],
-        ];
-
-        self::assertTrue($model->load($data), 'Should load values for public properties.');
-        self::assertSame('samdark', $model->name, 'Should set the loaded value on the public property.');
-    }
-
-    public function testCastValuesWhenLoadingWithEmptyScope(): void
-    {
-        $model = new class extends AbstractModel {
-            private int $int = 1;
-            private string $string = 'string';
-            private float $float = 3.14;
-            private bool $bool = true;
-        };
-
-        $model->load([
-            'int' => '2',
-            'float' => '3.15',
-            'bool' => 'false',
-            'string' => '555',
-        ], '');
-
-        self::assertSame('int', get_debug_type($model->getPropertyValue('int')), 'Should cast integer strings to int.');
-        self::assertSame('float', get_debug_type($model->getPropertyValue('float')), 'Should cast numeric strings to float.');
-        self::assertSame('bool', get_debug_type($model->getPropertyValue('bool')), 'Should cast boolean-like strings to bool.');
-        self::assertSame('string', get_debug_type($model->getPropertyValue('string')), 'Should keep string values as string.');
     }
 
     #[DataProviderExternal(ModelProvider::class, 'setPropertiesPayloads')]
@@ -193,18 +227,6 @@ final class ModelTest extends TestCase
         self::assertSame('string', get_debug_type($model->getPropertyValue('string')), 'Should keep string properties as strings.');
     }
 
-    public function testThrowInvalidArgumentExceptionWhenSettingUndefinedProperty(): void
-    {
-        $model = new PropertyType();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Undefined property: "noExist".',
-        );
-
-        $model->setProperties(['noExist' => []]);
-    }
-
     public function testSetPropertiesUsingSnakeCaseInputMappedToCamelCase(): void
     {
         $model = new Profile(new Address(new Country()));
@@ -222,6 +244,15 @@ final class ModelTest extends TestCase
             $model->getPropertyValue('publicEmailPersonal'),
             'Should map snake_case input keys to camelCase model properties.',
         );
+    }
+
+    public function testSetSinglePropertyValue(): void
+    {
+        $model = new Country();
+
+        $model->setPropertyValue('name', 'Russia');
+
+        self::assertSame('Russia', $model->getPropertyValue('name'), 'Should set and return the assigned property value.');
     }
 
     public function testSkipExceptedPropertiesWhenSettingValues(): void
@@ -245,58 +276,25 @@ final class ModelTest extends TestCase
         );
     }
 
-    public function testSetSinglePropertyValue(): void
+    public function testThrowInvalidArgumentExceptionWhenGettingUndefinedPropertyValue(): void
     {
-        $model = new Country();
+        $model = new PropertyType();
 
-        $model->setPropertyValue('name', 'Russia');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\PropertyType::noExist');
 
-        self::assertSame('Russia', $model->getPropertyValue('name'), 'Should set and return the assigned property value.');
+        $model->getPropertyValue('noExist');
     }
 
-    public function testReturnArrayWithoutExcludedProperties(): void
+    public function testThrowInvalidArgumentExceptionWhenSettingUndefinedProperty(): void
     {
-        $address = new Address(new Country());
-        $model = new Profile($address);
+        $model = new PropertyType();
 
-        $model->setProperties(
-            [
-                'bio' => 'bio',
-                'publicEmailPersonal' => 'admin@example.com',
-            ],
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            'Undefined property: "noExist".',
         );
 
-        self::assertSame(
-            [
-                'bio' => 'bio',
-                'publicEmailPersonal' => 'admin@example.com',
-                'address' => $address,
-            ],
-            $model->toArray(exceptProperties: ['pathAvatar']),
-            'Should convert model data to an array excluding specified properties.',
-        );
-    }
-
-    public function testReturnSnakeCaseKeysWhenConvertingToArray(): void
-    {
-        $address = new Address(new Country());
-        $model = new Profile($address);
-
-        $model->setProperties(
-            [
-                'bio' => 'bio',
-                'publicEmailPersonal' => 'admin@example.com',
-            ],
-        );
-
-        self::assertSame(
-            [
-                'bio' => 'bio',
-                'public_email_personal' => 'admin@example.com',
-                'address' => $address,
-            ],
-            $model->toArray(true, ['pathAvatar']),
-            'Should convert property keys to snake_case while excluding specified properties.',
-        );
+        $model->setProperties(['noExist' => []]);
     }
 }

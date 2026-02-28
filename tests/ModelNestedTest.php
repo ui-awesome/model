@@ -25,48 +25,6 @@ use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
  */
 final class ModelNestedTest extends TestCase
 {
-    public function testReturnNestedPropertyValueAfterAssignment(): void
-    {
-        $model = new Address(new Country());
-        $model->setPropertyValue('country.name', 'Russia');
-
-        self::assertSame(
-            'Russia',
-            $model->getPropertyValue('country.name'),
-            'Should return the assigned value for a nested property path.',
-        );
-    }
-
-    public function testThrowInvalidArgumentExceptionWhenReadingUndefinedNestedProperty(): void
-    {
-        $model = new Address(new Country());
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Country::noExist".');
-
-        $model->getPropertyValue('country.noExist');
-    }
-
-    public function testThrowInvalidArgumentExceptionWhenNestedPathStartsWithUnknownProperty(): void
-    {
-        $user = new User(new Profile(new Address(new Country())));
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\User::address".');
-
-        $user->getPropertyValue('address.nestedAttribute');
-    }
-
-    public function testThrowInvalidArgumentExceptionWhenReadingMissingNestedBranch(): void
-    {
-        $model = new Address(new Country());
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Address::profile".');
-
-        $model->getPropertyValue('profile.user');
-    }
-
     public function testLoadNestedPropertyFromScopedPayload(): void
     {
         $model = new Address(new Country());
@@ -124,6 +82,17 @@ final class ModelNestedTest extends TestCase
             'Should return all nested properties as flattened dot-notated paths.',
         );
     }
+    public function testReturnNestedPropertyValueAfterAssignment(): void
+    {
+        $model = new Address(new Country());
+        $model->setPropertyValue('country.name', 'Russia');
+
+        self::assertSame(
+            'Russia',
+            $model->getPropertyValue('country.name'),
+            'Should return the assigned value for a nested property path.',
+        );
+    }
 
     #[DataProviderExternal(ModelNestedProvider::class, 'nestedPropertyValues')]
     public function testSetNestedPropertyValueAcrossSeveralLevels(string $property, string $expectedValue): void
@@ -163,5 +132,35 @@ final class ModelNestedTest extends TestCase
             $user->getPropertyValue($property),
             'Should return the expected value after assigning nested paths with setProperties().',
         );
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenNestedPathStartsWithUnknownProperty(): void
+    {
+        $user = new User(new Profile(new Address(new Country())));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\User::address".');
+
+        $user->getPropertyValue('address.nestedAttribute');
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenReadingMissingNestedBranch(): void
+    {
+        $model = new Address(new Country());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Address::profile".');
+
+        $model->getPropertyValue('profile.user');
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenReadingUndefinedNestedProperty(): void
+    {
+        $model = new Address(new Country());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Country::noExist".');
+
+        $model->getPropertyValue('country.noExist');
     }
 }
