@@ -82,6 +82,7 @@ final class TypeCollectorTest extends TestCase
             'Should cast scalar values to string for string properties.',
         );
     }
+
     public function testCastStringableObjectToStringProperty(): void
     {
         $model = new PropertyType();
