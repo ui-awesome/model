@@ -22,12 +22,16 @@ final class ModelAttributesTest extends TestCase
             ],
             $model->getPropertyTypes(),
         );
+
         self::assertTrue($model->load(['Attributes' => ['name' => 'samdark']]));
+
         $createdAtTimestamp = $model->getPropertyValue('createdAt');
         $updatedAtTimestamp = $model->getPropertyValue('updatedAt');
 
-        self::assertTrue($createdAtTimestamp > 0);
-        self::assertTrue($updatedAtTimestamp > 0);
+        self::assertIsInt($createdAtTimestamp);
+        self::assertIsInt($updatedAtTimestamp);
+        self::assertGreaterThan(0, $createdAtTimestamp);
+        self::assertGreaterThan(0, $updatedAtTimestamp);
         self::assertSame($createdAtTimestamp, $model->getPropertyValue('createdAt'));
         self::assertSame($updatedAtTimestamp, $model->getPropertyValue('updatedAt'));
 

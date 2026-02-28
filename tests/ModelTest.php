@@ -150,6 +150,49 @@ final class ModelTest extends TestCase
         self::assertIsString($model->getPropertyValue('string'));
     }
 
+    public function testSetPropertiesValues(): void
+    {
+        $model = new PropertyType();
+
+        // setPropertyValue attributes with array and to camel case disabled.
+        $model->setProperties(
+            [
+                'array' => [],
+                'bool' => false,
+                'float' => 1.434536,
+                'int' => 1,
+                'object' => new stdClass(),
+                'string' => '',
+            ],
+        );
+
+        self::assertIsArray($model->getPropertyValue('array'));
+        self::assertIsBool($model->getPropertyValue('bool'));
+        self::assertIsFloat($model->getPropertyValue('float'));
+        self::assertIsInt($model->getPropertyValue('int'));
+        self::assertIsObject($model->getPropertyValue('object'));
+        self::assertIsString($model->getPropertyValue('string'));
+
+        // setPropertyValue attributes with array and to camel case enabled.
+        $model->setProperties(
+            [
+                'array' => [],
+                'bool' => 'false',
+                'float' => '1.434536',
+                'int' => '1',
+                'object' => new stdClass(),
+                'string' => '',
+            ],
+        );
+
+        self::assertIsArray($model->getPropertyValue('array'));
+        self::assertIsBool($model->getPropertyValue('bool'));
+        self::assertIsFloat($model->getPropertyValue('float'));
+        self::assertIsInt($model->getPropertyValue('int'));
+        self::assertIsObject($model->getPropertyValue('object'));
+        self::assertIsString($model->getPropertyValue('string'));
+    }
+
     public function testSetPropertiesValuesException(): void
     {
         $model = new PropertyType();
@@ -201,49 +244,6 @@ final class ModelTest extends TestCase
         $model->setPropertyValue('name', 'Russia');
 
         self::assertSame('Russia', $model->getPropertyValue('name'));
-    }
-
-    public function testSetPropiertiesValues(): void
-    {
-        $model = new PropertyType();
-
-        // setPropertyValue attributes with array and to camel case disabled.
-        $model->setProperties(
-            [
-                'array' => [],
-                'bool' => false,
-                'float' => 1.434536,
-                'int' => 1,
-                'object' => new stdClass(),
-                'string' => '',
-            ],
-        );
-
-        self::assertIsArray($model->getPropertyValue('array'));
-        self::assertIsBool($model->getPropertyValue('bool'));
-        self::assertIsFloat($model->getPropertyValue('float'));
-        self::assertIsInt($model->getPropertyValue('int'));
-        self::assertIsObject($model->getPropertyValue('object'));
-        self::assertIsString($model->getPropertyValue('string'));
-
-        // setPropertyValue attributes with array and to camel case enabled.
-        $model->setProperties(
-            [
-                'array' => [],
-                'bool' => 'false',
-                'float' => '1.434536',
-                'int' => '1',
-                'object' => new stdClass(),
-                'string' => '',
-            ],
-        );
-
-        self::assertIsArray($model->getPropertyValue('array'));
-        self::assertIsBool($model->getPropertyValue('bool'));
-        self::assertIsFloat($model->getPropertyValue('float'));
-        self::assertIsInt($model->getPropertyValue('int'));
-        self::assertIsObject($model->getPropertyValue('object'));
-        self::assertIsString($model->getPropertyValue('string'));
     }
 
     public function testToArray(): void

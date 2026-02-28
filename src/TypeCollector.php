@@ -170,6 +170,8 @@ final class TypeCollector
      */
     public function setProperties(array $data, array $exceptProperties = []): void
     {
+        $hasAssignments = false;
+
         foreach ($data as $property => $value) {
             if (is_string($property)) {
                 $camelCaseName = $this->snakeCaseToCamelCase($property);
@@ -178,38 +180,20 @@ final class TypeCollector
                     continue;
                 }
 
-                $this->setPropertyValue($camelCaseName, $value);
+                $this->setPropertyValueInternal($camelCaseName, $value, false);
+
+                $hasAssignments = true;
             }
+        }
+
+        if ($hasAssignments) {
+            $this->initializeTimestampProperties();
         }
     }
 
     public function setPropertyValue(string $property, mixed $value): void
     {
-        if ($this->hasProperty($property) === false) {
-            throw new InvalidArgumentException("Undefined property: \"$property\".");
-        }
-
-        $properties = explode('.', $property);
-        $propertyCount = count($properties);
-
-        if ($propertyCount === 1) {
-            $valueTypeCast = $this->phpTypeCast($property, $value);
-            $this->writeProperty($property, $valueTypeCast);
-            $this->initializeTimestampProperties();
-
-            return;
-        }
-
-        /** @var int<0, max> $lastPropertyKey */
-        $lastPropertyKey = array_key_last($properties);
-        $lastProperty = $properties[$lastPropertyKey];
-
-        $nestedProperty = array_slice($properties, 0, $propertyCount - 1);
-        $nestedValue = $this->model->getPropertyValue(implode('.', $nestedProperty));
-
-        if ($nestedValue instanceof ModelInterface) {
-            $nestedValue->setPropertyValue($lastProperty, $value);
-        }
+        $this->setPropertyValueInternal($property, $value, true);
     }
 
     /**
@@ -292,7 +276,7 @@ final class TypeCollector
                     $properties[$property->getName()] = '';
                 }
 
-                foreach ($property->getAttributes(Timestamp::class) as $ignored) {
+                if ($property->getAttributes(Timestamp::class) !== []) {
                     $properties[$property->getName()] = 'timestamp';
                 }
             }
@@ -386,6 +370,41 @@ final class TypeCollector
         return $typesWithoutNull[0];
     }
 
+    private function setPropertyValueInternal(
+        string $property,
+        mixed $value,
+        bool $initializeTimestampProperties,
+    ): void {
+        if ($this->hasProperty($property) === false) {
+            throw new InvalidArgumentException("Undefined property: \"$property\".");
+        }
+
+        $properties = explode('.', $property);
+        $propertyCount = count($properties);
+
+        if ($propertyCount === 1) {
+            $valueTypeCast = $this->phpTypeCast($property, $value);
+            $this->writeProperty($property, $valueTypeCast);
+
+            if ($initializeTimestampProperties) {
+                $this->initializeTimestampProperties();
+            }
+
+            return;
+        }
+
+        /** @var int<0, max> $lastPropertyKey */
+        $lastPropertyKey = array_key_last($properties);
+        $lastProperty = $properties[$lastPropertyKey];
+
+        $nestedProperty = array_slice($properties, 0, $propertyCount - 1);
+        $nestedValue = $this->model->getPropertyValue(implode('.', $nestedProperty));
+
+        if ($nestedValue instanceof ModelInterface) {
+            $nestedValue->setPropertyValue($lastProperty, $value);
+        }
+    }
+
     /**
      * Convert a snake_case formatted string to camelCase.
      *
@@ -429,8 +448,6 @@ final class TypeCollector
 
     private function writeProperty(string $property, mixed $value): void
     {
-        [$property, ] = $this->splitProperty($property);
-
         if ($this->hasDeclaredProperty($property) === false) {
             $this->dynamicValues[$property] = $value;
 

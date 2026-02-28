@@ -58,7 +58,7 @@ $types = $model->getPropertyTypes();
 
 - `setPropertyValue()` assigns a single property and supports nested paths (`profile.address.city`).
 - `setProperties()` assigns multiple values and converts snake_case input keys to camelCase.
-- `setProperties(..., $exceptProperties)` exclusions are evaluated in camelCase.
+- `setProperties($data, $exceptProperties)` exclusions are evaluated in camelCase.
 
 ```php
 $model->setProperties([

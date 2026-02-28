@@ -67,7 +67,7 @@ final class TypeCollectorTest extends TestCase
         self::assertTrue($model->hasProperty('country.name'));
     }
 
-    public function testisPropertyType(): void
+    public function testIsPropertyType(): void
     {
         $model = new PropertyType();
 

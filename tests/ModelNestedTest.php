@@ -23,7 +23,7 @@ final class ModelNestedTest extends TestCase
         $model = new Address(new Country());
 
         $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Country::noExist');
+        $this->expectExceptionMessage('Undefined property: "UIAwesome\Model\Tests\Support\Model\Country::noExist".');
 
         $model->getPropertyValue('country.noExist');
     }
