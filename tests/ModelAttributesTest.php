@@ -37,6 +37,7 @@ final class ModelAttributesTest extends TestCase
             'Should initialize updatedAt after bulk property assignment.',
         );
     }
+
     public function testLoadAttributesAndInitializeTimestampProperties(): void
     {
         $model = new Attributes();
