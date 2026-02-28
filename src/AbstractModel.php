@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
-use InvalidArgumentException;
-use UIAwesome\Model\Exception\Message;
-
 use function class_exists;
 use function is_array;
 use function iterator_to_array;
@@ -96,14 +93,6 @@ abstract class AbstractModel implements ModelInterface
             true => $sourceData[$scope],
             false => $sourceData,
         };
-
-        foreach ($rawData as $property => $value) {
-            if (!$this->hasProperty($property)) {
-                throw new InvalidArgumentException(
-                    Message::UNDEFINED_PROPERTY->getMessage($property),
-                );
-            }
-        }
 
         foreach ($rawData as $property => $value) {
             $this->setPropertyValue($property, $value);

@@ -134,6 +134,19 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testReturnFalseWhenNestedPathValueIsNotModelInstance(): void
+    {
+        $model = new PropertyType();
+
+        $model->addProperty('profile', Address::class);
+        $model->setPropertyValue('profile', 'not-a-model');
+
+        self::assertFalse(
+            $model->hasProperty('profile.city'),
+            'Should return false when the nested root value is not a model instance.',
+        );
+    }
+
     public function testReturnFalseWhenNestedPropertyPathIsInvalid(): void
     {
         $model = new Address(new Country());

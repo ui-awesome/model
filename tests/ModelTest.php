@@ -392,6 +392,18 @@ final class ModelTest extends TestCase
         $model->getPropertyValue('noExist');
     }
 
+    public function testThrowInvalidArgumentExceptionWhenLoadingUndefinedProperty(): void
+    {
+        $model = new PropertyType();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::UNDEFINED_PROPERTY->getMessage('noExist'),
+        );
+
+        $model->load(['PropertyType' => ['noExist' => 1]]);
+    }
+
     public function testThrowInvalidArgumentExceptionWhenSettingUndefinedProperty(): void
     {
         $model = new PropertyType();
