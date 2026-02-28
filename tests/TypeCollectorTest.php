@@ -50,6 +50,23 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testHasPropertyWithInvalidNestedPath(): void
+    {
+        $model = new Address(new Country());
+
+        self::assertFalse($model->hasProperty('nonexistent.any'));
+        self::assertFalse($model->hasProperty('city.any'));
+        self::assertFalse($model->hasProperty('country.nonexistent'));
+    }
+
+    public function testHasPropertyWithNestedPath(): void
+    {
+        $model = new Address(new Country());
+
+        self::assertTrue($model->hasProperty('city'));
+        self::assertTrue($model->hasProperty('country.name'));
+    }
+
     public function testisPropertyType(): void
     {
         $model = new PropertyType();
@@ -159,23 +176,6 @@ final class TypeCollectorTest extends TestCase
         );
 
         $model->setPropertyValue('string', []);
-    }
-
-    public function testHasPropertyWithNestedPath(): void
-    {
-        $model = new Address(new Country());
-
-        self::assertTrue($model->hasProperty('city'));
-        self::assertTrue($model->hasProperty('country.name'));
-    }
-
-    public function testHasPropertyWithInvalidNestedPath(): void
-    {
-        $model = new Address(new Country());
-
-        self::assertFalse($model->hasProperty('nonexistent.any'));
-        self::assertFalse($model->hasProperty('city.any'));
-        self::assertFalse($model->hasProperty('country.nonexistent'));
     }
 
     public function testToArrayWithSnakeCaseForPascalCaseProperty(): void

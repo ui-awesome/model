@@ -12,12 +12,12 @@ use ReflectionProperty;
 use ReflectionUnionType;
 use UIAwesome\Model\Attribute\{DoNotCollect, Timestamp};
 
+use function array_filter;
 use function array_key_exists;
 use function array_key_last;
 use function array_keys;
-use function array_values;
 use function array_slice;
-use function array_filter;
+use function array_values;
 use function count;
 use function explode;
 use function implode;
@@ -40,7 +40,9 @@ final class TypeCollector
      */
     private array $properties = [];
 
-    /** @var ReflectionClass<ModelInterface> */
+    /**
+     * @var ReflectionClass<ModelInterface>
+     */
     private ReflectionClass $reflection;
 
     public function __construct(private readonly ModelInterface $model)
@@ -299,6 +301,14 @@ final class TypeCollector
         return $properties;
     }
 
+    /**
+     * @phpstan-param list<string>|string $type
+     */
+    private function containsTimestampType(string|array $type): bool
+    {
+        return is_string($type) ? $type === 'timestamp' : in_array('timestamp', $type, true);
+    }
+
     private function hasDeclaredProperty(string $property): bool
     {
         return $this->reflection->hasProperty($property);
@@ -315,6 +325,21 @@ final class TypeCollector
         return false;
     }
 
+    private function initializeTimestampProperties(): void
+    {
+        foreach ($this->properties as $property => $type) {
+            if (!$this->containsTimestampType($type)) {
+                continue;
+            }
+
+            $currentValue = $this->readProperty($property);
+
+            if ($currentValue === null || $currentValue === 0) {
+                $this->writeProperty($property, time());
+            }
+        }
+    }
+
     private function performTypeCasting(string $expectedType, mixed $value): mixed
     {
         return match ($expectedType) {
@@ -324,20 +349,6 @@ final class TypeCollector
             'string' => is_scalar($value) || (is_object($value) && method_exists($value, '__toString')) ? (string) $value : $value,
             default => $value,
         };
-    }
-
-    /**
-     * @phpstan-param list<string> $expectedTypes
-     */
-    private function resolveTypeForCasting(array $expectedTypes): string|null
-    {
-        $typesWithoutNull = array_values(array_filter($expectedTypes, static fn (string $type): bool => $type !== 'null'));
-
-        if (count($typesWithoutNull) !== 1) {
-            return null;
-        }
-
-        return $typesWithoutNull[0];
     }
 
     private function readProperty(string $property): mixed
@@ -359,6 +370,20 @@ final class TypeCollector
         }
 
         return $this->dynamicValues[$property] ?? null;
+    }
+
+    /**
+     * @phpstan-param list<string> $expectedTypes
+     */
+    private function resolveTypeForCasting(array $expectedTypes): string|null
+    {
+        $typesWithoutNull = array_values(array_filter($expectedTypes, static fn(string $type): bool => $type !== 'null'));
+
+        if (count($typesWithoutNull) !== 1) {
+            return null;
+        }
+
+        return $typesWithoutNull[0];
     }
 
     /**
@@ -419,28 +444,5 @@ final class TypeCollector
         $setter = Closure::bind($setter, null, $this->model);
 
         $setter($this->model, $property, $value);
-    }
-
-    private function initializeTimestampProperties(): void
-    {
-        foreach ($this->properties as $property => $type) {
-            if (!$this->containsTimestampType($type)) {
-                continue;
-            }
-
-            $currentValue = $this->readProperty($property);
-
-            if ($currentValue === null || $currentValue === 0) {
-                $this->writeProperty($property, time());
-            }
-        }
-    }
-
-    /**
-     * @phpstan-param list<string>|string $type
-     */
-    private function containsTimestampType(string|array $type): bool
-    {
-        return is_string($type) ? $type === 'timestamp' : in_array('timestamp', $type, true);
     }
 }
