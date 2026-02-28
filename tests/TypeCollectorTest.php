@@ -344,6 +344,23 @@ final class TypeCollectorTest extends TestCase
         $model->setPropertyValue('token', 'phase-2-update');
     }
 
+    public function testThrowInvalidArgumentExceptionWhenReassigningReadonlyPropertyViaSetProperties(): void
+    {
+        $model = new ReadonlyState(new Country());
+
+        $model->setProperties(['token' => 'phase-1']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::READONLY_PROPERTY_ALREADY_INITIALIZED->getMessage(
+                ReadonlyState::class,
+                'token',
+            ),
+        );
+
+        $model->setProperties(['token' => 'phase-2']);
+    }
+
     public function testThrowTypeErrorWhenAssigningInvalidPropertyValue(): void
     {
         $model = new PropertyType();
