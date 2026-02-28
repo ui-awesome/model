@@ -5,13 +5,33 @@ declare(strict_types=1);
 namespace UIAwesome\Model;
 
 use function class_exists;
+use function is_array;
+use function iterator_to_array;
 use function str_contains;
 use function strrchr;
 use function substr;
 
+/**
+ * Base implementation of {@see ModelInterface}.
+ *
+ * Usage example:
+ * ```php
+ * final class UserForm extends AbstractModel
+ * {
+ *     public string $name = '';
+ * }
+ *
+ * $model = new UserForm();
+ * $model->load(['UserForm' => ['name' => 'Ada']]);
+ * ```
+ */
 abstract class AbstractModel implements ModelInterface
 {
+    /**
+     * @phpstan-var mixed[]
+     */
     private array $data = [];
+
     private TypeCollector|null $typeCollector = null;
 
     public function addProperty(string $property, string|array $type): void
@@ -19,6 +39,9 @@ abstract class AbstractModel implements ModelInterface
         $this->typeCollector()->addProperty($property, $type);
     }
 
+    /**
+     * @phpstan-return mixed[]
+     */
     public function getData(): array
     {
         return $this->data;
@@ -39,17 +62,22 @@ abstract class AbstractModel implements ModelInterface
         return substr($className, 1);
     }
 
+    /**
+     * @return list<string>
+     *
+     * @phpstan-return list<string>
+     */
     public function getProperties(): array
     {
         return $this->getNestedProperties($this, '');
     }
 
     /**
-     * @psalm-return array<string, list<string>|string>
+     * @phpstan-return array<string, list<string>|string>
      */
-    public function getPropertiesTypes(): array
+    public function getPropertyTypes(): array
     {
-        return $this->typeCollector()->getProperties();
+        return $this->typeCollector()->getPropertyTypes();
     }
 
     public function getPropertyValue(string $property): mixed
@@ -72,24 +100,35 @@ abstract class AbstractModel implements ModelInterface
         return $this->typeCollector()->isPropertyType($property, $type);
     }
 
-    public function load(iterable $data, string $modelName = null): bool
+    public function load(iterable $data, string|null $modelName = null): bool
     {
         $this->data = [];
+
         $scope = $modelName ?? $this->getModelName();
+        $sourceData = is_array($data) ? $data : iterator_to_array($data);
 
-        /** @psalm-var array<string,string> $rawData */
-        $rawData = match (isset($data[$scope])) {
-            true => $data[$scope],
-            false => $data,
+        /** @var array<string, mixed> $rawData */
+        $rawData = match (isset($sourceData[$scope]) && is_array($sourceData[$scope])) {
+            true => $sourceData[$scope],
+            false => $sourceData,
         };
-
-        $this->data = $rawData;
 
         foreach ($rawData as $property => $value) {
             $this->setPropertyValue($property, $value);
         }
 
+        $this->data = $rawData;
+
         return $rawData !== [];
+    }
+
+    /**
+     * @phpstan-param array<array-key, mixed> $data
+     * @phpstan-param list<string> $exceptProperties
+     */
+    public function setProperties(array $data, array $exceptProperties = []): void
+    {
+        $this->typeCollector()->setProperties($data, $exceptProperties);
     }
 
     public function setPropertyValue(string $property, mixed $value): void
@@ -97,35 +136,28 @@ abstract class AbstractModel implements ModelInterface
         $this->typeCollector()->setPropertyValue($property, $value);
     }
 
-    public function setPropertiesValues(array $data, array $exceptPropierties = []): void
+    /**
+     * @phpstan-param list<string> $exceptProperties
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(bool $snakeCase = false, array $exceptProperties = []): array
     {
-        $this->typeCollector()->setPropertiesValues($data, $exceptPropierties);
-    }
-
-    public function toArray(bool $snakeCase = false, array $exceptPropierties = []): array
-    {
-        return $this->typeCollector()->toArray($snakeCase, $exceptPropierties);
-    }
-
-    private function typeCollector(): TypeCollector
-    {
-        if ($this->typeCollector === null) {
-            $this->typeCollector = new TypeCollector($this);
-        }
-
-        return $this->typeCollector;
+        return $this->typeCollector()->toArray($snakeCase, $exceptProperties);
     }
 
     /**
-     * @psalm-return array<string>
+     * @return list<string>
+     *
+     * @phpstan-return list<string>
      */
     private function getNestedProperties(ModelInterface $model, string $prefix): array
     {
         $properties = [];
 
-        foreach ($model->getPropertiesTypes() as $property => $type) {
-            if (is_string($type) && class_exists($type)) {
-                $nestedModel = $model->$property;
+        foreach ($model->getPropertyTypes() as $property => $type) {
+            if (is_string($property) && is_string($type) && class_exists($type)) {
+                $nestedModel = $model->getPropertyValue($property);
 
                 if ($nestedModel instanceof ModelInterface) {
                     $nestedProperty = $this->getNestedProperties($nestedModel, $prefix . $property . '.');
@@ -137,5 +169,14 @@ abstract class AbstractModel implements ModelInterface
         }
 
         return $properties;
+    }
+
+    private function typeCollector(): TypeCollector
+    {
+        if ($this->typeCollector === null) {
+            $this->typeCollector = new TypeCollector($this);
+        }
+
+        return $this->typeCollector;
     }
 }

@@ -7,13 +7,19 @@ namespace UIAwesome\Model\Tests\Support\Model;
 use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\DoNotCollect;
 
+/**
+ * Stub profile model with nested address relation used by test fixtures.
+ *
+ * @copyright Copyright (C) 2024 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
+ */
 final class Profile extends AbstractModel
 {
     #[DoNotCollect]
     public array $avatar = [];
     public string $bio = '';
-    public string $publicEmailPersonal = '';
     public string $pathAvatar = '';
+    public string $publicEmailPersonal = '';
 
     public function __construct(public readonly Address $address) {}
 }

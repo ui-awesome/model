@@ -1,0 +1,70 @@
+<svg fill="none" viewBox="0 0 1200 410" width="100%" height="340" xmlns="http://www.w3.org/2000/svg">
+    <foreignObject width="100%" height="100%">
+        <div xmlns="http://www.w3.org/1999/xhtml">
+            <style>
+                .container {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    gap: 20px;
+                    padding: 20px;
+                }
+                .card {
+                    border-left: 4px solid #1f883d;
+                    padding: 12px;
+                    margin-bottom: 16px;
+                    border-radius: 6px;
+                    background: rgba(31, 136, 61, 0.1);
+                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                    width: 100%;
+                    box-sizing: border-box;
+                }
+                .title {
+                    margin: 0 0 8px 0;
+                    font-weight: 600;
+                }
+                .content {
+                    margin: 0;
+                    line-height: 1.5;
+                }
+
+                @media (prefers-color-scheme: light) {
+                    .title { color: #000000; }
+                    .content { color: #333333; }
+                    .card { background: rgba(31, 136, 61, 0.1); }
+                }
+
+                @media (prefers-color-scheme: dark) {
+                    .title { color: #ffffff; }
+                    .content { color: #ffffff; }
+                    .card { background: rgba(31, 136, 61, 0.2); }
+                }
+            </style>
+            <div class="container">
+                <div class="card">
+                    <p class="title"><strong>Array Serialization</strong></p>
+                    <p class="content">Serialize model state with optional snake_case output and explicit field exclusions.</p>
+                </div>
+                <div class="card">
+                    <p class="title"><strong>Attribute Controls</strong></p>
+                    <p class="content"><code>#[DoNotCollect]</code> excludes fields and <code>#[Timestamp]</code> initializes timestamps safely.</p>
+                </div>
+                <div class="card">
+                    <p class="title"><strong>Model Loading</strong></p>
+                    <p class="content">Supports scoped payload loading from forms or request arrays with strict property validation.</p>
+                </div>
+                <div class="card">
+                    <p class="title"><strong>Nested Paths</strong></p>
+                    <p class="content">Read and write nested values with dot notation such as <code>profile.address.city</code>.</p>
+                </div>
+                <div class="card">
+                    <p class="title"><strong>Strict Quality Gates</strong></p>
+                    <p class="content">Tested with PHPUnit, analyzed with PHPStan max, and verified by mutation testing.</p>
+                </div>
+                <div class="card">
+                    <p class="title"><strong>Typed Properties</strong></p>
+                    <p class="content">Reflection-based type collection with scalar conversion for predictable model assignment.</p>
+                </div>
+            </div>
+        </div>
+    </foreignObject>
+</svg>
