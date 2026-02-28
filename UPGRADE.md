@@ -12,6 +12,7 @@
 - `setProperties($data, $exceptProperties)` now matches exclusions using camelCase property names.
 - `getPropertyValue()` no longer mutates timestamp properties while reading.
 - `load()` now uses the same key normalization as `setProperties()`, mapping snake_case payload keys to camelCase model properties.
+- Assigning a value to an already initialized `readonly` property now throws `InvalidArgumentException` instead of surfacing a PHP fatal error.
 
 ### Migration steps
 
@@ -22,6 +23,7 @@
 - If your code asserts exact output from `getPropertyTypes()`, update expectations for nullable properties to include `'null'`.
 - Update `setProperties()` exclusions to camelCase names, e.g. `publicEmailPersonal` instead of `public_email_personal`.
 - Review `load()` payload keys if your models intentionally use underscored property names, because snake_case keys are now normalized to camelCase during assignment.
+- Handle `readonly` reassignment attempts as application-level exceptions when using `setPropertyValue()` or `setProperties()`.
 
 ```php
 <?php
@@ -50,4 +52,7 @@ $model->load(['Profile' => ['publicEmailPersonal' => 'admin@example.com']]);
 
 // snake_case now also works in load()
 $model->load(['Profile' => ['public_email_personal' => 'admin@example.com']]);
+
+// readonly reassignment now throws InvalidArgumentException
+$model->setPropertyValue('readonlyField', 'new-value');
 ```

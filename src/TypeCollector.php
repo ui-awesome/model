@@ -618,7 +618,18 @@ final class TypeCollector
         if ($this->hasDeclaredProperty($property) === false) {
             $this->dynamicValues[$property] = $value;
         } else {
-            $this->reflection->getProperty($property)->setValue($this->model, $value);
+            $reflectionProperty = $this->reflection->getProperty($property);
+
+            if ($reflectionProperty->isReadOnly() && $reflectionProperty->isInitialized($this->model)) {
+                throw new InvalidArgumentException(
+                    Message::READONLY_PROPERTY_ALREADY_INITIALIZED->getMessage(
+                        $this->model::class,
+                        $property,
+                    ),
+                );
+            }
+
+            $reflectionProperty->setValue($this->model, $value);
         }
     }
 }
