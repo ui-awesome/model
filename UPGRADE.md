@@ -54,5 +54,6 @@ $model->load(['Profile' => ['publicEmailPersonal' => 'admin@example.com']]);
 $model->load(['Profile' => ['public_email_personal' => 'admin@example.com']]);
 
 // readonly reassignment now throws InvalidArgumentException
+$model->setPropertyValue('readonlyField', 'initial-value');
 $model->setPropertyValue('readonlyField', 'new-value');
 ```
