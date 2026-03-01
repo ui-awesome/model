@@ -17,18 +17,18 @@ use function sprintf;
 enum Message: string
 {
     /**
-     * Indicates attempts to overwrite an initialized readonly property.
-     *
-     * Format: "Cannot overwrite initialized readonly property: '%s::%s'."
-     */
-    case READONLY_PROPERTY_ALREADY_INITIALIZED = "Cannot overwrite initialized readonly property: '%s::%s'.";
-
-    /**
      * Indicates invalid string input for date/time object casting.
      *
      * Format: "Invalid date/time string '%s' for type '%s'."
      */
     case INVALID_DATE_TIME_STRING = "Invalid date/time string '%s' for type '%s'.";
+
+    /**
+     * Indicates attempts to overwrite an initialized readonly property.
+     *
+     * Format: "Cannot overwrite initialized readonly property: '%s::%s'."
+     */
+    case READONLY_PROPERTY_ALREADY_INITIALIZED = "Cannot overwrite initialized readonly property: '%s::%s'.";
 
     /**
      * Indicates an undefined property without model class context.

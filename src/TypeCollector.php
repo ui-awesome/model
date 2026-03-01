@@ -333,6 +333,26 @@ final class TypeCollector
     }
 
     /**
+     * Casts string input to DateTime-compatible objects for declared date/time property types.
+     *
+     * @param class-string<DateTime>|class-string<DateTimeImmutable> $dateTimeClass
+     */
+    private function castDateTimeObject(string $dateTimeClass, mixed $value): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        try {
+            return new $dateTimeClass($value);
+        } catch (Exception) {
+            throw new InvalidArgumentException(
+                Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+            );
+        }
+    }
+
+    /**
      * Returns the list of property types indexed by property names.
      *
      * By default, this method returns all non-static properties of the class.
@@ -469,27 +489,6 @@ final class TypeCollector
                 ? (string) $value : $value,
             default => $value,
         };
-    }
-
-    /**
-     * Casts string input to DateTime-compatible objects for declared date/time property types.
-     *
-     * @param class-string<DateTime>|class-string<DateTimeImmutable> $dateTimeClass
-     * @param mixed $value
-     */
-    private function castDateTimeObject(string $dateTimeClass, mixed $value): mixed
-    {
-        if (!is_string($value)) {
-            return $value;
-        }
-
-        try {
-            return new $dateTimeClass($value);
-        } catch (Exception) {
-            throw new InvalidArgumentException(
-                Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
-            );
-        }
     }
 
     /**

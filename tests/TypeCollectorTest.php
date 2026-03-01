@@ -107,26 +107,6 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testCastStringToDateTimeProperty(): void
-    {
-        $model = new DateTimeType();
-
-        $model->setPropertyValue('createdAt', '2026-02-28 10:30:00');
-
-        $createdAt = $model->getPropertyValue('createdAt');
-
-        self::assertInstanceOf(
-            DateTime::class,
-            $createdAt,
-            'Should cast valid date strings to DateTime objects when the property type requires it.',
-        );
-        self::assertSame(
-            '2026-02-28 10:30:00',
-            $createdAt->format('Y-m-d H:i:s'),
-            'Should preserve the parsed timestamp value after DateTime casting.',
-        );
-    }
-
     public function testCastStringToDateTimeImmutableProperty(): void
     {
         $model = new DateTimeType();
@@ -148,30 +128,24 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testKeepDateTimeObjectInstanceWhenAlreadyTyped(): void
+    public function testCastStringToDateTimeProperty(): void
     {
         $model = new DateTimeType();
-        $dateTime = new DateTime('2026-02-28 14:00:00');
 
-        $model->setPropertyValue('createdAt', $dateTime);
+        $model->setPropertyValue('createdAt', '2026-02-28 10:30:00');
 
+        $createdAt = $model->getPropertyValue('createdAt');
+
+        self::assertInstanceOf(
+            DateTime::class,
+            $createdAt,
+            'Should cast valid date strings to DateTime objects when the property type requires it.',
+        );
         self::assertSame(
-            $dateTime,
-            $model->getPropertyValue('createdAt'),
-            'Should keep existing DateTime object instances without rebuilding them.',
+            '2026-02-28 10:30:00',
+            $createdAt->format('Y-m-d H:i:s'),
+            'Should preserve the parsed timestamp value after DateTime casting.',
         );
-    }
-
-    public function testThrowInvalidArgumentExceptionWhenCastingInvalidDateTimeString(): void
-    {
-        $model = new DateTimeType();
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            Message::INVALID_DATE_TIME_STRING->getMessage('not-a-date', DateTime::class),
-        );
-
-        $model->setPropertyValue('createdAt', 'not-a-date');
     }
 
     public function testCastValueToDeclaredPhpType(): void
@@ -190,6 +164,20 @@ final class TypeCollectorTest extends TestCase
             1.1,
             $model->getPropertyValue('float'),
             'Should cast numeric strings assigned to float properties.',
+        );
+    }
+
+    public function testKeepDateTimeObjectInstanceWhenAlreadyTyped(): void
+    {
+        $model = new DateTimeType();
+        $dateTime = new DateTime('2026-02-28 14:00:00');
+
+        $model->setPropertyValue('createdAt', $dateTime);
+
+        self::assertSame(
+            $dateTime,
+            $model->getPropertyValue('createdAt'),
+            'Should keep existing DateTime object instances without rebuilding them.',
         );
     }
 
@@ -379,6 +367,18 @@ final class TypeCollectorTest extends TestCase
             $model->getPropertyValue('token'),
             'Should allow assigning an uninitialized readonly property once.',
         );
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenCastingInvalidDateTimeString(): void
+    {
+        $model = new DateTimeType();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::INVALID_DATE_TIME_STRING->getMessage('not-a-date', DateTime::class),
+        );
+
+        $model->setPropertyValue('createdAt', 'not-a-date');
     }
 
     public function testThrowInvalidArgumentExceptionWhenOverwritingInitializedReadonlyProperty(): void
