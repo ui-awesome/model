@@ -56,7 +56,7 @@ final class User extends AbstractModel
     public string $email = '';
 
     #[Trim]
-    public string $name = '';    
+    public string $name = '';
 
     #[Cast('array')]
     public array $tags = [];
