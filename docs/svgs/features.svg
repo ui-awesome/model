@@ -46,7 +46,7 @@
                 </div>
                 <div class="card">
                     <p class="title"><strong>Attribute Controls</strong></p>
-                    <p class="content"><code>#[DoNotCollect]</code> excludes fields and <code>#[Timestamp]</code> initializes timestamps safely.</p>
+                    <p class="content"><code>#[MapFrom]</code> maps external payload keys while <code>#[DoNotCollect]</code> and <code>#[Timestamp]</code> control collection and timestamps.</p>
                 </div>
                 <div class="card">
                     <p class="title"><strong>Model Loading</strong></p>
@@ -62,7 +62,7 @@
                 </div>
                 <div class="card">
                     <p class="title"><strong>Typed Properties</strong></p>
-                    <p class="content">Reflection-based type collection with scalar conversion for predictable model assignment.</p>
+                    <p class="content">Reflection-based type collection with scalar and DateTime casting plus safe readonly write protection.</p>
                 </div>
             </div>
         </div>

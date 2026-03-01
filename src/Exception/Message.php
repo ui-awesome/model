@@ -17,11 +17,24 @@ use function sprintf;
 enum Message: string
 {
     /**
+     * Indicates duplicate input-key mapping across model properties.
+     *
+     * Format: "Duplicate MapFrom key '%s' in '%s::%s' and '%s::%s'."
+     */
+    case DUPLICATE_MAP_FROM_KEY = "Duplicate MapFrom key '%s' in '%s::%s' and '%s::%s'.";
+    /**
      * Indicates invalid string input for date/time object casting.
      *
      * Format: "Invalid date/time string '%s' for type '%s'."
      */
     case INVALID_DATE_TIME_STRING = "Invalid date/time string '%s' for type '%s'.";
+
+    /**
+     * Indicates an empty MapFrom input key.
+     *
+     * Format: "MapFrom key cannot be empty."
+     */
+    case MAP_FROM_KEY_EMPTY = 'MapFrom key cannot be empty.';
 
     /**
      * Indicates attempts to overwrite an initialized readonly property.
