@@ -29,6 +29,7 @@ use function is_a;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function max;
 use function method_exists;
 use function str_contains;
 
@@ -344,10 +345,24 @@ final class TypeCollector
         }
 
         try {
-            return new $dateTimeClass($value);
-        } catch (Exception) {
+            $dateTime = new $dateTimeClass($value);
+            $errors = $dateTimeClass::getLastErrors();
+
+            if (is_array($errors)) {
+                $issueCount = max($errors['warning_count'], $errors['error_count']);
+
+                if ($issueCount > 0) {
+                    throw new InvalidArgumentException(
+                        Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+                    );
+                }
+            }
+
+            return $dateTime;
+        } catch (Exception $exception) {
             throw new InvalidArgumentException(
                 Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+                previous: $exception,
             );
         }
     }

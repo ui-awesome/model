@@ -369,7 +369,7 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testThrowInvalidArgumentExceptionWhenCastingInvalidDateTimeString(): void
+    public function testThrowInvalidArgumentExceptionWhenCastingDateTimeString(): void
     {
         $model = new DateTimeType();
 
@@ -379,6 +379,18 @@ final class TypeCollectorTest extends TestCase
         );
 
         $model->setPropertyValue('createdAt', 'not-a-date');
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenCastingOverflowDateTimeString(): void
+    {
+        $model = new DateTimeType();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::INVALID_DATE_TIME_STRING->getMessage('2026-02-30 10:30:00', DateTime::class),
+        );
+
+        $model->setPropertyValue('createdAt', '2026-02-30 10:30:00');
     }
 
     public function testThrowInvalidArgumentExceptionWhenOverwritingInitializedReadonlyProperty(): void
