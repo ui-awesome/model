@@ -12,18 +12,44 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\MapFrom;
 
 final class User extends AbstractModel
 {
     public string $name = '';
+    #[MapFrom('user-age')]
     public int $age = 0;
 }
 
 $model = new User();
-$model->load(['User' => ['name' => 'Jane', 'age' => 20]]);
 
+$model->load(['User' => ['name' => 'Jane', 'user-age' => 20]]);
 echo $model->getPropertyValue('name');
 echo $model->getPropertyValue('age');
+```
+
+## Explicit payload-key mapping
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\MapFrom;
+
+final class JsonLdContext extends AbstractModel
+{
+    #[MapFrom('@context')]
+    public string $context = '';
+}
+
+$model = new JsonLdContext();
+
+$model->setProperties(['@context' => 'https://schema.org']);
+echo $model->getPropertyValue('context');
 ```
 
 ## Nested model access
@@ -49,8 +75,8 @@ final class Profile extends AbstractModel
 }
 
 $profile = new Profile(new Address());
-$profile->setPropertyValue('address.city', 'Madrid');
 
+$profile->setPropertyValue('address.city', 'Madrid');
 echo $profile->getPropertyValue('address.city');
 ```
 
@@ -73,11 +99,13 @@ $model->addProperty('name', 'string');
 $model->addProperty('age', 'int');
 $model->addProperty('createdAt', 'timestamp');
 
-$model->load([
-    'name' => 'John Doe',
-    'age' => 30,
-], 'DynamicModel');
-
+$model->load(
+    [
+        'name' => 'John Doe',
+        'age' => 30,
+    ], 
+    'DynamicModel',
+);
 echo $model->getPropertyValue('name');
 echo $model->getPropertyValue('createdAt');
 ```
@@ -86,6 +114,29 @@ echo $model->getPropertyValue('createdAt');
 
 ```php
 $array = $model->toArray(snakeCase: true, exceptProperties: ['createdAt']);
+```
+
+## DateTime casting
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use DateTimeImmutable;
+use UIAwesome\Model\AbstractModel;
+
+final class Post extends AbstractModel
+{
+    public DateTimeImmutable $publishedAt;
+}
+
+$model = new Post();
+
+$model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
+echo $model->getPropertyValue('publishedAt')->format(DATE_ATOM);
 ```
 
 ## Next steps

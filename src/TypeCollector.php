@@ -12,7 +12,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
-use UIAwesome\Model\Attribute\{DoNotCollect, Timestamp};
+use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom, Timestamp};
 use UIAwesome\Model\Exception\Message;
 
 use function array_filter;
@@ -50,6 +50,11 @@ final class TypeCollector
     private array $dynamicValues = [];
 
     /**
+     * @phpstan-var array<string, string>
+     */
+    private array $mapFromKeys = [];
+
+    /**
      * @phpstan-var array<string, list<string>|string>
      */
     private array $properties = [];
@@ -63,6 +68,7 @@ final class TypeCollector
     {
         $this->reflection = new ReflectionClass($this->model);
         $this->properties = $this->collectProperties();
+        $this->mapFromKeys = $this->collectMapFromKeys();
     }
 
     /**
@@ -247,7 +253,7 @@ final class TypeCollector
 
         foreach ($data as $property => $value) {
             if (is_string($property)) {
-                $camelCaseName = $this->snakeCaseToCamelCase($property);
+                $camelCaseName = $this->resolveInputPropertyName($property);
 
                 if (in_array($camelCaseName, $exceptProperties, true)) {
                     continue;
@@ -302,6 +308,7 @@ final class TypeCollector
     {
         /** @var list<string> $properties */
         $properties = array_keys($this->getPropertyTypes());
+
         $result = [];
 
         foreach ($properties as $property) {
@@ -346,6 +353,7 @@ final class TypeCollector
 
         try {
             $dateTime = new $dateTimeClass($value);
+
             $errors = $dateTimeClass::getLastErrors();
 
             if (is_array($errors)) {
@@ -365,6 +373,45 @@ final class TypeCollector
                 previous: $exception,
             );
         }
+    }
+
+    /**
+     * Collects explicit input-key mappings from `MapFrom` property attributes.
+     *
+     * @return array<string, string>
+     */
+    private function collectMapFromKeys(): array
+    {
+        $keys = [];
+
+        foreach ($this->reflection->getProperties() as $property) {
+            if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
+                continue;
+            }
+
+            foreach ($property->getAttributes(MapFrom::class) as $attribute) {
+                /** @var MapFrom $mapFrom */
+                $mapFrom = $attribute->newInstance();
+
+                $key = $mapFrom->key;
+
+                if (array_key_exists($key, $keys) && $keys[$key] !== $property->getName()) {
+                    throw new InvalidArgumentException(
+                        Message::DUPLICATE_MAP_FROM_KEY->getMessage(
+                            $key,
+                            $this->model::class,
+                            $keys[$key],
+                            $this->model::class,
+                            $property->getName(),
+                        ),
+                    );
+                }
+
+                $keys[$key] = $property->getName();
+            }
+        }
+
+        return $keys;
     }
 
     /**
@@ -534,6 +581,18 @@ final class TypeCollector
     }
 
     /**
+     * Resolves an input key to the model property name.
+     */
+    private function resolveInputPropertyName(string $property): string
+    {
+        if (array_key_exists($property, $this->mapFromKeys)) {
+            return $this->mapFromKeys[$property];
+        }
+
+        return $this->snakeCaseToCamelCase($property);
+    }
+
+    /**
      * Resolves the type to be used for casting when multiple types are defined for a property.
      *
      * This method takes an array of expected types and returns the type to be used for casting.
@@ -592,6 +651,7 @@ final class TypeCollector
 
         /** @var int<0, max> $lastPropertyKey */
         $lastPropertyKey = array_key_last($properties);
+
         $lastProperty = $properties[$lastPropertyKey];
 
         $nestedProperty = array_slice($properties, 0, $propertyCount - 1);
@@ -612,6 +672,7 @@ final class TypeCollector
     private function snakeCaseToCamelCase(string $snakeCaseString): string
     {
         $words = explode('_', $snakeCaseString);
+
         $camelCase = '';
 
         foreach ($words as $index => $word) {

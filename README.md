@@ -22,7 +22,7 @@
 
 <p align="center">
     <strong>Typed model mapping for modern PHP applications</strong><br>
-    <em>Nested properties, controlled casting, timestamp attributes, and array serialization</em>
+    <em>Nested properties, explicit input mapping, controlled casting, and array serialization</em>
 </p>
 
 ## Features
@@ -48,11 +48,12 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\Timestamp;
+use UIAwesome\Model\Attribute\{MapFrom, Timestamp};
 
 final class User extends AbstractModel
 {
     public string $name = '';
+    #[MapFrom('user-email-address')]
     public string $email = '';
     #[Timestamp]
     private int $updatedAt = 0;
@@ -64,7 +65,7 @@ $model->load(
     [
         'User' => [
             'name' => 'Ada Lovelace',
-            'email' => 'ada@example.com',
+            'user-email-address' => 'ada@example.com',
         ],
     ],
 );
@@ -72,6 +73,30 @@ $model->load(
 $model->setPropertyValue('name', 'Ada');
 $types = $model->getPropertyTypes();
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
+```
+
+## Explicit payload mapping with `MapFrom`
+
+Use `#[MapFrom('external-key')]` when incoming payload keys do not follow snake_case or camelCase naming.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\MapFrom;
+
+final class JsonLdPayload extends AbstractModel
+{
+    #[MapFrom('@context')]
+    public string $context = '';
+}
+
+$payload = new JsonLdPayload();
+$payload->setProperties(['@context' => 'https://schema.org']);
 ```
 
 ## Documentation
