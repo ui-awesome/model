@@ -8,6 +8,8 @@ use Attribute;
 use InvalidArgumentException;
 use UIAwesome\Model\Exception\Message;
 
+use function trim;
+
 /**
  * Forces custom casting before native property type casting.
  *
@@ -30,7 +32,7 @@ final class Cast
 
     public function __construct(string $target, string $separator = ',')
     {
-        if ($target === '') {
+        if (trim($target) === '') {
             throw new InvalidArgumentException(Message::CAST_TARGET_EMPTY->getMessage());
         }
 

@@ -21,7 +21,10 @@ use UIAwesome\Model\Tests\Support\Model\CastPayload;
  * - Supports custom caster classes implementing `CastValueInterface`.
  * - Supports mapped keys and trim normalization before cast execution.
  * - Throws explicit exceptions for invalid cast targets and invalid caster classes.
- * - Validates `Cast` attribute configuration for empty target and empty separator.
+ * - Validates `Cast` attribute configuration for empty/blank target and empty separator.
+ *
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class CastTest extends TestCase
 {
@@ -212,6 +215,19 @@ final class CastTest extends TestCase
                 \UIAwesome\Model\CastValueInterface::class,
             ),
         );
+
+        $model->setPropertyValue('tags', 'a,b');
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenCastTargetIsBlankSpaces(): void
+    {
+        $model = new class extends AbstractModel {
+            #[Cast('   ')]
+            public array $tags = [];
+        };
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(Message::CAST_TARGET_EMPTY->getMessage());
 
         $model->setPropertyValue('tags', 'a,b');
     }
