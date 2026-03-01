@@ -34,8 +34,9 @@ final class DoNotCollectTest extends TestCase
     {
         $model = new Attributes();
 
-        self::assertFalse(
-            in_array('flag', $model->getProperties(), true),
+        self::assertNotContains(
+            'flag',
+            $model->getProperties(),
             'Should omit DoNotCollect properties from flattened property names.',
         );
     }
