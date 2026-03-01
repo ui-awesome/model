@@ -8,6 +8,8 @@ use Attribute;
 use InvalidArgumentException;
 use UIAwesome\Model\Exception\Message;
 
+use function trim;
+
 /**
  * Maps a model property from an explicit input key.
  *
@@ -24,7 +26,7 @@ final class MapFrom
 
     public function __construct(string $key)
     {
-        if ($key === '') {
+        if (trim($key) === '') {
             throw new InvalidArgumentException(
                 Message::MAP_FROM_KEY_EMPTY->getMessage(),
             );

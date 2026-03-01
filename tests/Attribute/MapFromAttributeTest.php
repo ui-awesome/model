@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace UIAwesome\Model\Tests;
+namespace UIAwesome\Model\Tests\Attribute;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\DoNotCollect;
-use UIAwesome\Model\Attribute\MapFrom;
+use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom};
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Support\Model\{MapFromDuplicate, MapFromPayload};
 
@@ -173,6 +172,21 @@ final class MapFromAttributeTest extends TestCase
     {
         $model = new class extends AbstractModel {
             #[MapFrom('')]
+            public string $name = '';
+        };
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::MAP_FROM_KEY_EMPTY->getMessage(),
+        );
+
+        $model->setProperties(['name' => 'Ada']);
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenMapFromKeyIsWhitespaceOnly(): void
+    {
+        $model = new class extends AbstractModel {
+            #[MapFrom('   ')]
             public string $name = '';
         };
 
