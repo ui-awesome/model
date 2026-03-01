@@ -23,8 +23,8 @@ final class DoNotCollectTest extends TestCase
     {
         $model = new Attributes();
 
-        self::assertFalse(
-            array_key_exists('flag', $model->getPropertyTypes()),
+        self::assertArrayNotHasKey(
+            'flag', $model->getPropertyTypes(),
             'Should omit DoNotCollect properties from collected type metadata.',
         );
     }
