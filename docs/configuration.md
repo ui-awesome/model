@@ -16,18 +16,28 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
-    #[Trim]
-    public string $name = '';
+    #[NoSnakeCase]
+    public string $apiVersion = 'v1';
+
     #[MapFrom('user-email-address')]
     public string $email = '';
-    #[Cast('array')]
-    public array $tags = [];
+
     #[DoNotCollect]
     private string $internalToken = '';
+
+    #[Trim]
+    public string $name = '';
+
+    #[Trim]
+    public string $publicEmailPersonal = '';
+
+    #[Cast('array')]
+    public array $tags = [];
+
     #[Timestamp]
     private int $updatedAt = 0;
 }
@@ -58,7 +68,16 @@ $model->load(
 
 ```php
 $types = $model->getPropertyTypes();
-// Example: ['age' => ['int', 'null']]
+/*
+[
+    'apiVersion' => 'string',
+    'email' => 'string',
+    'name' => 'string',
+    'publicEmailPersonal' => 'string',
+    'tags' => 'array',
+    'updatedAt' => 'int',
+]
+*/
 ```
 
 ## Property assignment rules
@@ -89,9 +108,19 @@ $model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
 
 - `toArray(bool $snakeCase = false, array $exceptProperties = [])` exports model data.
 - Use `snakeCase: true` to transform output keys.
+- `#[NoSnakeCase]` preserves marked property names when `snakeCase: true` is enabled.
 
 ```php
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
+/*
+[
+    'apiVersion' => 'v1',
+    'email' => 'dev@example.com',
+    'name' => 'Ada Lovelace',
+    'public_email_personal' => 'dev@example.com',
+    'tags' => [],
+]
+*/
 ```
 
 ## Next steps

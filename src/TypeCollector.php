@@ -12,7 +12,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
-use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
 use UIAwesome\Model\Exception\Message;
 
 use function array_filter;
@@ -72,6 +72,13 @@ final class TypeCollector
     private array $mapFromKeys = [];
 
     /**
+     * Marks properties that should preserve their original key during snake_case serialization.
+     *
+     * @phpstan-var array<string, true>
+     */
+    private array $noSnakeCaseProperties = [];
+
+    /**
      * Stores collected property type metadata.
      *
      * @phpstan-var array<string, list<string>|string>
@@ -98,6 +105,7 @@ final class TypeCollector
         $this->properties = $this->collectProperties();
         $this->mapFromKeys = $this->collectMapFromKeys();
         $this->castProperties = $this->collectCastProperties();
+        $this->noSnakeCaseProperties = $this->collectNoSnakeCaseProperties();
         $this->trimProperties = $this->collectTrimProperties();
     }
 
@@ -345,7 +353,7 @@ final class TypeCollector
             if (!in_array($property, $exceptProperties, true)) {
                 $value = $this->model->getPropertyValue($property);
 
-                if ($snakeCase) {
+                if ($snakeCase && !array_key_exists($property, $this->noSnakeCaseProperties)) {
                     $property = $this->camelCaseToSnakeCase($property);
                 }
 
@@ -553,6 +561,28 @@ final class TypeCollector
                 }
 
                 $keys[$key] = $property->getName();
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Collects properties that should preserve key casing in snake_case serialization.
+     *
+     * @return array<string, true> Property names excluded from snake_case conversion.
+     */
+    private function collectNoSnakeCaseProperties(): array
+    {
+        $keys = [];
+
+        foreach ($this->reflection->getProperties() as $property) {
+            if ($this->hasDoNotCollectAttribute($property)) {
+                continue;
+            }
+
+            if (!$property->isStatic() && $property->getAttributes(NoSnakeCase::class) !== []) {
+                $keys[$property->getName()] = true;
             }
         }
 
