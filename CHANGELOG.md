@@ -15,6 +15,7 @@
 - Enh #12: Added `#[DefaultValue]` to apply runtime defaults for `null` and empty-string inputs before custom casting and native type conversion (@terabytesoftw)
 - Bug #13: Simplified `TypeCollector` internals by streamlining `DoNotCollect` detection, normalizing static-property checks, reducing dead fallback logic in nested-property split handling, and using first-class callable trimming while preserving behavior (@terabytesoftw)
 - Bug #14: Simplified `AbstractModel::load()` by replacing a boolean `match` expression with an equivalent ternary assignment for clearer payload scope resolution while preserving behavior (@terabytesoftw)
+- Bug #15: Consolidated `TypeCollector` metadata collection into a single reflection pass, removing repeated collector loops while preserving map-key validation and attribute-driven behavior (@terabytesoftw)
 
 ## 0.1.0 March 18, 2024
 

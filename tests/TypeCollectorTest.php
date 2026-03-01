@@ -12,7 +12,8 @@ use PHPUnit\Framework\TestCase;
 use TypeError;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, PropertyType, ReadonlyState};
+use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight};
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, IntersectionType, PropertyType, ReadonlyState};
 use UIAwesome\Model\TypeCollector;
 
 /**
@@ -21,6 +22,7 @@ use UIAwesome\Model\TypeCollector;
  * Test coverage.
  * - Casts values to declared PHP property types, including stringable objects and nullable typed properties.
  * - Detects property presence for flat and nested property paths.
+ * - Resolves intersection-typed properties into the expected named type metadata.
  * - Returns null for type casting requests targeting unknown properties.
  * - Returns property names and type metadata collected from model declarations.
  * - Throws type errors when assigned values violate declared property types.
@@ -189,6 +191,19 @@ final class TypeCollectorTest extends TestCase
             $dateTime,
             $model->getPropertyValue('createdAt'),
             'Should keep existing DateTime object instances without rebuilding them.',
+        );
+    }
+
+    public function testReturnCollectedIntersectionPropertyType(): void
+    {
+        $model = new IntersectionType();
+
+        self::assertSame(
+            [
+                'intersection' => [IntersectionLeft::class, IntersectionRight::class],
+            ],
+            $model->getPropertyTypes(),
+            'Should collect all named members from intersection-typed properties.',
         );
     }
 
