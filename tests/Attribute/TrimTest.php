@@ -49,6 +49,7 @@ final class TrimTest extends TestCase
             'Should preserve null values and avoid applying trim to non-string inputs.',
         );
     }
+
     public function testLoadTrimsScopedPayloadValues(): void
     {
         $model = new TrimProfile();
