@@ -16,10 +16,10 @@ use UIAwesome\Model\Tests\Support\Model\{NoSnakeCaseChild, NoSnakeCasePayload};
  * - Collects and preserves multiple NoSnakeCase properties in the same model.
  * - Continues scanning NoSnakeCase metadata after `DoNotCollect` properties.
  * - Continues scanning NoSnakeCase metadata after static property declarations.
- * - Ignores NoSnakeCase metadata declared on DoNotCollect properties from parent classes.
- * - Keeps default snake_case conversion for non-marked properties.
- * - Preserves marked property names when serializing with `toArray(snakeCase: true)`.
- * - Respects `exceptProperties` while preserving configured keys.
+ * - Has no effect when `snakeCase: false`; original property names remain unchanged.
+ * - Ignores NoSnakeCase metadata declared on parent `DoNotCollect` properties when child properties reuse names.
+ * - Preserves marked property names and keeps snake_case conversion for non-marked properties when `snakeCase: true`.
+ * - Respects `exceptProperties`, including exclusions of NoSnakeCase-marked properties.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
@@ -91,6 +91,27 @@ final class NoSnakeCaseTest extends TestCase
             ['api_version' => 'v2'],
             $model->toArray(snakeCase: true),
             'Should ignore NoSnakeCase metadata on parent DoNotCollect properties when child properties share the name.',
+        );
+    }
+
+    public function testNoSnakeCaseHasNoEffectWhenSnakeCaseDisabled(): void
+    {
+        $model = new NoSnakeCasePayload();
+
+        $model->setProperties(
+            [
+                'apiVersion' => 'v1',
+                'publicEmailPersonal' => 'admin@example.com',
+            ],
+        );
+
+        self::assertSame(
+            [
+                'apiVersion' => 'v1',
+                'publicEmailPersonal' => 'admin@example.com',
+            ],
+            $model->toArray(snakeCase: false),
+            'NoSnakeCase should have no effect when snakeCase output is disabled.',
         );
     }
 

@@ -23,20 +23,20 @@ final class User extends AbstractModel
     #[NoSnakeCase]
     public string $apiVersion = 'v1';
 
-    #[Trim]
-    public string $name = '';
-
     #[MapFrom('user-email-address')]
     public string $email = '';
+
+    #[DoNotCollect]
+    private string $internalToken = '';
+
+    #[Trim]
+    public string $name = '';
 
     #[Trim]
     public string $publicEmailPersonal = '';
 
     #[Cast('array')]
     public array $tags = [];
-
-    #[DoNotCollect]
-    private string $internalToken = '';
 
     #[Timestamp]
     private int $updatedAt = 0;
@@ -68,7 +68,16 @@ $model->load(
 
 ```php
 $types = $model->getPropertyTypes();
-// Example: ['age' => ['int', 'null']]
+/*
+[
+    'apiVersion' => 'string',
+    'email' => 'string',
+    'name' => 'string',
+    'publicEmailPersonal' => 'string',
+    'tags' => 'array',
+    'updatedAt' => 'int',
+]
+*/
 ```
 
 ## Property assignment rules
@@ -103,7 +112,15 @@ $model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
 
 ```php
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
-// ['apiVersion' => 'v1', 'public_email_personal' => 'dev@example.com']
+/*
+[
+    'apiVersion' => 'v1',
+    'email' => 'dev@example.com',
+    'name' => 'Ada Lovelace',
+    'public_email_personal' => 'dev@example.com',
+    'tags' => [],
+]
+*/
 ```
 
 ## Next steps
