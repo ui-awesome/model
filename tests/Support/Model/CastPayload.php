@@ -25,6 +25,7 @@ final class CastPayload extends AbstractModel
     #[MapFrom('tag-list')]
     #[Cast('array')]
     public array $tagList = [];
+
     #[Cast('array')]
     public array $tags = [];
 }

@@ -19,8 +19,11 @@ final class TrimProfile extends AbstractModel
     #[MapFrom('display-name')]
     #[Trim]
     public string $displayName = '';
+
     #[Trim]
     public string $name = '';
+
     public string|null $nickname = null;
+
     public string $rawName = '';
 }

@@ -14,6 +14,9 @@ use Attribute;
  * #[DoNotCollect]
  * public string $internalToken = '';
  * ```
+ *
+ * @copyright Copyright (C) 2024 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class DoNotCollect {}

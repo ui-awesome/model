@@ -51,30 +51,43 @@ use function trim;
 final class TypeCollector
 {
     /**
+     * Stores cast metadata keyed by model property name.
+     *
      * @phpstan-var array<string, Cast>
      */
     private array $castProperties = [];
+
     /**
+     * Stores values assigned to runtime dynamic properties.
+     *
      * @phpstan-var mixed[]
      */
     private array $dynamicValues = [];
 
     /**
+     * Stores external input-key to property-name mappings.
+     *
      * @phpstan-var array<string, string>
      */
     private array $mapFromKeys = [];
 
     /**
+     * Stores collected property type metadata.
+     *
      * @phpstan-var array<string, list<string>|string>
      */
     private array $properties = [];
 
     /**
+     * Reflection handle for the model class.
+     *
      * @phpstan-var ReflectionClass<ModelInterface>
      */
     private ReflectionClass $reflection;
 
     /**
+     * Marks properties that require trim normalization.
+     *
      * @phpstan-var array<string, true>
      */
     private array $trimProperties = [];
@@ -360,7 +373,12 @@ final class TypeCollector
     /**
      * Casts string input to DateTime-compatible objects for declared date/time property types.
      *
-     * @param class-string<DateTime>|class-string<DateTimeImmutable> $dateTimeClass
+     * @param string $dateTimeClass Date/time class name expected by the property.
+     * @param mixed $value Value to cast.
+     *
+     * @return mixed Date/time object for valid string input, otherwise the original value.
+     *
+     * @phpstan-param class-string<DateTime>|class-string<DateTimeImmutable> $dateTimeClass
      */
     private function castDateTimeObject(string $dateTimeClass, mixed $value): mixed
     {
@@ -394,6 +412,11 @@ final class TypeCollector
 
     /**
      * Applies cast transformation for properties marked with `Cast`.
+     *
+     * @param string $property Property receiving the assigned value.
+     * @param mixed $value Raw value to transform.
+     *
+     * @return mixed Casted value when cast metadata exists; otherwise the original value.
      */
     private function castValueIfRequired(string $property, mixed $value): mixed
     {
@@ -434,7 +457,12 @@ final class TypeCollector
     /**
      * Casts values to array using a delimiter when string input is provided.
      *
-     * @return array<array-key, mixed>
+     * @param mixed $value Input value to convert.
+     * @param string $separator Separator used when the input value is a string.
+     *
+     * @return array Casted array value when the input is a string; otherwise, the original value cast to an array.
+     *
+     * @phpstan-return array<array-key, mixed>
      */
     private function castValueToArray(mixed $value, string $separator): array
     {
@@ -461,7 +489,9 @@ final class TypeCollector
     /**
      * Collects cast configuration for properties marked with `Cast`.
      *
-     * @return array<string, Cast>
+     * @return array Cast configuration indexed by property name.
+     *
+     * @phpstan-return array<string, Cast>
      */
     private function collectCastProperties(): array
     {
@@ -489,7 +519,11 @@ final class TypeCollector
     /**
      * Collects explicit input-key mappings from `MapFrom` property attributes.
      *
-     * @return array<string, string>
+     * @throws InvalidArgumentException if duplicate input keys are found in `MapFrom` attributes.
+     *
+     * @return array Input keys indexed to property names.
+     *
+     * @phpstan-return array<string, string>
      */
     private function collectMapFromKeys(): array
     {
@@ -579,7 +613,9 @@ final class TypeCollector
     /**
      * Collects properties that should trim string input before assignment.
      *
-     * @return array<string, true>
+     * @return array Property names that require trim normalization.
+     *
+     * @phpstan-return array<string, true>
      */
     private function collectTrimProperties(): array
     {
@@ -715,6 +751,10 @@ final class TypeCollector
 
     /**
      * Resolves an input key to the model property name.
+     *
+     * @param string $property Input key received from payload data.
+     *
+     * @return string Resolved internal property name.
      */
     private function resolveInputPropertyName(string $property): string
     {
@@ -841,6 +881,11 @@ final class TypeCollector
 
     /**
      * Applies trim normalization to string values for properties marked with `Trim`.
+     *
+     * @param string $property Property receiving the assigned value.
+     * @param mixed $value Raw value to normalize.
+     *
+     * @return mixed Trimmed string for configured properties, otherwise the original value.
      */
     private function trimValueIfRequired(string $property, mixed $value): mixed
     {

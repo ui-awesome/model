@@ -198,11 +198,11 @@ final class TypeCollectorTest extends TestCase
 
         self::assertSame(
             [
-                'name',
                 'array',
                 'bool',
                 'float',
                 'int',
+                'name',
                 'nullable',
                 'object',
                 'string',
@@ -219,11 +219,11 @@ final class TypeCollectorTest extends TestCase
 
         self::assertSame(
             [
-                'name' => 'string',
                 'array' => 'array',
                 'bool' => 'bool',
                 'float' => 'float',
                 'int' => 'int',
+                'name' => 'string',
                 'nullable' => ['int', 'null'],
                 'object' => ['object', 'null'],
                 'string' => 'string',

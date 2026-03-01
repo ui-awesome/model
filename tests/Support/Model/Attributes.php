@@ -18,9 +18,12 @@ final class Attributes extends AbstractModel
 {
     #[Timestamp]
     private int $createdAt = 0;
+
     #[DoNotCollect]
     private string $flag = '';
+
     private string $name = '';
+
     #[Timestamp]
     private int $updatedAt = 0;
 }
