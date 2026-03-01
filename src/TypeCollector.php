@@ -109,12 +109,7 @@ final class TypeCollector
     public function __construct(private readonly ModelInterface $model)
     {
         $this->reflection = new ReflectionClass($this->model);
-        $this->properties = $this->collectProperties();
-        $this->mapFromKeys = $this->collectMapFromKeys();
-        $this->castProperties = $this->collectCastProperties();
-        $this->defaultValueProperties = $this->collectDefaultValueProperties();
-        $this->noSnakeCaseProperties = $this->collectNoSnakeCaseProperties();
-        $this->trimProperties = $this->collectTrimProperties();
+        $this->collectMetadata();
     }
 
     /**
@@ -524,87 +519,64 @@ final class TypeCollector
     }
 
     /**
-     * Collects cast configuration for properties marked with `Cast`.
-     *
-     * @return array Cast configuration indexed by property name.
-     *
-     * @phpstan-return array<string, Cast>
-     */
-    private function collectCastProperties(): array
-    {
-        $keys = [];
-
-        foreach ($this->reflection->getProperties() as $property) {
-            if ($property->isStatic()) {
-                continue;
-            }
-
-            if ($this->hasDoNotCollectAttribute($property)) {
-                continue;
-            }
-
-            $attributes = $property->getAttributes(Cast::class);
-
-            if ($attributes === []) {
-                continue;
-            }
-
-            /** @phpstan-var Cast $cast */
-            $cast = $attributes[0]->newInstance();
-            $keys[$property->getName()] = $cast;
-        }
-
-        return $keys;
-    }
-
-    /**
-     * Collects runtime default values for properties marked with `DefaultValue`.
-     *
-     * @return array<string, mixed> Default values indexed by property name.
-     */
-    private function collectDefaultValueProperties(): array
-    {
-        $keys = [];
-
-        foreach ($this->reflection->getProperties() as $property) {
-            if ($property->isStatic()) {
-                continue;
-            }
-
-            if ($this->hasDoNotCollectAttribute($property)) {
-                continue;
-            }
-
-            $attributes = $property->getAttributes(DefaultValue::class);
-
-            if ($attributes === []) {
-                continue;
-            }
-
-            /** @phpstan-var DefaultValue $defaultValue */
-            $defaultValue = $attributes[0]->newInstance();
-            $keys[$property->getName()] = $defaultValue->value;
-        }
-
-        return $keys;
-    }
-
-    /**
-     * Collects explicit input-key mappings from `MapFrom` property attributes.
+     * Collects all property metadata in a single reflection pass.
      *
      * @throws InvalidArgumentException if duplicate input keys are found in `MapFrom` attributes.
-     *
-     * @return array Input keys indexed to property names.
-     *
-     * @phpstan-return array<string, string>
      */
-    private function collectMapFromKeys(): array
+    private function collectMetadata(): void
     {
-        $keys = [];
-
         foreach ($this->reflection->getProperties() as $property) {
             if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
                 continue;
+            }
+
+            $propertyName = $property->getName();
+
+            /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
+            $type = $property->getType();
+
+            if ($type !== null) {
+                if ($type instanceof ReflectionUnionType) {
+                    $typeNames = [];
+
+                    foreach ($type->getTypes() as $unionType) {
+                        if ($unionType instanceof ReflectionNamedType) {
+                            $typeNames[] = $unionType->getName();
+                        }
+                    }
+
+                    $this->properties[$propertyName] = $typeNames;
+                } else {
+                    $typeName = $type->getName();
+
+                    if ($type->allowsNull() && $typeName !== 'null') {
+                        $this->properties[$propertyName] = [$typeName, 'null'];
+                    } else {
+                        $this->properties[$propertyName] = $typeName;
+                    }
+                }
+            } else {
+                $this->properties[$propertyName] = '';
+            }
+
+            if ($property->getAttributes(Timestamp::class) !== []) {
+                $this->properties[$propertyName] = 'timestamp';
+            }
+
+            $castAttributes = $property->getAttributes(Cast::class);
+
+            if ($castAttributes !== []) {
+                /** @phpstan-var Cast $cast */
+                $cast = $castAttributes[0]->newInstance();
+                $this->castProperties[$propertyName] = $cast;
+            }
+
+            $defaultValueAttributes = $property->getAttributes(DefaultValue::class);
+
+            if ($defaultValueAttributes !== []) {
+                /** @phpstan-var DefaultValue $defaultValue */
+                $defaultValue = $defaultValueAttributes[0]->newInstance();
+                $this->defaultValueProperties[$propertyName] = $defaultValue->value;
             }
 
             foreach ($property->getAttributes(MapFrom::class) as $attribute) {
@@ -613,120 +585,29 @@ final class TypeCollector
 
                 $key = $mapFrom->key;
 
-                if (array_key_exists($key, $keys) && $keys[$key] !== $property->getName()) {
+                if (array_key_exists($key, $this->mapFromKeys) && $this->mapFromKeys[$key] !== $propertyName) {
                     throw new InvalidArgumentException(
                         Message::DUPLICATE_MAP_FROM_KEY->getMessage(
                             $key,
                             $this->model::class,
-                            $keys[$key],
+                            $this->mapFromKeys[$key],
                             $this->model::class,
-                            $property->getName(),
+                            $propertyName,
                         ),
                     );
                 }
 
-                $keys[$key] = $property->getName();
-            }
-        }
-
-        return $keys;
-    }
-
-    /**
-     * Collects properties that should preserve key casing in snake_case serialization.
-     *
-     * @return array<string, true> Property names excluded from snake_case conversion.
-     */
-    private function collectNoSnakeCaseProperties(): array
-    {
-        $keys = [];
-
-        foreach ($this->reflection->getProperties() as $property) {
-            if ($this->hasDoNotCollectAttribute($property)) {
-                continue;
+                $this->mapFromKeys[$key] = $propertyName;
             }
 
-            if (!$property->isStatic() && $property->getAttributes(NoSnakeCase::class) !== []) {
-                $keys[$property->getName()] = true;
-            }
-        }
-
-        return $keys;
-    }
-
-    /**
-     * Returns the list of property types indexed by property names.
-     *
-     * By default, this method returns all non-static properties of the class.
-     *
-     * @return array List of property types indexed by property names.
-     *
-     * @phpstan-return array<string, list<string>|string>
-     */
-    private function collectProperties(): array
-    {
-        $properties = [];
-
-        foreach ($this->reflection->getProperties() as $property) {
-            if (!$property->isStatic() && !$this->hasDoNotCollectAttribute($property)) {
-                /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
-                $type = $property->getType();
-
-                if ($type !== null) {
-                    if ($type instanceof ReflectionUnionType) {
-                        $typeNames = [];
-
-                        foreach ($type->getTypes() as $unionType) {
-                            if ($unionType instanceof ReflectionNamedType) {
-                                $typeNames[] = $unionType->getName();
-                            }
-                        }
-
-                        $properties[$property->getName()] = $typeNames;
-                    } else {
-                        $typeName = $type->getName();
-
-                        if ($type->allowsNull() && $typeName !== 'null') {
-                            $properties[$property->getName()] = [$typeName, 'null'];
-                        } else {
-                            $properties[$property->getName()] = $typeName;
-                        }
-                    }
-                } else {
-                    $properties[$property->getName()] = '';
-                }
-
-                if ($property->getAttributes(Timestamp::class) !== []) {
-                    $properties[$property->getName()] = 'timestamp';
-                }
-            }
-        }
-
-        return $properties;
-    }
-
-    /**
-     * Collects properties that should trim string input before assignment.
-     *
-     * @return array Property names that require trim normalization.
-     *
-     * @phpstan-return array<string, true>
-     */
-    private function collectTrimProperties(): array
-    {
-        $keys = [];
-
-        foreach ($this->reflection->getProperties() as $property) {
-            if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
-                continue;
+            if ($property->getAttributes(NoSnakeCase::class) !== []) {
+                $this->noSnakeCaseProperties[$propertyName] = true;
             }
 
             if ($property->getAttributes(Trim::class) !== []) {
-                $keys[$property->getName()] = true;
+                $this->trimProperties[$propertyName] = true;
             }
         }
-
-        return $keys;
     }
 
     /**
