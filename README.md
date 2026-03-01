@@ -22,7 +22,7 @@
 
 <p align="center">
     <strong>Typed model mapping for modern PHP applications</strong><br>
-    <em>Nested properties, explicit input mapping, trim normalization, custom casting, and array serialization</em>
+    <em>Nested properties, explicit input mapping, trim normalization, custom casting, and selective key serialization</em>
 </p>
 
 ## Features
@@ -48,10 +48,13 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{Cast, MapFrom, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, MapFrom, NoSnakeCase, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
+    #[NoSnakeCase]
+    public string $apiVersion = 'v1';
+
     #[MapFrom('user-email-address')]
     public string $email = '';
 
@@ -70,17 +73,33 @@ $model = new User();
 $model->load(
     [
         'User' => [
+            'apiVersion' => 'v2',
             'name' => '  Ada Lovelace  ',
-            'user-email-address' => 'ada@example.com',
             'tags' => 'php, yii2, model',
+            'user-email-address' => 'ada@example.com',
         ],
     ],
 );
 
 $types = $model->getPropertyTypes();
-// ['name' => 'string', 'email' => 'string', 'tags' => 'array', 'updatedAt' => 'timestamp'];
+/*
+[
+    'apiVersion' => 'string',
+    'name' => 'string',
+    'email' => 'string',
+    'tags' => 'array',
+    'updatedAt' => 'timestamp'
+]
+*/
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
-// $payload = ['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'tags' => ['php', 'yii2', 'model']];
+/*
+[
+    'apiVersion' => 'v2',
+    'name' => 'Ada Lovelace',
+    'email' => 'ada@example.com',
+    'tags' => ['php', 'yii2', 'model']
+]
+*/
 ```
 
 ## Explicit payload mapping with `MapFrom`
@@ -156,6 +175,34 @@ final class SearchFilter extends AbstractModel
 $filter = new SearchFilter();
 
 $filter->setPropertyValue('tags', 'php, yii2, model');
+```
+
+## Preserve selected output keys with `NoSnakeCase`
+
+Use `#[NoSnakeCase]` to keep specific property names unchanged when serializing with `snakeCase: true`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\NoSnakeCase;
+
+final class ApiPayload extends AbstractModel
+{
+    #[NoSnakeCase]
+    public string $apiVersion = 'v1';
+
+    public string $publicEmailPersonal = 'admin@example.com';
+}
+
+$payload = new ApiPayload();
+
+$data = $payload->toArray(snakeCase: true);
+// ['apiVersion' => 'v1', 'public_email_personal' => 'admin@example.com']
 ```
 
 ## Documentation

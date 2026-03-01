@@ -12,12 +12,16 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{MapFrom, Trim};
+use UIAwesome\Model\Attribute\{MapFrom, NoSnakeCase, Trim};
 
 final class User extends AbstractModel
 {
+    #[NoSnakeCase]
+    public string $apiVersion = 'v1';
+
     #[Trim]
     public string $name = '';
+
     #[MapFrom('user-age')]
     public int $age = 0;
 }
@@ -29,6 +33,32 @@ echo $model->getPropertyValue('name');
 // "Jane"
 echo $model->getPropertyValue('age');
 // 20
+```
+
+## Preserve selected key casing in serialized output
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\NoSnakeCase;
+
+final class ApiPayload extends AbstractModel
+{
+    #[NoSnakeCase]
+    public string $apiVersion = 'v2';
+
+    public string $publicEmailPersonal = 'admin@example.com';
+}
+
+$model = new ApiPayload();
+
+$data = $model->toArray(snakeCase: true);
+// ['apiVersion' => 'v2', 'public_email_personal' => 'admin@example.com']
 ```
 
 ## Explicit payload-key mapping

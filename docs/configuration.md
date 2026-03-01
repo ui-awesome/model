@@ -16,18 +16,25 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
+    #[NoSnakeCase]
+    public string $apiVersion = 'v1';
+
     #[Trim]
     public string $name = '';
+
     #[MapFrom('user-email-address')]
     public string $email = '';
+
     #[Cast('array')]
     public array $tags = [];
+
     #[DoNotCollect]
     private string $internalToken = '';
+    
     #[Timestamp]
     private int $updatedAt = 0;
 }
@@ -89,9 +96,11 @@ $model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
 
 - `toArray(bool $snakeCase = false, array $exceptProperties = [])` exports model data.
 - Use `snakeCase: true` to transform output keys.
+- `#[NoSnakeCase]` preserves marked property names when `snakeCase: true` is enabled.
 
 ```php
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
+// ['apiVersion' => 'v1', 'public_email_personal' => 'dev@example.com']
 ```
 
 ## Next steps
