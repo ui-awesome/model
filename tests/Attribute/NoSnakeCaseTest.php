@@ -26,24 +26,40 @@ use UIAwesome\Model\Tests\Support\Model\{NoSnakeCaseChild, NoSnakeCasePayload};
  */
 final class NoSnakeCaseTest extends TestCase
 {
-    public function testPreserveMarkedPropertyNameWhenConvertingToSnakeCaseArray(): void
+    public function testCollectNoSnakeCaseMetadataAfterDoNotCollectProperty(): void
     {
-        $model = new NoSnakeCasePayload();
+        $model = new class extends AbstractModel {
+            #[DoNotCollect]
+            public string $ignored = '';
 
-        $model->setProperties(
-            [
-                'apiVersion' => 'v1',
-                'publicEmailPersonal' => 'admin@example.com',
-            ],
-        );
+            #[NoSnakeCase]
+            public string $apiVersion = '';
+        };
+
+        $model->setPropertyValue('apiVersion', 'v3');
 
         self::assertSame(
-            [
-                'apiVersion' => 'v1',
-                'public_email_personal' => 'admin@example.com',
-            ],
+            ['apiVersion' => 'v3'],
             $model->toArray(snakeCase: true),
-            'Should preserve NoSnakeCase property keys while converting non-marked properties to snake_case.',
+            'Should continue scanning properties after DoNotCollect entries to gather NoSnakeCase metadata.',
+        );
+    }
+
+    public function testCollectNoSnakeCaseMetadataAfterStaticPropertyDeclaration(): void
+    {
+        $model = new class extends AbstractModel {
+            public static string $ignored = '';
+
+            #[NoSnakeCase]
+            public string $apiVersion = '';
+        };
+
+        $model->setPropertyValue('apiVersion', 'v4');
+
+        self::assertSame(
+            ['apiVersion' => 'v4'],
+            $model->toArray(snakeCase: true),
+            'Should continue scanning NoSnakeCase metadata after static properties.',
         );
     }
 
@@ -65,22 +81,36 @@ final class NoSnakeCaseTest extends TestCase
         );
     }
 
-    public function testCollectNoSnakeCaseMetadataAfterDoNotCollectProperty(): void
+    public function testIgnoreParentDoNotCollectNoSnakeCaseMetadataWhenChildReusesPropertyName(): void
     {
-        $model = new class extends AbstractModel {
-            #[DoNotCollect]
-            public string $ignored = '';
+        $model = new NoSnakeCaseChild();
 
-            #[NoSnakeCase]
-            public string $apiVersion = '';
-        };
-
-        $model->setPropertyValue('apiVersion', 'v3');
+        $model->setPropertyValue('apiVersion', 'v2');
 
         self::assertSame(
-            ['apiVersion' => 'v3'],
+            ['api_version' => 'v2'],
             $model->toArray(snakeCase: true),
-            'Should continue scanning properties after DoNotCollect entries to gather NoSnakeCase metadata.',
+            'Should ignore NoSnakeCase metadata on parent DoNotCollect properties when child properties share the name.',
+        );
+    }
+    public function testPreserveMarkedPropertyNameWhenConvertingToSnakeCaseArray(): void
+    {
+        $model = new NoSnakeCasePayload();
+
+        $model->setProperties(
+            [
+                'apiVersion' => 'v1',
+                'publicEmailPersonal' => 'admin@example.com',
+            ],
+        );
+
+        self::assertSame(
+            [
+                'apiVersion' => 'v1',
+                'public_email_personal' => 'admin@example.com',
+            ],
+            $model->toArray(snakeCase: true),
+            'Should preserve NoSnakeCase property keys while converting non-marked properties to snake_case.',
         );
     }
 
@@ -112,37 +142,6 @@ final class NoSnakeCaseTest extends TestCase
             ],
             $model->toArray(snakeCase: true),
             'Should preserve all NoSnakeCase-marked keys when multiple mapped properties are present.',
-        );
-    }
-
-    public function testIgnoreParentDoNotCollectNoSnakeCaseMetadataWhenChildReusesPropertyName(): void
-    {
-        $model = new NoSnakeCaseChild();
-
-        $model->setPropertyValue('apiVersion', 'v2');
-
-        self::assertSame(
-            ['api_version' => 'v2'],
-            $model->toArray(snakeCase: true),
-            'Should ignore NoSnakeCase metadata on parent DoNotCollect properties when child properties share the name.',
-        );
-    }
-
-    public function testCollectNoSnakeCaseMetadataAfterStaticPropertyDeclaration(): void
-    {
-        $model = new class extends AbstractModel {
-            public static string $ignored = '';
-
-            #[NoSnakeCase]
-            public string $apiVersion = '';
-        };
-
-        $model->setPropertyValue('apiVersion', 'v4');
-
-        self::assertSame(
-            ['apiVersion' => 'v4'],
-            $model->toArray(snakeCase: true),
-            'Should continue scanning NoSnakeCase metadata after static properties.',
         );
     }
 }

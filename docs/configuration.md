@@ -29,12 +29,15 @@ final class User extends AbstractModel
     #[MapFrom('user-email-address')]
     public string $email = '';
 
+    #[Trim]
+    public string $publicEmailPersonal = '';
+
     #[Cast('array')]
     public array $tags = [];
 
     #[DoNotCollect]
     private string $internalToken = '';
-    
+
     #[Timestamp]
     private int $updatedAt = 0;
 }

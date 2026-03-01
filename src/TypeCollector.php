@@ -72,18 +72,18 @@ final class TypeCollector
     private array $mapFromKeys = [];
 
     /**
-     * Stores collected property type metadata.
-     *
-     * @phpstan-var array<string, list<string>|string>
-     */
-    private array $properties = [];
-
-    /**
      * Marks properties that should preserve their original key during snake_case serialization.
      *
      * @phpstan-var array<string, true>
      */
     private array $noSnakeCaseProperties = [];
+
+    /**
+     * Stores collected property type metadata.
+     *
+     * @phpstan-var array<string, list<string>|string>
+     */
+    private array $properties = [];
 
     /**
      * Reflection handle for the model class.
@@ -568,6 +568,28 @@ final class TypeCollector
     }
 
     /**
+     * Collects properties that should preserve key casing in snake_case serialization.
+     *
+     * @return array<string, true> Property names excluded from snake_case conversion.
+     */
+    private function collectNoSnakeCaseProperties(): array
+    {
+        $keys = [];
+
+        foreach ($this->reflection->getProperties() as $property) {
+            if ($this->hasDoNotCollectAttribute($property)) {
+                continue;
+            }
+
+            if (!$property->isStatic() && $property->getAttributes(NoSnakeCase::class) !== []) {
+                $keys[$property->getName()] = true;
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
      * Returns the list of property types indexed by property names.
      *
      * By default, this method returns all non-static properties of the class.
@@ -616,28 +638,6 @@ final class TypeCollector
         }
 
         return $properties;
-    }
-
-    /**
-     * Collects properties that should preserve key casing in snake_case serialization.
-     *
-     * @return array<string, true> Property names excluded from snake_case conversion.
-     */
-    private function collectNoSnakeCaseProperties(): array
-    {
-        $keys = [];
-
-        foreach ($this->reflection->getProperties() as $property) {
-            if ($this->hasDoNotCollectAttribute($property)) {
-                continue;
-            }
-
-            if (!$property->isStatic() && $property->getAttributes(NoSnakeCase::class) !== []) {
-                $keys[$property->getName()] = true;
-            }
-        }
-
-        return $keys;
     }
 
     /**
