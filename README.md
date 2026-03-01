@@ -22,7 +22,7 @@
 
 <p align="center">
     <strong>Typed model mapping for modern PHP applications</strong><br>
-    <em>Nested properties, explicit input mapping, trim normalization, controlled casting, and array serialization</em>
+    <em>Nested properties, explicit input mapping, trim normalization, custom casting, and array serialization</em>
 </p>
 
 ## Features
@@ -124,6 +124,31 @@ final class Profile extends AbstractModel
 $profile = new Profile();
 
 $profile->setProperties(['display_name' => '  Ada Lovelace  ']);
+```
+
+## Forced custom casting with `Cast`
+
+Use `#[Cast('array')]` to transform transport formats such as comma-separated strings.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\Cast;
+
+final class SearchFilter extends AbstractModel
+{
+    #[Cast('array')]
+    public array $tags = [];
+}
+
+$filter = new SearchFilter();
+
+$filter->setPropertyValue('tags', 'php, yii2, model');
 ```
 
 ## Documentation

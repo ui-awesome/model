@@ -14,11 +14,11 @@ use UIAwesome\Model\Tests\Support\Model\{TrimAddress, TrimContainer, TrimProfile
  * Unit tests for input normalization using {@see \UIAwesome\Model\Attribute\Trim}.
  *
  * Test coverage.
+ * - Applies trim behavior on nested property writes.
+ * - Leaves non-string values unchanged.
+ * - Preserves values for properties without trim metadata.
  * - Trims string values during `setPropertyValue()`, `setProperties()`, and `load()`.
  * - Works with explicit input mapping through `MapFrom`.
- * - Preserves values for properties without trim metadata.
- * - Leaves non-string values unchanged.
- * - Applies trim behavior on nested property writes.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.

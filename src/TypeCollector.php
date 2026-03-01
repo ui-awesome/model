@@ -12,15 +12,17 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
-use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, Timestamp, Trim};
 use UIAwesome\Model\Exception\Message;
 
 use function array_filter;
 use function array_key_exists;
 use function array_key_last;
 use function array_keys;
+use function array_map;
 use function array_slice;
 use function array_values;
+use function class_exists;
 use function count;
 use function explode;
 use function implode;
@@ -42,9 +44,16 @@ use function trim;
  * $collector = new TypeCollector($model);
  * $collector->setPropertyValue('name', 'Ada');
  * ```
+ *
+ * @copyright Copyright (C) 2024 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class TypeCollector
 {
+    /**
+     * @phpstan-var array<string, Cast>
+     */
+    private array $castProperties = [];
     /**
      * @phpstan-var mixed[]
      */
@@ -61,7 +70,7 @@ final class TypeCollector
     private array $properties = [];
 
     /**
-     * @var ReflectionClass<ModelInterface>
+     * @phpstan-var ReflectionClass<ModelInterface>
      */
     private ReflectionClass $reflection;
 
@@ -75,6 +84,7 @@ final class TypeCollector
         $this->reflection = new ReflectionClass($this->model);
         $this->properties = $this->collectProperties();
         $this->mapFromKeys = $this->collectMapFromKeys();
+        $this->castProperties = $this->collectCastProperties();
         $this->trimProperties = $this->collectTrimProperties();
     }
 
@@ -313,7 +323,7 @@ final class TypeCollector
      */
     public function toArray(bool $snakeCase, array $exceptProperties = []): array
     {
-        /** @var list<string> $properties */
+        /** @phpstan-var list<string> $properties */
         $properties = array_keys($this->getPropertyTypes());
 
         $result = [];
@@ -383,6 +393,100 @@ final class TypeCollector
     }
 
     /**
+     * Applies cast transformation for properties marked with `Cast`.
+     */
+    private function castValueIfRequired(string $property, mixed $value): mixed
+    {
+        if (!array_key_exists($property, $this->castProperties)) {
+            return $value;
+        }
+
+        $cast = $this->castProperties[$property];
+
+        if ($cast->target === 'array') {
+            return $this->castValueToArray($value, $cast->separator);
+        }
+
+        if (!class_exists($cast->target)) {
+            throw new InvalidArgumentException(
+                Message::INVALID_CAST_TARGET->getMessage($cast->target, $this->model::class, $property),
+            );
+        }
+
+        if (!is_a($cast->target, CastValueInterface::class, true)) {
+            throw new InvalidArgumentException(
+                Message::INVALID_CAST_CLASS->getMessage(
+                    $cast->target,
+                    $this->model::class,
+                    $property,
+                    CastValueInterface::class,
+                ),
+            );
+        }
+
+        /** @phpstan-var class-string<CastValueInterface> $castClass */
+        $castClass = $cast->target;
+        $caster = new $castClass();
+
+        return $caster->cast($value);
+    }
+
+    /**
+     * Casts values to array using a delimiter when string input is provided.
+     *
+     * @return array<array-key, mixed>
+     */
+    private function castValueToArray(mixed $value, string $separator): array
+    {
+        if (!is_string($value) || $separator === '') {
+            /** @phpstan-var array<array-key, mixed> $castValue */
+            $castValue = (array) $value;
+
+            return $castValue;
+        }
+
+        $items = array_map(
+            static fn(string $item): string => trim($item),
+            explode($separator, $value),
+        );
+
+        return array_values(
+            array_filter(
+                $items,
+                static fn(string $item): bool => $item !== '',
+            ),
+        );
+    }
+
+    /**
+     * Collects cast configuration for properties marked with `Cast`.
+     *
+     * @return array<string, Cast>
+     */
+    private function collectCastProperties(): array
+    {
+        $keys = [];
+
+        foreach ($this->reflection->getProperties() as $property) {
+            if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
+                continue;
+            }
+
+            $attributes = $property->getAttributes(Cast::class);
+
+            if ($attributes === []) {
+                continue;
+            }
+
+            /** @phpstan-var Cast $cast */
+            $cast = $attributes[0]->newInstance();
+            $keys[$property->getName()] = $cast;
+        }
+
+        return $keys;
+    }
+
+    /**
      * Collects explicit input-key mappings from `MapFrom` property attributes.
      *
      * @return array<string, string>
@@ -397,7 +501,7 @@ final class TypeCollector
             }
 
             foreach ($property->getAttributes(MapFrom::class) as $attribute) {
-                /** @var MapFrom $mapFrom */
+                /** @phpstan-var MapFrom $mapFrom */
                 $mapFrom = $attribute->newInstance();
 
                 $key = $mapFrom->key;
@@ -436,7 +540,7 @@ final class TypeCollector
 
         foreach ($this->reflection->getProperties() as $property) {
             if ($property->isStatic() === false && !$this->hasDoNotCollectAttribute($property)) {
-                /** @var ReflectionNamedType|ReflectionUnionType|null $type */
+                /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
                 $type = $property->getType();
 
                 if ($type !== null) {
@@ -673,13 +777,14 @@ final class TypeCollector
 
         if ($propertyCount === 1) {
             $normalizedValue = $this->trimValueIfRequired($property, $value);
-            $valueTypeCast = $this->phpTypeCast($property, $normalizedValue);
+            $castValue = $this->castValueIfRequired($property, $normalizedValue);
+            $valueTypeCast = $this->phpTypeCast($property, $castValue);
             $this->writeProperty($property, $valueTypeCast);
 
             return;
         }
 
-        /** @var int<0, max> $lastPropertyKey */
+        /** @phpstan-var int<0, max> $lastPropertyKey */
         $lastPropertyKey = array_key_last($properties);
 
         $lastProperty = $properties[$lastPropertyKey];
