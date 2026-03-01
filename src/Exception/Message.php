@@ -24,6 +24,13 @@ enum Message: string
     case READONLY_PROPERTY_ALREADY_INITIALIZED = "Cannot overwrite initialized readonly property: '%s::%s'.";
 
     /**
+     * Indicates invalid string input for date/time object casting.
+     *
+     * Format: "Invalid date/time string '%s' for type '%s'."
+     */
+    case INVALID_DATE_TIME_STRING = "Invalid date/time string '%s' for type '%s'.";
+
+    /**
      * Indicates an undefined property without model class context.
      *
      * Format: "Undefined property: '%s'."

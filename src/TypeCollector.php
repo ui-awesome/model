@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
+use DateTime;
+use DateTimeImmutable;
+use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -458,12 +461,35 @@ final class TypeCollector
     {
         return match ($expectedType) {
             'bool' => (bool) $value,
+            DateTime::class => $this->castDateTimeObject(DateTime::class, $value),
+            DateTimeImmutable::class => $this->castDateTimeObject(DateTimeImmutable::class, $value),
             'float' => is_numeric($value) ? (float) $value : $value,
             'int' => is_numeric($value) ? (int) $value : $value,
             'string' => is_scalar($value) || (is_object($value) && method_exists($value, '__toString'))
                 ? (string) $value : $value,
             default => $value,
         };
+    }
+
+    /**
+     * Casts string input to DateTime-compatible objects for declared date/time property types.
+     *
+     * @param class-string<DateTime>|class-string<DateTimeImmutable> $dateTimeClass
+     * @param mixed $value
+     */
+    private function castDateTimeObject(string $dateTimeClass, mixed $value): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        try {
+            return new $dateTimeClass($value);
+        } catch (Exception) {
+            throw new InvalidArgumentException(
+                Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+            );
+        }
     }
 
     /**
