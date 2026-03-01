@@ -32,10 +32,13 @@ use function is_a;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function lcfirst;
 use function max;
 use function method_exists;
 use function str_contains;
+use function str_replace;
 use function trim;
+use function ucwords;
 
 /**
  * Collects and manages model property types and values.
@@ -839,19 +842,7 @@ final class TypeCollector
      */
     private function snakeCaseToCamelCase(string $snakeCaseString): string
     {
-        $words = explode('_', $snakeCaseString);
-
-        $camelCase = '';
-
-        foreach ($words as $index => $word) {
-            if ($index === 0) {
-                $camelCase = $word;
-            } else {
-                $camelCase .= ucfirst($word);
-            }
-        }
-
-        return $camelCase;
+        return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $snakeCaseString))));
     }
 
     /**
