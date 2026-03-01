@@ -17,7 +17,6 @@ final class MapFromDuplicate extends AbstractModel
 {
     #[MapFrom('duplicate-key')]
     public string $first = '';
-
     #[MapFrom('duplicate-key')]
     public string $second = '';
 }

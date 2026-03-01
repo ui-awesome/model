@@ -24,7 +24,7 @@ use UIAwesome\Model\Tests\Support\Model\{MapFromDuplicate, MapFromPayload};
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class MapFromAttributeTest extends TestCase
+final class MapFromTest extends TestCase
 {
     public function testCollectMappedKeysAfterDoNotCollectPropertyDeclaration(): void
     {

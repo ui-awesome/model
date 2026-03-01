@@ -16,10 +16,11 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom, Timestamp};
+use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
+    #[Trim]
     public string $name = '';
     #[MapFrom('user-email-address')]
     public string $email = '';
@@ -63,6 +64,7 @@ $types = $model->getPropertyTypes();
 - `setPropertyValue()` assigns a single property and supports nested paths (`profile.address.city`).
 - `setProperties()` assigns multiple values and converts snake_case input keys to camelCase.
 - `#[MapFrom('key')]` has priority over snake_case conversion for matching input payload keys.
+- `#[Trim]` trims string values before type casting and assignment.
 - `setProperties($data, $exceptProperties)` exclusions are evaluated in camelCase.
 
 ```php

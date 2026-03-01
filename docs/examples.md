@@ -12,10 +12,11 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\MapFrom;
+use UIAwesome\Model\Attribute\{MapFrom, Trim};
 
 final class User extends AbstractModel
 {
+    #[Trim]
     public string $name = '';
     #[MapFrom('user-age')]
     public int $age = 0;
@@ -137,6 +138,30 @@ $model = new Post();
 
 $model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
 echo $model->getPropertyValue('publishedAt')->format(DATE_ATOM);
+```
+
+## Trim normalization
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\Trim;
+
+final class Profile extends AbstractModel
+{
+    #[Trim]
+    public string $displayName = '';
+}
+
+$model = new Profile();
+$model->setPropertyValue('displayName', '  Ada  ');
+
+echo $model->getPropertyValue('displayName');
 ```
 
 ## Next steps
