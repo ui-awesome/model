@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
+use DateTime;
+use DateTimeImmutable;
+use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
 use ReflectionNamedType;
@@ -26,6 +29,7 @@ use function is_a;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function max;
 use function method_exists;
 use function str_contains;
 
@@ -330,6 +334,40 @@ final class TypeCollector
     }
 
     /**
+     * Casts string input to DateTime-compatible objects for declared date/time property types.
+     *
+     * @param class-string<DateTime>|class-string<DateTimeImmutable> $dateTimeClass
+     */
+    private function castDateTimeObject(string $dateTimeClass, mixed $value): mixed
+    {
+        if (!is_string($value)) {
+            return $value;
+        }
+
+        try {
+            $dateTime = new $dateTimeClass($value);
+            $errors = $dateTimeClass::getLastErrors();
+
+            if (is_array($errors)) {
+                $issueCount = max($errors['warning_count'], $errors['error_count']);
+
+                if ($issueCount > 0) {
+                    throw new InvalidArgumentException(
+                        Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+                    );
+                }
+            }
+
+            return $dateTime;
+        } catch (Exception $exception) {
+            throw new InvalidArgumentException(
+                Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+                previous: $exception,
+            );
+        }
+    }
+
+    /**
      * Returns the list of property types indexed by property names.
      *
      * By default, this method returns all non-static properties of the class.
@@ -458,6 +496,8 @@ final class TypeCollector
     {
         return match ($expectedType) {
             'bool' => (bool) $value,
+            DateTime::class => $this->castDateTimeObject(DateTime::class, $value),
+            DateTimeImmutable::class => $this->castDateTimeObject(DateTimeImmutable::class, $value),
             'float' => is_numeric($value) ? (float) $value : $value,
             'int' => is_numeric($value) ? (int) $value : $value,
             'string' => is_scalar($value) || (is_object($value) && method_exists($value, '__toString'))

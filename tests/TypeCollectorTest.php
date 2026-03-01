@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
+use DateTime;
+use DateTimeImmutable;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, PropertyType, ReadonlyState};
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, PropertyType, ReadonlyState};
 use UIAwesome\Model\TypeCollector;
 
 /**
@@ -105,6 +107,58 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testCastStringToDateTimeImmutableProperty(): void
+    {
+        $model = new DateTimeType();
+
+        $model->setProperties(
+            [
+                'updatedAt' => '2026-02-28T10:30:00+00:00',
+                'publishedAt' => '2026-02-28T12:00:00+00:00',
+            ],
+        );
+        self::assertSame(
+            '2026-02-28T10:30:00+00:00',
+            $model->getPropertyValue('updatedAt')->format('Y-m-d\TH:i:sP'),
+            'Should preserve updatedAt timestamp and timezone after casting.',
+        );
+        self::assertInstanceOf(
+            DateTimeImmutable::class,
+            $model->getPropertyValue('updatedAt'),
+            'Should cast ISO-8601 strings to DateTimeImmutable objects for typed properties.',
+        );
+        self::assertSame(
+            '2026-02-28T12:00:00+00:00',
+            $model->getPropertyValue('publishedAt')->format('Y-m-d\TH:i:sP'),
+            'Should preserve publishedAt timestamp and timezone after casting.',
+        );
+        self::assertInstanceOf(
+            DateTimeImmutable::class,
+            $model->getPropertyValue('publishedAt'),
+            'Should cast nullable DateTimeImmutable properties when non-null strings are provided.',
+        );
+    }
+
+    public function testCastStringToDateTimeProperty(): void
+    {
+        $model = new DateTimeType();
+
+        $model->setPropertyValue('createdAt', '2026-02-28 10:30:00');
+
+        $createdAt = $model->getPropertyValue('createdAt');
+
+        self::assertInstanceOf(
+            DateTime::class,
+            $createdAt,
+            'Should cast valid date strings to DateTime objects when the property type requires it.',
+        );
+        self::assertSame(
+            '2026-02-28 10:30:00',
+            $createdAt->format('Y-m-d H:i:s'),
+            'Should preserve the parsed timestamp value after DateTime casting.',
+        );
+    }
+
     public function testCastValueToDeclaredPhpType(): void
     {
         $model = new PropertyType();
@@ -121,6 +175,20 @@ final class TypeCollectorTest extends TestCase
             1.1,
             $model->getPropertyValue('float'),
             'Should cast numeric strings assigned to float properties.',
+        );
+    }
+
+    public function testKeepDateTimeObjectInstanceWhenAlreadyTyped(): void
+    {
+        $model = new DateTimeType();
+        $dateTime = new DateTime('2026-02-28 14:00:00');
+
+        $model->setPropertyValue('createdAt', $dateTime);
+
+        self::assertSame(
+            $dateTime,
+            $model->getPropertyValue('createdAt'),
+            'Should keep existing DateTime object instances without rebuilding them.',
         );
     }
 
@@ -310,6 +378,30 @@ final class TypeCollectorTest extends TestCase
             $model->getPropertyValue('token'),
             'Should allow assigning an uninitialized readonly property once.',
         );
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenCastingDateTimeString(): void
+    {
+        $model = new DateTimeType();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::INVALID_DATE_TIME_STRING->getMessage('not-a-date', DateTime::class),
+        );
+
+        $model->setPropertyValue('createdAt', 'not-a-date');
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenCastingOverflowDateTimeString(): void
+    {
+        $model = new DateTimeType();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::INVALID_DATE_TIME_STRING->getMessage('2026-02-30 10:30:00', DateTime::class),
+        );
+
+        $model->setPropertyValue('createdAt', '2026-02-30 10:30:00');
     }
 
     public function testThrowInvalidArgumentExceptionWhenOverwritingInitializedReadonlyProperty(): void
