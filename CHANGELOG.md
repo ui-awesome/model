@@ -14,6 +14,7 @@
 - Enh #11: Added `#[NoSnakeCase]` to preserve selected property names during `toArray(snakeCase: true)` serialization while keeping default conversion for other keys (@terabytesoftw)
 - Enh #12: Added `#[DefaultValue]` to apply runtime defaults for `null` and empty-string inputs before custom casting and native type conversion (@terabytesoftw)
 - Bug #13: Simplified `TypeCollector` internals by streamlining `DoNotCollect` detection, normalizing static-property checks, reducing dead fallback logic in nested-property split handling, and using first-class callable trimming while preserving behavior (@terabytesoftw)
+- Bug #14: Simplified `AbstractModel::load()` by replacing a boolean `match` expression with an equivalent ternary assignment for clearer payload scope resolution while preserving behavior (@terabytesoftw)
 
 ## 0.1.0 March 18, 2024
 
