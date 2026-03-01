@@ -103,7 +103,7 @@ $model->load(
     [
         'name' => 'John Doe',
         'age' => 30,
-    ], 
+    ],
     'DynamicModel',
 );
 echo $model->getPropertyValue('name');
