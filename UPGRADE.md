@@ -15,6 +15,7 @@
 - Assigning a value to an already initialized `readonly` property now throws `InvalidArgumentException` instead of surfacing a PHP fatal error.
 - Automatic type casting now supports `DateTime` and `DateTimeImmutable` when string values are assigned to properties declared with those types.
 - Invalid date/time strings now throw `InvalidArgumentException` with a clear casting error message.
+- Overflow-normalized dates (for example `2026-02-30`) are now rejected as invalid instead of being silently normalized.
 
 ### Migration steps
 
@@ -27,6 +28,7 @@
 - Review `load()` payload keys if your models intentionally use underscored property names, because snake_case keys are now normalized to camelCase during assignment.
 - Handle `readonly` reassignment attempts as application-level exceptions when using `setPropertyValue()` or `setProperties()`.
 - Validate incoming date strings before assignment if inputs are user-provided, because invalid values now fail fast with `InvalidArgumentException`.
+- Update tests or input sanitization if your code previously relied on PHP date overflow normalization.
 
 ```php
 <?php
