@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, PropertyType};
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, PropertyType, ReadonlyState};
 use UIAwesome\Model\TypeCollector;
 
 /**
@@ -295,6 +297,68 @@ final class TypeCollectorTest extends TestCase
             $model->getPropertyValue($property),
             'Should assign and return the expected value for each supported property input case.',
         );
+    }
+
+    public function testSetReadonlyPropertyWhenUninitialized(): void
+    {
+        $model = new ReadonlyState(new Country());
+
+        $model->setPropertyValue('token', 'phase-2');
+
+        self::assertSame(
+            'phase-2',
+            $model->getPropertyValue('token'),
+            'Should allow assigning an uninitialized readonly property once.',
+        );
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenOverwritingInitializedReadonlyProperty(): void
+    {
+        $model = new ReadonlyState(new Country());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::READONLY_PROPERTY_ALREADY_INITIALIZED->getMessage(
+                ReadonlyState::class,
+                'country',
+            ),
+        );
+
+        $model->setPropertyValue('country', new Country());
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenReassigningReadonlyPropertyAfterFirstInitialization(): void
+    {
+        $model = new ReadonlyState(new Country());
+
+        $model->setPropertyValue('token', 'phase-2');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::READONLY_PROPERTY_ALREADY_INITIALIZED->getMessage(
+                ReadonlyState::class,
+                'token',
+            ),
+        );
+
+        $model->setPropertyValue('token', 'phase-2-update');
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenReassigningReadonlyPropertyViaSetProperties(): void
+    {
+        $model = new ReadonlyState(new Country());
+
+        $model->setProperties(['token' => 'phase-1']);
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            Message::READONLY_PROPERTY_ALREADY_INITIALIZED->getMessage(
+                ReadonlyState::class,
+                'token',
+            ),
+        );
+
+        $model->setProperties(['token' => 'phase-2']);
     }
 
     public function testThrowTypeErrorWhenAssigningInvalidPropertyValue(): void
