@@ -17,11 +17,38 @@ use function sprintf;
 enum Message: string
 {
     /**
+     * Indicates an empty Cast separator.
+     *
+     * Format: "Cast separator cannot be empty."
+     */
+    case CAST_SEPARATOR_EMPTY = 'Cast separator cannot be empty.';
+
+    /**
+     * Indicates an empty Cast target.
+     *
+     * Format: "Cast target cannot be empty."
+     */
+    case CAST_TARGET_EMPTY = 'Cast target cannot be empty.';
+    /**
      * Indicates duplicate input-key mapping across model properties.
      *
      * Format: "Duplicate MapFrom key '%s' in '%s::%s' and '%s::%s'."
      */
     case DUPLICATE_MAP_FROM_KEY = "Duplicate MapFrom key '%s' in '%s::%s' and '%s::%s'.";
+
+    /**
+     * Indicates cast class does not implement required caster contract.
+     *
+     * Format: "Cast target '%s' for '%s::%s' must implement '%s'."
+     */
+    case INVALID_CAST_CLASS = "Cast target '%s' for '%s::%s' must implement '%s'.";
+
+    /**
+     * Indicates unsupported cast target for a model property.
+     *
+     * Format: "Invalid Cast target '%s' for '%s::%s'."
+     */
+    case INVALID_CAST_TARGET = "Invalid Cast target '%s' for '%s::%s'.";
     /**
      * Indicates invalid string input for date/time object casting.
      *
@@ -35,34 +62,6 @@ enum Message: string
      * Format: "MapFrom key cannot be empty."
      */
     case MAP_FROM_KEY_EMPTY = 'MapFrom key cannot be empty.';
-
-    /**
-     * Indicates an empty Cast target.
-     *
-     * Format: "Cast target cannot be empty."
-     */
-    case CAST_TARGET_EMPTY = 'Cast target cannot be empty.';
-
-    /**
-     * Indicates an empty Cast separator.
-     *
-     * Format: "Cast separator cannot be empty."
-     */
-    case CAST_SEPARATOR_EMPTY = 'Cast separator cannot be empty.';
-
-    /**
-     * Indicates unsupported cast target for a model property.
-     *
-     * Format: "Invalid Cast target '%s' for '%s::%s'."
-     */
-    case INVALID_CAST_TARGET = "Invalid Cast target '%s' for '%s::%s'.";
-
-    /**
-     * Indicates cast class does not implement required caster contract.
-     *
-     * Format: "Cast target '%s' for '%s::%s' must implement '%s'."
-     */
-    case INVALID_CAST_CLASS = "Cast target '%s' for '%s::%s' must implement '%s'.";
 
     /**
      * Indicates attempts to overwrite an initialized readonly property.

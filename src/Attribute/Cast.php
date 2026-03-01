@@ -25,8 +25,8 @@ use UIAwesome\Model\Exception\Message;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class Cast
 {
-    public readonly string $target;
     public readonly string $separator;
+    public readonly string $target;
 
     public function __construct(string $target, string $separator = ',')
     {

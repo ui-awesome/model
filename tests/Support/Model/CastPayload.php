@@ -16,16 +16,15 @@ use UIAwesome\Model\Tests\Support\Caster\PipeSeparatedCaster;
  */
 final class CastPayload extends AbstractModel
 {
-    #[Cast('array')]
-    public array $tags = [];
+    #[Cast(PipeSeparatedCaster::class)]
+    public array $keywords = [];
+
+    public string $name = '';
 
     #[Trim]
     #[MapFrom('tag-list')]
     #[Cast('array')]
     public array $tagList = [];
-
-    #[Cast(PipeSeparatedCaster::class)]
-    public array $keywords = [];
-
-    public string $name = '';
+    #[Cast('array')]
+    public array $tags = [];
 }

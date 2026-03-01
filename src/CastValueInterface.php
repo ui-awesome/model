@@ -17,7 +17,8 @@ interface CastValueInterface
      *
      * Usage example:
      * ```php
-     * $model->cast('1,2,3');
+     * $caster = new PipeSeparatedCaster();
+     * $result = $caster->cast('a|b|c');
      * ```
      */
     public function cast(mixed $value): mixed;

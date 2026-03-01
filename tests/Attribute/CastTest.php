@@ -21,6 +21,7 @@ use UIAwesome\Model\Tests\Support\Model\CastPayload;
  * - Supports custom caster classes implementing `CastValueInterface`.
  * - Supports mapped keys and trim normalization before cast execution.
  * - Throws explicit exceptions for invalid cast targets and invalid caster classes.
+ * - Validates `Cast` attribute configuration for empty target and empty separator.
  */
 final class CastTest extends TestCase
 {
@@ -50,19 +51,6 @@ final class CastTest extends TestCase
         );
     }
 
-    public function testKeepArrayInputWithoutAdditionalCasting(): void
-    {
-        $model = new CastPayload();
-
-        $model->setPropertyValue('tags', ['a', 'b']);
-
-        self::assertSame(
-            ['a', 'b'],
-            $model->getPropertyValue('tags'),
-            'Should keep array inputs unchanged for array cast target.',
-        );
-    }
-
     public function testCastNonStringScalarToArray(): void
     {
         $model = new CastPayload();
@@ -73,6 +61,21 @@ final class CastTest extends TestCase
             [7],
             $model->getPropertyValue('tags'),
             'Should cast non-string scalar values to array for array cast target.',
+        );
+    }
+
+    public function testCastWithCustomCasterClass(): void
+    {
+        $model = new CastPayload();
+
+        $model->setProperties([
+            'keywords' => 'red| green |blue',
+        ]);
+
+        self::assertSame(
+            ['red', 'green', 'blue'],
+            $model->getPropertyValue('keywords'),
+            'Should delegate casting to custom caster classes.',
         );
     }
 
@@ -96,19 +99,86 @@ final class CastTest extends TestCase
         );
     }
 
-    public function testCastWithCustomCasterClass(): void
+    public function testCollectCastMetadataAfterDoNotCollectProperty(): void
+    {
+        $model = new class extends AbstractModel {
+            #[DoNotCollect]
+            public string $ignored = '';
+
+            #[Cast('array')]
+            public array $tags = [];
+        };
+
+        $model->setPropertyValue('tags', 'a,b');
+
+        self::assertSame(
+            ['a', 'b'],
+            $model->getPropertyValue('tags'),
+            'Should continue collecting Cast metadata after DoNotCollect properties.',
+        );
+    }
+
+    public function testCollectCastMetadataAfterPropertyWithoutCastAttribute(): void
+    {
+        $model = new class extends AbstractModel {
+            public string $name = '';
+
+            #[Cast('array')]
+            public array $tags = [];
+        };
+
+        $model->setPropertyValue('tags', 'x,y');
+
+        self::assertSame(
+            ['x', 'y'],
+            $model->getPropertyValue('tags'),
+            'Should continue scanning properties when some do not declare Cast.',
+        );
+    }
+
+    public function testIgnoreCastMetadataOnDoNotCollectProperty(): void
+    {
+        $model = new class extends AbstractModel {
+            #[DoNotCollect]
+            #[Cast('')]
+            public array $ignored = [];
+
+            public array $tags = [];
+        };
+
+        $model->setPropertyValue('tags', ['safe']);
+
+        self::assertSame(
+            ['safe'],
+            $model->getPropertyValue('tags'),
+            'Should not evaluate Cast metadata declared on DoNotCollect properties.',
+        );
+    }
+
+    public function testKeepArrayInputWithoutAdditionalCasting(): void
     {
         $model = new CastPayload();
 
-        $model->setProperties([
-            'keywords' => 'red| green |blue',
-        ]);
+        $model->setPropertyValue('tags', ['a', 'b']);
 
         self::assertSame(
-            ['red', 'green', 'blue'],
-            $model->getPropertyValue('keywords'),
-            'Should delegate casting to custom caster classes.',
+            ['a', 'b'],
+            $model->getPropertyValue('tags'),
+            'Should keep array inputs unchanged for array cast target.',
         );
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenCastSeparatorIsEmpty(): void
+    {
+        $model = new class extends AbstractModel {
+            #[Cast('array', '')]
+            public array $tags = [];
+        };
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(Message::CAST_SEPARATOR_EMPTY->getMessage());
+
+        $model->setPropertyValue('tags', 'a,b');
     }
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotExist(): void
@@ -157,61 +227,5 @@ final class CastTest extends TestCase
         $this->expectExceptionMessage(Message::CAST_TARGET_EMPTY->getMessage());
 
         $model->setPropertyValue('tags', 'a,b');
-    }
-
-    public function testIgnoreCastMetadataOnDoNotCollectProperty(): void
-    {
-        $model = new class extends AbstractModel {
-            #[DoNotCollect]
-            #[Cast('')]
-            public array $ignored = [];
-
-            public array $tags = [];
-        };
-
-        $model->setPropertyValue('tags', ['safe']);
-
-        self::assertSame(
-            ['safe'],
-            $model->getPropertyValue('tags'),
-            'Should not evaluate Cast metadata declared on DoNotCollect properties.',
-        );
-    }
-
-    public function testCollectCastMetadataAfterDoNotCollectProperty(): void
-    {
-        $model = new class extends AbstractModel {
-            #[DoNotCollect]
-            public string $ignored = '';
-
-            #[Cast('array')]
-            public array $tags = [];
-        };
-
-        $model->setPropertyValue('tags', 'a,b');
-
-        self::assertSame(
-            ['a', 'b'],
-            $model->getPropertyValue('tags'),
-            'Should continue collecting Cast metadata after DoNotCollect properties.',
-        );
-    }
-
-    public function testCollectCastMetadataAfterPropertyWithoutCastAttribute(): void
-    {
-        $model = new class extends AbstractModel {
-            public string $name = '';
-
-            #[Cast('array')]
-            public array $tags = [];
-        };
-
-        $model->setPropertyValue('tags', 'x,y');
-
-        self::assertSame(
-            ['x', 'y'],
-            $model->getPropertyValue('tags'),
-            'Should continue scanning properties when some do not declare Cast.',
-        );
     }
 }

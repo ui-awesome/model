@@ -26,7 +26,9 @@ $model = new User();
 
 $model->load(['User' => ['name' => 'Jane', 'user-age' => 20]]);
 echo $model->getPropertyValue('name');
+// "Jane"
 echo $model->getPropertyValue('age');
+// 20
 ```
 
 ## Explicit payload-key mapping
@@ -51,6 +53,7 @@ $model = new JsonLdContext();
 
 $model->setProperties(['@context' => 'https://schema.org']);
 echo $model->getPropertyValue('context');
+// "https://schema.org"
 ```
 
 ## Nested model access
@@ -79,6 +82,7 @@ $profile = new Profile(new Address());
 
 $profile->setPropertyValue('address.city', 'Madrid');
 echo $profile->getPropertyValue('address.city');
+// "Madrid"
 ```
 
 ## Dynamic properties
@@ -108,7 +112,9 @@ $model->load(
     'DynamicModel',
 );
 echo $model->getPropertyValue('name');
+// "John Doe"
 echo $model->getPropertyValue('createdAt');
+// current timestamp
 ```
 
 ## Serialization
@@ -138,6 +144,7 @@ $model = new Post();
 
 $model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
 echo $model->getPropertyValue('publishedAt')->format(DATE_ATOM);
+// "2026-03-01T10:00:00+00:00"
 ```
 
 ## Trim normalization
@@ -162,6 +169,7 @@ $model = new Profile();
 
 $model->setPropertyValue('displayName', '  Ada  ');
 echo $model->getPropertyValue('displayName');
+// "Ada"
 ```
 
 ## Forced casting with `Cast`
@@ -185,7 +193,8 @@ final class SearchFilter extends AbstractModel
 $model = new SearchFilter();
 
 $model->setPropertyValue('tags', 'php, yii2, model');
-echo $model->getPropertyValue('tags');
+print_r($model->getPropertyValue('tags'));
+// Array ( [0] => php [1] => yii2 [2] => model )
 ```
 
 ## Next steps
