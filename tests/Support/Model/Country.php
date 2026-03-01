@@ -7,7 +7,7 @@ namespace UIAwesome\Model\Tests\Support\Model;
 use UIAwesome\Model\AbstractModel;
 
 /**
- * Stub country model used by test fixtures.
+ * Stub country model used for tests.
  *
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.

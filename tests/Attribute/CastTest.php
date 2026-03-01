@@ -18,6 +18,7 @@ use UIAwesome\Model\Tests\Support\Model\CastPayload;
  * Test coverage.
  * - Applies cast behavior in `setPropertyValue()`, `setProperties()`, and `load()`.
  * - Casts comma-separated strings to arrays.
+ * - Continues scanning cast metadata after static property declarations.
  * - Supports custom caster classes implementing `CastValueInterface`.
  * - Supports mapped keys and trim normalization before cast execution.
  * - Throws explicit exceptions for invalid cast targets and invalid caster classes.
@@ -136,6 +137,25 @@ final class CastTest extends TestCase
             ['x', 'y'],
             $model->getPropertyValue('tags'),
             'Should continue scanning properties when some do not declare Cast.',
+        );
+    }
+
+    public function testCollectCastMetadataAfterStaticPropertyDeclaration(): void
+    {
+        $model = new class extends AbstractModel {
+            #[Cast('array')]
+            public static string $ignored = '';
+
+            #[Cast('array')]
+            public array $tags = [];
+        };
+
+        $model->setPropertyValue('tags', 'x,y');
+
+        self::assertSame(
+            ['x', 'y'],
+            $model->getPropertyValue('tags'),
+            'Should continue scanning cast metadata after static property declarations.',
         );
     }
 

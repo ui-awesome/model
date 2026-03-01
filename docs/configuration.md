@@ -16,12 +16,15 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';
+
+    #[DefaultValue('Guest')]
+    public string $displayName = '';
 
     #[MapFrom('user-email-address')]
     public string $email = '';
@@ -71,11 +74,12 @@ $types = $model->getPropertyTypes();
 /*
 [
     'apiVersion' => 'string',
+    'displayName' => 'string',
     'email' => 'string',
     'name' => 'string',
     'publicEmailPersonal' => 'string',
     'tags' => 'array',
-    'updatedAt' => 'int',
+    'updatedAt' => 'timestamp',
 ]
 */
 ```
@@ -86,6 +90,7 @@ $types = $model->getPropertyTypes();
 - `setProperties()` assigns multiple values and converts snake_case input keys to camelCase.
 - `#[MapFrom('key')]` has priority over snake_case conversion for matching input payload keys.
 - `#[Trim]` trims string values before type casting and assignment.
+- `#[DefaultValue(...)]` applies runtime defaults when assigned values are `null` or `''`.
 - `#[Cast('array')]` converts comma-separated strings into arrays before native property casting.
 - `#[Cast(YourCaster::class)]` supports custom casting classes implementing `CastValueInterface`.
 - `setProperties($data, $exceptProperties)` exclusions are evaluated in camelCase.
@@ -93,6 +98,8 @@ $types = $model->getPropertyTypes();
 ```php
 $model->setProperties(['public_email_personal' => 'dev@example.com'], ['publicEmailPersonal']);
 $model->setProperties(['user-email-address' => 'dev@example.com']);
+$model->setPropertyValue('displayName', '');
+// displayName => 'Guest'
 ```
 
 ## Date object casting
@@ -115,6 +122,7 @@ $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
 /*
 [
     'apiVersion' => 'v1',
+    'display_name' => 'Guest',
     'email' => 'dev@example.com',
     'name' => 'Ada Lovelace',
     'public_email_personal' => 'dev@example.com',

@@ -8,7 +8,7 @@ use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{DoNotCollect, NoSnakeCase};
 
 /**
- * Parent stub model combining DoNotCollect and NoSnakeCase metadata.
+ * Parent stub model combining DoNotCollect and NoSnakeCase metadata for tests.
  */
 class NoSnakeCaseParent extends AbstractModel
 {

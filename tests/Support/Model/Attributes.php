@@ -9,7 +9,7 @@ use UIAwesome\Model\Attribute\DoNotCollect;
 use UIAwesome\Model\Attribute\Timestamp;
 
 /**
- * Stub model with attribute-driven properties used by test fixtures.
+ * Stub model with attribute-driven properties used for tests.
  *
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.

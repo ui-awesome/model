@@ -12,7 +12,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
-use UIAwesome\Model\Attribute\{Cast, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
 use UIAwesome\Model\Exception\Message;
 
 use function array_filter;
@@ -65,6 +65,13 @@ final class TypeCollector
     private array $dynamicValues = [];
 
     /**
+     * Stores runtime default values keyed by model property name.
+     *
+     * @phpstan-var array<string, mixed>
+     */
+    private array $defaultValueProperties = [];
+
+    /**
      * Stores external input-key to property-name mappings.
      *
      * @phpstan-var array<string, string>
@@ -105,6 +112,7 @@ final class TypeCollector
         $this->properties = $this->collectProperties();
         $this->mapFromKeys = $this->collectMapFromKeys();
         $this->castProperties = $this->collectCastProperties();
+        $this->defaultValueProperties = $this->collectDefaultValueProperties();
         $this->noSnakeCaseProperties = $this->collectNoSnakeCaseProperties();
         $this->trimProperties = $this->collectTrimProperties();
     }
@@ -506,7 +514,11 @@ final class TypeCollector
         $keys = [];
 
         foreach ($this->reflection->getProperties() as $property) {
-            if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
+            if ($property->isStatic()) {
+                continue;
+            }
+
+            if ($this->hasDoNotCollectAttribute($property)) {
                 continue;
             }
 
@@ -519,6 +531,38 @@ final class TypeCollector
             /** @phpstan-var Cast $cast */
             $cast = $attributes[0]->newInstance();
             $keys[$property->getName()] = $cast;
+        }
+
+        return $keys;
+    }
+
+    /**
+     * Collects runtime default values for properties marked with `DefaultValue`.
+     *
+     * @return array<string, mixed> Default values indexed by property name.
+     */
+    private function collectDefaultValueProperties(): array
+    {
+        $keys = [];
+
+        foreach ($this->reflection->getProperties() as $property) {
+            if ($property->isStatic()) {
+                continue;
+            }
+
+            if ($this->hasDoNotCollectAttribute($property)) {
+                continue;
+            }
+
+            $attributes = $property->getAttributes(DefaultValue::class);
+
+            if ($attributes === []) {
+                continue;
+            }
+
+            /** @phpstan-var DefaultValue $defaultValue */
+            $defaultValue = $attributes[0]->newInstance();
+            $keys[$property->getName()] = $defaultValue->value;
         }
 
         return $keys;
@@ -847,7 +891,8 @@ final class TypeCollector
 
         if ($propertyCount === 1) {
             $normalizedValue = $this->trimValueIfRequired($property, $value);
-            $castValue = $this->castValueIfRequired($property, $normalizedValue);
+            $defaultedValue = $this->applyDefaultValueIfRequired($property, $normalizedValue);
+            $castValue = $this->castValueIfRequired($property, $defaultedValue);
             $valueTypeCast = $this->phpTypeCast($property, $castValue);
             $this->writeProperty($property, $valueTypeCast);
 
@@ -907,6 +952,27 @@ final class TypeCollector
         }
 
         return [$property, null];
+    }
+
+    /**
+     * Applies runtime defaults for values assigned as null or empty string.
+     *
+     * @param string $property Property receiving the assigned value.
+     * @param mixed $value Normalized value to inspect.
+     *
+     * @return mixed Default value when applicable; otherwise the original value.
+     */
+    private function applyDefaultValueIfRequired(string $property, mixed $value): mixed
+    {
+        if (!array_key_exists($property, $this->defaultValueProperties)) {
+            return $value;
+        }
+
+        if ($value !== null && $value !== '') {
+            return $value;
+        }
+
+        return $this->defaultValueProperties[$property];
     }
 
     /**

@@ -48,7 +48,7 @@
                 </div>
                 <div class="card">
                     <p class="title"><strong>Attribute Controls</strong></p>
-                    <p class="content"><code>#[MapFrom]</code>, <code>#[Trim]</code>, <code>#[Cast]</code>, and <code>#[NoSnakeCase]</code> control binding, normalization, conversion, and output key behavior.</p>
+                    <p class="content"><code>#[MapFrom]</code>, <code>#[Trim]</code>, <code>#[DefaultValue]</code>, <code>#[Cast]</code>, and <code>#[NoSnakeCase]</code> control binding, normalization, runtime defaults, conversion, and output key behavior.</p>
                 </div>
                 <div class="card">
                     <p class="title"><strong>Model Loading</strong></p>

@@ -22,7 +22,7 @@
 
 <p align="center">
     <strong>Typed model mapping for modern PHP applications</strong><br>
-    <em>Nested properties, explicit input mapping, trim normalization, custom casting, and selective key serialization</em>
+    <em>Nested properties, explicit input mapping, runtime defaults, custom casting, and selective key serialization</em>
 </p>
 
 ## Features
@@ -48,12 +48,15 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{Cast, MapFrom, NoSnakeCase, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, DefaultValue, MapFrom, NoSnakeCase, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';
+
+    #[DefaultValue('Guest')]
+    public string $displayName = '';
 
     #[MapFrom('user-email-address')]
     public string $email = '';
@@ -74,6 +77,7 @@ $model->load(
     [
         'User' => [
             'apiVersion' => 'v2',
+            'displayName' => '',
             'name' => '  Ada Lovelace  ',
             'tags' => 'php, yii2, model',
             'user-email-address' => 'ada@example.com',
@@ -85,19 +89,21 @@ $types = $model->getPropertyTypes();
 /*
 [
     'apiVersion' => 'string',
+    'displayName' => 'string',
     'name' => 'string',
     'email' => 'string',
     'tags' => 'array',
-    'updatedAt' => 'timestamp'
+    'updatedAt' => 'timestamp',
 ]
 */
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
 /*
 [
     'apiVersion' => 'v2',
+    'display_name' => 'Guest',
     'name' => 'Ada Lovelace',
     'email' => 'ada@example.com',
-    'tags' => ['php', 'yii2', 'model']
+    'tags' => ['php', 'yii2', 'model'],
 ]
 */
 ```
@@ -177,6 +183,32 @@ $filter = new SearchFilter();
 $filter->setPropertyValue('tags', 'php, yii2, model');
 ```
 
+## Runtime fallback with `DefaultValue`
+
+Use `#[DefaultValue(...)]` to apply a fallback when input values are `null` or `''`.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\DefaultValue;
+
+final class Profile extends AbstractModel
+{
+    #[DefaultValue('Guest')]
+    public string $displayName = '';
+}
+
+$profile = new Profile();
+
+$profile->setPropertyValue('displayName', '');
+// 'Guest'
+```
+
 ## Preserve selected output keys with `NoSnakeCase`
 
 Use `#[NoSnakeCase]` to keep specific property names unchanged when serializing with `snakeCase: true`.
@@ -202,7 +234,12 @@ final class ApiPayload extends AbstractModel
 $payload = new ApiPayload();
 
 $data = $payload->toArray(snakeCase: true);
-// ['apiVersion' => 'v1', 'public_email_personal' => 'admin@example.com']
+/*
+[
+    'apiVersion' => 'v1',
+    'public_email_personal' => 'admin@example.com',
+]
+*/
 ```
 
 ## Documentation
