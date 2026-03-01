@@ -12,7 +12,7 @@ use ReflectionClass;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
-use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom, Timestamp};
+use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom, Timestamp, Trim};
 use UIAwesome\Model\Exception\Message;
 
 use function array_filter;
@@ -32,6 +32,7 @@ use function is_scalar;
 use function max;
 use function method_exists;
 use function str_contains;
+use function trim;
 
 /**
  * Collects and manages model property types and values.
@@ -64,11 +65,17 @@ final class TypeCollector
      */
     private ReflectionClass $reflection;
 
+    /**
+     * @phpstan-var array<string, true>
+     */
+    private array $trimProperties = [];
+
     public function __construct(private readonly ModelInterface $model)
     {
         $this->reflection = new ReflectionClass($this->model);
         $this->properties = $this->collectProperties();
         $this->mapFromKeys = $this->collectMapFromKeys();
+        $this->trimProperties = $this->collectTrimProperties();
     }
 
     /**
@@ -466,6 +473,28 @@ final class TypeCollector
     }
 
     /**
+     * Collects properties that should trim string input before assignment.
+     *
+     * @return array<string, true>
+     */
+    private function collectTrimProperties(): array
+    {
+        $keys = [];
+
+        foreach ($this->reflection->getProperties() as $property) {
+            if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
+                continue;
+            }
+
+            if ($property->getAttributes(Trim::class) !== []) {
+                $keys[$property->getName()] = true;
+            }
+        }
+
+        return $keys;
+    }
+
+    /**
      * Checks if the provided type or list of types contains the 'timestamp' type.
      *
      * @param array|string $type Type or list of types to check.
@@ -643,7 +672,8 @@ final class TypeCollector
         $propertyCount = count($properties);
 
         if ($propertyCount === 1) {
-            $valueTypeCast = $this->phpTypeCast($property, $value);
+            $normalizedValue = $this->trimValueIfRequired($property, $value);
+            $valueTypeCast = $this->phpTypeCast($property, $normalizedValue);
             $this->writeProperty($property, $valueTypeCast);
 
             return;
@@ -702,6 +732,18 @@ final class TypeCollector
         }
 
         return [$property, null];
+    }
+
+    /**
+     * Applies trim normalization to string values for properties marked with `Trim`.
+     */
+    private function trimValueIfRequired(string $property, mixed $value): mixed
+    {
+        if (!array_key_exists($property, $this->trimProperties) || !is_string($value)) {
+            return $value;
+        }
+
+        return trim($value);
     }
 
     /**

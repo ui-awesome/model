@@ -22,7 +22,7 @@
 
 <p align="center">
     <strong>Typed model mapping for modern PHP applications</strong><br>
-    <em>Nested properties, explicit input mapping, controlled casting, and array serialization</em>
+    <em>Nested properties, explicit input mapping, trim normalization, controlled casting, and array serialization</em>
 </p>
 
 ## Features
@@ -48,10 +48,11 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{MapFrom, Timestamp};
+use UIAwesome\Model\Attribute\{MapFrom, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
+    #[Trim]
     public string $name = '';
     #[MapFrom('user-email-address')]
     public string $email = '';
@@ -96,7 +97,33 @@ final class JsonLdPayload extends AbstractModel
 }
 
 $payload = new JsonLdPayload();
+
 $payload->setProperties(['@context' => 'https://schema.org']);
+```
+
+## Automatic input trimming with `Trim`
+
+Use `#[Trim]` to normalize leading and trailing spaces for string values during assignment.
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\Trim;
+
+final class Profile extends AbstractModel
+{
+    #[Trim]
+    public string $displayName = '';
+}
+
+$profile = new Profile();
+
+$profile->setProperties(['display_name' => '  Ada Lovelace  ']);
 ```
 
 ## Documentation
