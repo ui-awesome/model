@@ -58,18 +58,18 @@ final class TypeCollector
     private array $castProperties = [];
 
     /**
-     * Stores values assigned to runtime dynamic properties.
-     *
-     * @phpstan-var mixed[]
-     */
-    private array $dynamicValues = [];
-
-    /**
      * Stores runtime default values keyed by model property name.
      *
      * @phpstan-var array<string, mixed>
      */
     private array $defaultValueProperties = [];
+
+    /**
+     * Stores values assigned to runtime dynamic properties.
+     *
+     * @phpstan-var mixed[]
+     */
+    private array $dynamicValues = [];
 
     /**
      * Stores external input-key to property-name mappings.
@@ -370,6 +370,27 @@ final class TypeCollector
         }
 
         return $result;
+    }
+
+    /**
+     * Applies runtime defaults for values assigned as null or empty string.
+     *
+     * @param string $property Property receiving the assigned value.
+     * @param mixed $value Normalized value to inspect.
+     *
+     * @return mixed Default value when applicable; otherwise the original value.
+     */
+    private function applyDefaultValueIfRequired(string $property, mixed $value): mixed
+    {
+        if (!array_key_exists($property, $this->defaultValueProperties)) {
+            return $value;
+        }
+
+        if ($value !== null && $value !== '') {
+            return $value;
+        }
+
+        return $this->defaultValueProperties[$property];
     }
 
     /**
@@ -952,27 +973,6 @@ final class TypeCollector
         }
 
         return [$property, null];
-    }
-
-    /**
-     * Applies runtime defaults for values assigned as null or empty string.
-     *
-     * @param string $property Property receiving the assigned value.
-     * @param mixed $value Normalized value to inspect.
-     *
-     * @return mixed Default value when applicable; otherwise the original value.
-     */
-    private function applyDefaultValueIfRequired(string $property, mixed $value): mixed
-    {
-        if (!array_key_exists($property, $this->defaultValueProperties)) {
-            return $value;
-        }
-
-        if ($value !== null && $value !== '') {
-            return $value;
-        }
-
-        return $this->defaultValueProperties[$property];
     }
 
     /**

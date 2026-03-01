@@ -7,7 +7,7 @@ namespace UIAwesome\Model\Tests\Support\Model;
 use UIAwesome\Model\AbstractModel;
 
 /**
- * Stub model exposing readonly properties for assignment for tests.
+ * Stub model exposing readonly properties for assignment tests.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.

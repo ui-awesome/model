@@ -15,12 +15,16 @@ use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, Trim};
  */
 final class DefaultValuePayload extends AbstractModel
 {
-    #[DefaultValue('Guest')]
-    public string $displayName = '';
-
     #[Trim]
     #[DefaultValue('Unknown')]
     public string $bio = '';
+
+    #[DefaultValue('Guest')]
+    public string $displayName = '';
+
+    #[DoNotCollect]
+    #[DefaultValue('ignored')]
+    public string $internal = '';
 
     #[MapFrom('user-locale')]
     #[DefaultValue('en_US')]
@@ -32,8 +36,4 @@ final class DefaultValuePayload extends AbstractModel
     #[Cast('array')]
     #[DefaultValue('php,model')]
     public array $tags = [];
-
-    #[DoNotCollect]
-    #[DefaultValue('ignored')]
-    public string $internal = '';
 }

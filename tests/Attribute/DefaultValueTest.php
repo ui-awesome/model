@@ -27,16 +27,29 @@ use UIAwesome\Model\Tests\Support\Model\{DefaultValueChild, DefaultValuePayload}
  */
 final class DefaultValueTest extends TestCase
 {
-    public function testApplyDefaultValueWhenInputIsNull(): void
+    public function testApplyDefaultAfterTrimForWhitespaceOnlyString(): void
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('displayName', null);
+        $model->setPropertyValue('bio', '   ');
 
         self::assertSame(
-            'Guest',
-            $model->getPropertyValue('displayName'),
-            'Should apply configured default value when assigned input is null.',
+            'Unknown',
+            $model->getPropertyValue('bio'),
+            'Should trim whitespace and apply default when the resulting value is empty.',
+        );
+    }
+
+    public function testApplyDefaultBeforeCastPipeline(): void
+    {
+        $model = new DefaultValuePayload();
+
+        $model->setPropertyValue('tags', null);
+
+        self::assertSame(
+            ['php', 'model'],
+            $model->getPropertyValue('tags'),
+            'Should apply default string and then cast it to an array using the configured Cast attribute.',
         );
     }
 
@@ -52,30 +65,16 @@ final class DefaultValueTest extends TestCase
             'Should apply configured default value when assigned input is an empty string.',
         );
     }
-
-    public function testKeepExplicitValueWhenInputIsNotEmpty(): void
+    public function testApplyDefaultValueWhenInputIsNull(): void
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('displayName', 'Ada');
+        $model->setPropertyValue('displayName', null);
 
         self::assertSame(
-            'Ada',
+            'Guest',
             $model->getPropertyValue('displayName'),
-            'Should keep explicit non-empty values instead of replacing them with defaults.',
-        );
-    }
-
-    public function testApplyDefaultAfterTrimForWhitespaceOnlyString(): void
-    {
-        $model = new DefaultValuePayload();
-
-        $model->setPropertyValue('bio', '   ');
-
-        self::assertSame(
-            'Unknown',
-            $model->getPropertyValue('bio'),
-            'Should trim whitespace and apply default when the resulting value is empty.',
+            'Should apply configured default value when assigned input is null.',
         );
     }
 
@@ -92,16 +91,40 @@ final class DefaultValueTest extends TestCase
         );
     }
 
-    public function testApplyDefaultBeforeCastPipeline(): void
+    public function testCollectDefaultValueMetadataAfterPropertyWithoutAttribute(): void
     {
-        $model = new DefaultValuePayload();
+        $model = new class extends AbstractModel {
+            public string $title = '';
 
-        $model->setPropertyValue('tags', null);
+            #[DefaultValue('guest')]
+            public string $name = '';
+        };
+
+        $model->setPropertyValue('name', null);
 
         self::assertSame(
-            ['php', 'model'],
-            $model->getPropertyValue('tags'),
-            'Should apply default string and then cast it to an array using the configured Cast attribute.',
+            'guest',
+            $model->getPropertyValue('name'),
+            'Should continue scanning properties when some entries do not declare DefaultValue.',
+        );
+    }
+
+    public function testCollectDefaultValueMetadataAfterStaticPropertyDeclaration(): void
+    {
+        $model = new class extends AbstractModel {
+            #[DefaultValue('ignored-static')]
+            public static string $ignored = '';
+
+            #[DefaultValue('ok')]
+            public string $name = '';
+        };
+
+        $model->setPropertyValue('name', null);
+
+        self::assertSame(
+            'ok',
+            $model->getPropertyValue('name'),
+            'Should continue collecting DefaultValue metadata after static properties.',
         );
     }
 
@@ -125,43 +148,6 @@ final class DefaultValueTest extends TestCase
         );
     }
 
-    public function testCollectDefaultValueMetadataAfterStaticPropertyDeclaration(): void
-    {
-        $model = new class extends AbstractModel {
-            #[DefaultValue('ignored-static')]
-            public static string $ignored = '';
-
-            #[DefaultValue('ok')]
-            public string $name = '';
-        };
-
-        $model->setPropertyValue('name', null);
-
-        self::assertSame(
-            'ok',
-            $model->getPropertyValue('name'),
-            'Should continue collecting DefaultValue metadata after static properties.',
-        );
-    }
-
-    public function testCollectDefaultValueMetadataAfterPropertyWithoutAttribute(): void
-    {
-        $model = new class extends AbstractModel {
-            public string $title = '';
-
-            #[DefaultValue('guest')]
-            public string $name = '';
-        };
-
-        $model->setPropertyValue('name', null);
-
-        self::assertSame(
-            'guest',
-            $model->getPropertyValue('name'),
-            'Should continue scanning properties when some entries do not declare DefaultValue.',
-        );
-    }
-
     public function testIgnoreParentDoNotCollectDefaultValueWhenChildReusesPropertyName(): void
     {
         $model = new DefaultValueChild();
@@ -171,6 +157,19 @@ final class DefaultValueTest extends TestCase
         self::assertNull(
             $model->getPropertyValue('status'),
             'Should ignore parent DoNotCollect DefaultValue metadata for child properties with the same name.',
+        );
+    }
+
+    public function testKeepExplicitValueWhenInputIsNotEmpty(): void
+    {
+        $model = new DefaultValuePayload();
+
+        $model->setPropertyValue('displayName', 'Ada');
+
+        self::assertSame(
+            'Ada',
+            $model->getPropertyValue('displayName'),
+            'Should keep explicit non-empty values instead of replacing them with defaults.',
         );
     }
 }

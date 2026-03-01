@@ -7,7 +7,7 @@ namespace UIAwesome\Model\Tests\Support\Model;
 use UIAwesome\Model\AbstractModel;
 
 /**
- * Stub container model for nested trim for tests.
+ * Stub container model for nested trim tests.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
