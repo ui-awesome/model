@@ -12,12 +12,15 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{MapFrom, NoSnakeCase, Trim};
+use UIAwesome\Model\Attribute\{DefaultValue, MapFrom, NoSnakeCase, Trim};
 
 final class User extends AbstractModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';
+
+    #[DefaultValue('Guest')]
+    public string $displayName = '';
 
     #[Trim]
     public string $name = '';
@@ -225,6 +228,31 @@ $model = new SearchFilter();
 $model->setPropertyValue('tags', 'php, yii2, model');
 print_r($model->getPropertyValue('tags'));
 // Array ( [0] => php [1] => yii2 [2] => model )
+```
+
+## Runtime defaults with `DefaultValue`
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\DefaultValue;
+
+final class Profile extends AbstractModel
+{
+    #[DefaultValue('Guest')]
+    public string $displayName = '';
+}
+
+$model = new Profile();
+
+$model->setPropertyValue('displayName', '');
+echo $model->getPropertyValue('displayName');
+// "Guest"
 ```
 
 ## Next steps
