@@ -48,14 +48,19 @@ declare(strict_types=1);
 namespace App\Model;
 
 use UIAwesome\Model\AbstractModel;
-use UIAwesome\Model\Attribute\{MapFrom, Timestamp, Trim};
+use UIAwesome\Model\Attribute\{Cast, MapFrom, Timestamp, Trim};
 
 final class User extends AbstractModel
 {
-    #[Trim]
-    public string $name = '';
     #[MapFrom('user-email-address')]
     public string $email = '';
+
+    #[Trim]
+    public string $name = '';
+
+    #[Cast('array')]
+    public array $tags = [];
+
     #[Timestamp]
     private int $updatedAt = 0;
 }
@@ -65,15 +70,29 @@ $model = new User();
 $model->load(
     [
         'User' => [
-            'name' => 'Ada Lovelace',
+            'name' => '  Ada Lovelace  ',
             'user-email-address' => 'ada@example.com',
+            'tags' => 'php, yii2, model',
         ],
     ],
 );
 
-$model->setPropertyValue('name', 'Ada');
 $types = $model->getPropertyTypes();
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
+
+/*
+$types = [
+    'name' => 'string',
+    'email' => 'string',
+    'tags' => 'array',
+    'updatedAt' => 'timestamp',
+];
+$payload = [
+    'name' => 'Ada Lovelace',
+    'email' => 'ada@example.com',
+    'tags' => ['php', 'yii2', 'model'],
+];
+*/
 ```
 
 ## Explicit payload mapping with `MapFrom`

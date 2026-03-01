@@ -17,8 +17,11 @@ final class Profile extends AbstractModel
 {
     #[DoNotCollect]
     public array $avatar = [];
+
     public string $bio = '';
+
     public string $pathAvatar = '';
+
     public string $publicEmailPersonal = '';
 
     public function __construct(public readonly Address $address) {}

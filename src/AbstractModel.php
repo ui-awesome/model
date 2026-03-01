@@ -24,6 +24,9 @@ use function substr;
  * $model = new UserForm();
  * $model->load(['UserForm' => ['name' => 'Ada']]);
  * ```
+ *
+ * @copyright Copyright (C) 2024 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 abstract class AbstractModel implements ModelInterface
 {
@@ -32,6 +35,9 @@ abstract class AbstractModel implements ModelInterface
      */
     private array $data = [];
 
+    /**
+     * Lazily initialized collector handling property metadata and value assignment.
+     */
     private TypeCollector|null $typeCollector = null;
 
     public function addProperty(string $property, string|array $type): void
@@ -63,8 +69,6 @@ abstract class AbstractModel implements ModelInterface
     }
 
     /**
-     * @return list<string>
-     *
      * @phpstan-return list<string>
      */
     public function getProperties(): array
@@ -136,8 +140,7 @@ abstract class AbstractModel implements ModelInterface
 
     /**
      * @phpstan-param list<string> $exceptProperties
-     *
-     * @return array<string, mixed>
+     * @phpstan-return array<string, mixed>
      */
     public function toArray(bool $snakeCase = false, array $exceptProperties = []): array
     {
@@ -145,7 +148,12 @@ abstract class AbstractModel implements ModelInterface
     }
 
     /**
-     * @return list<string>
+     * Recursively collects property names, flattening nested models with dot notation.
+     *
+     * @param ModelInterface $model Model instance to inspect.
+     * @param string $prefix Prefix accumulated for nested paths.
+     *
+     * @return array List of property names, including nested properties in dot notation.
      *
      * @phpstan-return list<string>
      */
@@ -169,6 +177,11 @@ abstract class AbstractModel implements ModelInterface
         return $properties;
     }
 
+    /**
+     * Returns the model type collector, initializing it on first access.
+     *
+     * @return TypeCollector Shared collector instance for the model.
+     */
     private function typeCollector(): TypeCollector
     {
         if ($this->typeCollector === null) {

@@ -17,6 +17,8 @@ use UIAwesome\Model\AbstractModel;
 final class DateTimeType extends AbstractModel
 {
     public DateTime $createdAt;
+
     public DateTimeImmutable|null $publishedAt = null;
+
     public DateTimeImmutable $updatedAt;
 }

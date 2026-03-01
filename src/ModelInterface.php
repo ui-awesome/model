@@ -17,6 +17,9 @@ namespace UIAwesome\Model;
  * $model = new UserForm();
  * $model->load(['UserForm' => ['name' => 'Ada']]);
  * ```
+ *
+ * @copyright Copyright (C) 2024 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 interface ModelInterface
 {
