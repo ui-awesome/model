@@ -65,6 +65,7 @@ final class DefaultValueTest extends TestCase
             'Should apply configured default value when assigned input is an empty string.',
         );
     }
+
     public function testApplyDefaultValueWhenInputIsNull(): void
     {
         $model = new DefaultValuePayload();
