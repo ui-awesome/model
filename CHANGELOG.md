@@ -8,6 +8,7 @@
 - Enh #5: Extended automatic type casting to support `DateTime` and `DateTimeImmutable` from string input, added explicit invalid-date errors (including overflow-normalized dates), and expanded coverage for date casting paths (@terabytesoftw)
 - Enh #6: Added `#[MapFrom('key')]` for explicit payload-key mapping in `setProperties()` and `load()`, including support for non-snake_case keys and validation for duplicate mappings (@terabytesoftw)
 - Enh #7: Added `#[Trim]` to normalize string input before assignment across `load()`, `setProperties()`, and `setPropertyValue()`, including nested-property coverage and mutation-tested edge cases (@terabytesoftw)
+- Enh #8: Added `#[Cast]` with built-in `array` casting and pluggable custom caster classes via `CastValueInterface`, with full validation, error reporting, and mutation-tested coverage (@terabytesoftw)
 
 ## 0.1.0 March 18, 2024
 

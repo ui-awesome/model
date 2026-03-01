@@ -37,6 +37,34 @@ enum Message: string
     case MAP_FROM_KEY_EMPTY = 'MapFrom key cannot be empty.';
 
     /**
+     * Indicates an empty Cast target.
+     *
+     * Format: "Cast target cannot be empty."
+     */
+    case CAST_TARGET_EMPTY = 'Cast target cannot be empty.';
+
+    /**
+     * Indicates an empty Cast separator.
+     *
+     * Format: "Cast separator cannot be empty."
+     */
+    case CAST_SEPARATOR_EMPTY = 'Cast separator cannot be empty.';
+
+    /**
+     * Indicates unsupported cast target for a model property.
+     *
+     * Format: "Invalid Cast target '%s' for '%s::%s'."
+     */
+    case INVALID_CAST_TARGET = "Invalid Cast target '%s' for '%s::%s'.";
+
+    /**
+     * Indicates cast class does not implement required caster contract.
+     *
+     * Format: "Cast target '%s' for '%s::%s' must implement '%s'."
+     */
+    case INVALID_CAST_CLASS = "Cast target '%s' for '%s::%s' must implement '%s'.";
+
+    /**
      * Indicates attempts to overwrite an initialized readonly property.
      *
      * Format: "Cannot overwrite initialized readonly property: '%s::%s'."

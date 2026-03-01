@@ -18,6 +18,9 @@ use function trim;
  * #[MapFrom('user-email-address')]
  * public string $publicEmail = '';
  * ```
+ *
+ * @copyright Copyright (C) 2026 Terabytesoftw.
+ * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class MapFrom

@@ -48,7 +48,7 @@
                 </div>
                 <div class="card">
                     <p class="title"><strong>Attribute Controls</strong></p>
-                    <p class="content"><code>#[MapFrom]</code> maps external payload keys while <code>#[Trim]</code>, <code>#[DoNotCollect]</code>, and <code>#[Timestamp]</code> control normalization and collection.</p>
+                    <p class="content"><code>#[MapFrom]</code>, <code>#[Trim]</code>, and <code>#[Cast]</code> control input mapping, normalization, and custom conversion before assignment.</p>
                 </div>
                 <div class="card">
                     <p class="title"><strong>Model Loading</strong></p>

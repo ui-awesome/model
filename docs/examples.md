@@ -159,9 +159,33 @@ final class Profile extends AbstractModel
 }
 
 $model = new Profile();
-$model->setPropertyValue('displayName', '  Ada  ');
 
+$model->setPropertyValue('displayName', '  Ada  ');
 echo $model->getPropertyValue('displayName');
+```
+
+## Forced casting with `Cast`
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\Attribute\Cast;
+
+final class SearchFilter extends AbstractModel
+{
+    #[Cast('array')]
+    public array $tags = [];
+}
+
+$model = new SearchFilter();
+
+$model->setPropertyValue('tags', 'php, yii2, model');
+echo $model->getPropertyValue('tags');
 ```
 
 ## Next steps
