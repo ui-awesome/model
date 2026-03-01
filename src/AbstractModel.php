@@ -111,11 +111,8 @@ abstract class AbstractModel implements ModelInterface
         $scope = $modelName ?? $this->getModelName();
         $sourceData = is_array($data) ? $data : iterator_to_array($data);
 
-        /** @var array<string, mixed> $rawData */
-        $rawData = match (isset($sourceData[$scope]) && is_array($sourceData[$scope])) {
-            true => $sourceData[$scope],
-            false => $sourceData,
-        };
+        /** @phpstan-var array<string, mixed> $rawData */
+        $rawData = isset($sourceData[$scope]) && is_array($sourceData[$scope]) ? $sourceData[$scope] : $sourceData;
 
         $this->setProperties($rawData);
 
