@@ -13,7 +13,7 @@ use TypeError;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
 use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight};
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, IntersectionType, PropertyType, ReadonlyState};
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, GetPropertyValueOverride, IntersectionType, PropertyType, ReadonlyState};
 use UIAwesome\Model\TypeCollector;
 
 /**
@@ -22,6 +22,7 @@ use UIAwesome\Model\TypeCollector;
  * Test coverage.
  * - Casts values to declared PHP property types, including stringable objects and nullable typed properties.
  * - Detects property presence for flat and nested property paths.
+ * - Keeps `toArray()` aligned with custom `getPropertyValue()` overrides.
  * - Resolves intersection-typed properties into the expected named type metadata.
  * - Returns null for type casting requests targeting unknown properties.
  * - Returns property names and type metadata collected from model declarations.
@@ -351,6 +352,17 @@ final class TypeCollectorTest extends TestCase
             'joe',
             $model->toArray(true)['name'],
             'Should keep the assigned value for converted snake_case keys.',
+        );
+    }
+
+    public function testReturnToArrayUsingCustomGetPropertyValueOverride(): void
+    {
+        $model = new GetPropertyValueOverride();
+
+        self::assertSame(
+            ['name' => 'ada-override'],
+            $model->toArray(),
+            'Should preserve custom getPropertyValue behavior when exporting model to array.',
         );
     }
 
