@@ -111,15 +111,26 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new DateTimeType();
 
-        $model->setProperties([
-            'updatedAt' => '2026-02-28T10:30:00+00:00',
-            'publishedAt' => '2026-02-28T12:00:00+00:00',
-        ]);
-
+        $model->setProperties(
+            [
+                'updatedAt' => '2026-02-28T10:30:00+00:00',
+                'publishedAt' => '2026-02-28T12:00:00+00:00',
+            ],
+        );
+        self::assertSame(
+            '2026-02-28T10:30:00+00:00',
+            $model->getPropertyValue('updatedAt')->format('Y-m-d\TH:i:sP'),
+            'Should preserve updatedAt timestamp and timezone after casting.',
+        );
         self::assertInstanceOf(
             DateTimeImmutable::class,
             $model->getPropertyValue('updatedAt'),
             'Should cast ISO-8601 strings to DateTimeImmutable objects for typed properties.',
+        );
+        self::assertSame(
+            '2026-02-28T12:00:00+00:00',
+            $model->getPropertyValue('publishedAt')->format('Y-m-d\TH:i:sP'),
+            'Should preserve publishedAt timestamp and timezone after casting.',
         );
         self::assertInstanceOf(
             DateTimeImmutable::class,
