@@ -65,6 +65,7 @@ final class MapFromAttributeTest extends TestCase
             'Should ignore MapFrom metadata on DoNotCollect properties when resolving keys.',
         );
     }
+
     public function testLoadWithMapFromKeysAndSnakeCaseFallback(): void
     {
         $model = new MapFromPayload();
