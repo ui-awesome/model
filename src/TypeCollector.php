@@ -531,33 +531,7 @@ final class TypeCollector
             }
 
             $propertyName = $property->getName();
-
-            /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
-            $type = $property->getType();
-
-            if ($type !== null) {
-                if ($type instanceof ReflectionUnionType) {
-                    $typeNames = [];
-
-                    foreach ($type->getTypes() as $unionType) {
-                        if ($unionType instanceof ReflectionNamedType) {
-                            $typeNames[] = $unionType->getName();
-                        }
-                    }
-
-                    $this->properties[$propertyName] = $typeNames;
-                } else {
-                    $typeName = $type->getName();
-
-                    if ($type->allowsNull() && $typeName !== 'null') {
-                        $this->properties[$propertyName] = [$typeName, 'null'];
-                    } else {
-                        $this->properties[$propertyName] = $typeName;
-                    }
-                }
-            } else {
-                $this->properties[$propertyName] = '';
-            }
+            $this->properties[$propertyName] = $this->resolvePropertyType($property);
 
             if ($property->getAttributes(Timestamp::class) !== []) {
                 $this->properties[$propertyName] = 'timestamp';
@@ -733,6 +707,41 @@ final class TypeCollector
         }
 
         return $this->snakeCaseToCamelCase($property);
+    }
+
+    /**
+     * Resolves property type metadata from reflection.
+     *
+     * @phpstan-return list<string>|string
+     */
+    private function resolvePropertyType(ReflectionProperty $property): array|string
+    {
+        /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
+        $type = $property->getType();
+
+        if ($type === null) {
+            return '';
+        }
+
+        if ($type instanceof ReflectionUnionType) {
+            $typeNames = [];
+
+            foreach ($type->getTypes() as $unionType) {
+                if ($unionType instanceof ReflectionNamedType) {
+                    $typeNames[] = $unionType->getName();
+                }
+            }
+
+            return $typeNames;
+        }
+
+        $typeName = $type->getName();
+
+        if ($type->allowsNull() && $typeName !== 'null') {
+            return [$typeName, 'null'];
+        }
+
+        return $typeName;
     }
 
     /**
