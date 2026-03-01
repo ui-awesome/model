@@ -2,23 +2,24 @@
 
 declare(strict_types=1);
 
-namespace UIAwesome\Model\Tests;
+namespace UIAwesome\Model\Tests\Attribute;
 
 use DateTime;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Tests\Support\Model\Attributes;
 
 /**
- * Unit tests for attribute-driven property type metadata and timestamp initialization behavior.
+ * Unit tests for timestamp behavior driven by {@see \UIAwesome\Model\Attribute\Timestamp}.
  *
  * Test coverage.
- * - Loads attribute-annotated models and verifies timestamp fields are initialized with positive integer values.
- * - Returns property type metadata inferred from model attributes.
+ * - Initializes timestamp properties during bulk assignment and scoped load operations.
+ * - Keeps initialized timestamp values stable after first assignment.
+ * - Exposes timestamp values as positive integers convertible to `DateTime`.
  *
- * @copyright Copyright (C) 2024 Terabytesoftw.
+ * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class ModelAttributesTest extends TestCase
+final class TimestampTest extends TestCase
 {
     public function testInitializeTimestampPropertiesDuringBulkSetProperties(): void
     {
@@ -43,13 +44,14 @@ final class ModelAttributesTest extends TestCase
         $model = new Attributes();
 
         self::assertSame(
-            [
-                'createdAt' => 'timestamp',
-                'name' => 'string',
-                'updatedAt' => 'timestamp',
-            ],
-            $model->getPropertyTypes(),
-            'Should return property types inferred from model attributes.',
+            'timestamp',
+            $model->getPropertyTypes()['createdAt'] ?? null,
+            'Should collect createdAt as a timestamp property type.',
+        );
+        self::assertSame(
+            'timestamp',
+            $model->getPropertyTypes()['updatedAt'] ?? null,
+            'Should collect updatedAt as a timestamp property type.',
         );
 
         self::assertTrue(
@@ -90,7 +92,6 @@ final class ModelAttributesTest extends TestCase
         );
 
         $createdAt = new DateTime();
-
         $createdAt->setTimestamp($createdAtTimestamp);
 
         self::assertInstanceOf(
@@ -100,7 +101,6 @@ final class ModelAttributesTest extends TestCase
         );
 
         $updatedAt = new DateTime();
-
         $updatedAt->setTimestamp($updatedAtTimestamp);
 
         self::assertInstanceOf(

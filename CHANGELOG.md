@@ -10,6 +10,7 @@
 - Enh #7: Added `#[Trim]` to normalize string input before assignment across `load()`, `setProperties()`, and `setPropertyValue()`, including nested-property coverage and mutation-tested edge cases (@terabytesoftw)
 - Enh #8: Added `#[Cast]` with built-in `array` casting and pluggable custom caster classes via `CastValueInterface`, with full validation, error reporting, and mutation-tested coverage (@terabytesoftw)
 - Bug #9: Fixed general model stability and consistency issues across core mapping behavior, internal documentation, and test coverage updates (@terabytesoftw)
+- Bug #10: Fixed attribute test-suite organization by moving and isolating core attribute coverage into dedicated test classes for clearer maintenance (@terabytesoftw)
 
 ## 0.1.0 March 18, 2024
 

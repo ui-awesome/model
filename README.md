@@ -78,21 +78,9 @@ $model->load(
 );
 
 $types = $model->getPropertyTypes();
+// ['name' => 'string', 'email' => 'string', 'tags' => 'array', 'updatedAt' => 'timestamp'];
 $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
-
-/*
-$types = [
-    'name' => 'string',
-    'email' => 'string',
-    'tags' => 'array',
-    'updatedAt' => 'timestamp',
-];
-$payload = [
-    'name' => 'Ada Lovelace',
-    'email' => 'ada@example.com',
-    'tags' => ['php', 'yii2', 'model'],
-];
-*/
+// $payload = ['name' => 'Ada Lovelace', 'email' => 'ada@example.com', 'tags' => ['php', 'yii2', 'model']];
 ```
 
 ## Explicit payload mapping with `MapFrom`
