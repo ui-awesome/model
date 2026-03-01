@@ -93,6 +93,7 @@ final class NoSnakeCaseTest extends TestCase
             'Should ignore NoSnakeCase metadata on parent DoNotCollect properties when child properties share the name.',
         );
     }
+
     public function testPreserveMarkedPropertyNameWhenConvertingToSnakeCaseArray(): void
     {
         $model = new NoSnakeCasePayload();
