@@ -9,6 +9,7 @@ use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
 use ReflectionClass;
+use ReflectionIntersectionType;
 use ReflectionNamedType;
 use ReflectionProperty;
 use ReflectionUnionType;
@@ -716,11 +717,23 @@ final class TypeCollector
      */
     private function resolvePropertyType(ReflectionProperty $property): array|string
     {
-        /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
+        /** @phpstan-var ReflectionIntersectionType|ReflectionNamedType|ReflectionUnionType|null $type */
         $type = $property->getType();
 
         if ($type === null) {
             return '';
+        }
+
+        if ($type instanceof ReflectionIntersectionType) {
+            $typeNames = [];
+
+            foreach ($type->getTypes() as $intersectionType) {
+                if ($intersectionType instanceof ReflectionNamedType) {
+                    $typeNames[] = $intersectionType->getName();
+                }
+            }
+
+            return $typeNames;
         }
 
         if ($type instanceof ReflectionUnionType) {
