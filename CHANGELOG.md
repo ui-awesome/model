@@ -13,6 +13,7 @@
 - Bug #10: Fixed attribute test-suite organization by moving and isolating core attribute coverage into dedicated test classes for clearer maintenance (@terabytesoftw)
 - Enh #11: Added `#[NoSnakeCase]` to preserve selected property names during `toArray(snakeCase: true)` serialization while keeping default conversion for other keys (@terabytesoftw)
 - Enh #12: Added `#[DefaultValue]` to apply runtime defaults for `null` and empty-string inputs before custom casting and native type conversion (@terabytesoftw)
+- Bug #13: Simplified `TypeCollector` internals by streamlining `DoNotCollect` detection, normalizing static-property checks, reducing dead fallback logic in nested-property split handling, and using first-class callable trimming while preserving behavior (@terabytesoftw)
 
 ## 0.1.0 March 18, 2024
 

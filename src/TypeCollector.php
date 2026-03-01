@@ -511,7 +511,7 @@ final class TypeCollector
         }
 
         $items = array_map(
-            static fn(string $item): string => trim($item),
+            trim(...),
             explode($separator, $value),
         );
 
@@ -668,7 +668,7 @@ final class TypeCollector
         $properties = [];
 
         foreach ($this->reflection->getProperties() as $property) {
-            if ($property->isStatic() === false && !$this->hasDoNotCollectAttribute($property)) {
+            if (!$property->isStatic() && !$this->hasDoNotCollectAttribute($property)) {
                 /** @phpstan-var ReflectionNamedType|ReflectionUnionType|null $type */
                 $type = $property->getType();
 
@@ -764,13 +764,7 @@ final class TypeCollector
      */
     private function hasDoNotCollectAttribute(ReflectionProperty $property): bool
     {
-        foreach ($property->getAttributes() as $attribute) {
-            if ($attribute->getName() === DoNotCollect::class) {
-                return true;
-            }
-        }
-
-        return false;
+        return $property->getAttributes(DoNotCollect::class) !== [];
     }
 
     /**
@@ -967,9 +961,10 @@ final class TypeCollector
     private function splitProperty(string $property): array
     {
         if (str_contains($property, '.')) {
+            /** @phpstan-var array{0: string, 1: string} $result */
             $result = explode('.', $property, 2);
 
-            return [$result[0], $result[1] ?? null];
+            return [$result[0], $result[1]];
         }
 
         return [$property, null];
