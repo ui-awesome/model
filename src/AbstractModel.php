@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
-use function class_exists;
+use function is_a;
 use function is_array;
 use function iterator_to_array;
 use function str_contains;
@@ -159,16 +159,17 @@ abstract class AbstractModel implements ModelInterface
         $properties = [];
 
         foreach ($model->getTypes() as $property => $type) {
-            if (is_string($property) && is_string($type) && class_exists($type)) {
+            if (is_string($property) && is_string($type) && is_a($type, ModelInterface::class, true)) {
                 $nestedModel = $model->getValue($property);
 
                 if ($nestedModel instanceof ModelInterface) {
                     $nestedNames = $this->getNestedNames($nestedModel, $prefix . $property . '.');
                     $properties = [...$properties, ...$nestedNames];
+                    continue;
                 }
-            } else {
-                $properties[] = $prefix . $property;
             }
+
+            $properties[] = $prefix . $property;
         }
 
         return $properties;

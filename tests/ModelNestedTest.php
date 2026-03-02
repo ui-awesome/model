@@ -7,6 +7,7 @@ namespace UIAwesome\Model\Tests;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
+use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\ModelNestedProvider;
 use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
@@ -26,6 +27,25 @@ use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
  */
 final class ModelNestedTest extends TestCase
 {
+    public function testKeepCollectingNamesAfterNestedModelProperty(): void
+    {
+        $model = new class extends AbstractModel {
+            public Address $address;
+            public string $label = '';
+
+            public function __construct()
+            {
+                $this->address = new Address(new Country());
+            }
+        };
+
+        self::assertSame(
+            ['address.city', 'address.street', 'address.country.name', 'label'],
+            $model->getNames(),
+            'Should continue collecting property names declared after a nested model property.',
+        );
+    }
+
     public function testLoadNestedPropertyFromScopedPayload(): void
     {
         $model = new Address(new Country());
