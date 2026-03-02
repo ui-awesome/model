@@ -35,7 +35,7 @@ final class TypeUnionProvider
     /**
      * @phpstan-return array<string, array{string, bool}>
      */
-    public static function isPropertyTypeChecks(): array
+    public static function isTypeChecks(): array
     {
         return [
             'union does not accept datetime' => ['datetime', false],

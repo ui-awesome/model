@@ -15,7 +15,7 @@ use UIAwesome\Model\Tests\Support\Model\{MapFromDuplicate, MapFromPayload};
  * Unit tests for explicit input-key mapping with {@see \UIAwesome\Model\Attribute\MapFrom}.
  *
  * Test coverage.
- * - Applies mapping consistently across `setProperties()` and `load()`.
+ * - Applies mapping consistently across `setValues()` and `load()`.
  * - Keeps `exceptProperties` behavior based on resolved camelCase property names.
  * - Maps non-snake_case payload keys to model properties via `MapFrom`.
  * - Preserves snake_case to camelCase fallback for properties without `MapFrom`.
@@ -36,11 +36,11 @@ final class MapFromTest extends TestCase
             public string $name = '';
         };
 
-        $model->setProperties(['external-key' => 'Lin']);
+        $model->setValues(['external-key' => 'Lin']);
 
         self::assertSame(
             'Lin',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should continue scanning properties after DoNotCollect entries to gather later MapFrom keys.',
         );
     }
@@ -56,11 +56,11 @@ final class MapFromTest extends TestCase
             public string $name = '';
         };
 
-        $model->setProperties(['same-key' => 'Ada']);
+        $model->setValues(['same-key' => 'Ada']);
 
         self::assertSame(
             'Ada',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should ignore MapFrom metadata on DoNotCollect properties when resolving keys.',
         );
     }
@@ -83,39 +83,39 @@ final class MapFromTest extends TestCase
         );
         self::assertSame(
             'https://schema.org',
-            $model->getPropertyValue('context'),
+            $model->getValue('context'),
             'Should map @context payload key to the context property.',
         );
         self::assertSame(
             'admin@example.com',
-            $model->getPropertyValue('userEmailAddress'),
+            $model->getValue('userEmailAddress'),
             'Should map non-snake_case payload key to property through MapFrom.',
         );
         self::assertSame(
             'public@example.com',
-            $model->getPropertyValue('publicEmailPersonal'),
+            $model->getValue('publicEmailPersonal'),
             'Should keep snake_case to camelCase fallback for properties without MapFrom.',
         );
     }
 
-    public function testSetPropertiesAllowsDirectPropertyNameOnMappedField(): void
+    public function testSetValuesAllowsDirectPropertyNameOnMappedField(): void
     {
         $model = new MapFromPayload();
 
-        $model->setProperties(['userEmailAddress' => 'direct@example.com']);
+        $model->setValues(['userEmailAddress' => 'direct@example.com']);
 
         self::assertSame(
             'direct@example.com',
-            $model->getPropertyValue('userEmailAddress'),
+            $model->getValue('userEmailAddress'),
             'Should still allow direct camelCase assignment for mapped properties.',
         );
     }
 
-    public function testSetPropertiesWithMapFromKeys(): void
+    public function testSetValuesWithMapFromKeys(): void
     {
         $model = new MapFromPayload();
 
-        $model->setProperties(
+        $model->setValues(
             [
                 '@context' => 'https://example.com/context',
                 'user-email-address' => 'hello@example.com',
@@ -124,13 +124,13 @@ final class MapFromTest extends TestCase
 
         self::assertSame(
             'https://example.com/context',
-            $model->getPropertyValue('context'),
-            'Should resolve explicit input key mapping in setProperties.',
+            $model->getValue('context'),
+            'Should resolve explicit input key mapping in setValues.',
         );
         self::assertSame(
             'hello@example.com',
-            $model->getPropertyValue('userEmailAddress'),
-            'Should assign mapped values for explicit input keys in setProperties.',
+            $model->getValue('userEmailAddress'),
+            'Should assign mapped values for explicit input keys in setValues.',
         );
     }
 
@@ -138,14 +138,14 @@ final class MapFromTest extends TestCase
     {
         $model = new MapFromPayload();
 
-        $model->setProperties(
+        $model->setValues(
             ['user-email-address' => 'admin@example.com'],
             ['userEmailAddress'],
         );
 
         self::assertSame(
             '',
-            $model->getPropertyValue('userEmailAddress'),
+            $model->getValue('userEmailAddress'),
             'Should skip mapped assignments when the resolved property is in exceptProperties.',
         );
     }
@@ -165,7 +165,7 @@ final class MapFromTest extends TestCase
             ),
         );
 
-        $model->setProperties(['duplicate-key' => 'value']);
+        $model->setValues(['duplicate-key' => 'value']);
     }
 
     public function testThrowInvalidArgumentExceptionWhenMapFromKeyIsEmpty(): void
@@ -180,7 +180,7 @@ final class MapFromTest extends TestCase
             Message::MAP_FROM_KEY_EMPTY->getMessage(),
         );
 
-        $model->setProperties(['name' => 'Ada']);
+        $model->setValues(['name' => 'Ada']);
     }
 
     public function testThrowInvalidArgumentExceptionWhenMapFromKeyIsWhitespaceOnly(): void
@@ -195,6 +195,6 @@ final class MapFromTest extends TestCase
             Message::MAP_FROM_KEY_EMPTY->getMessage(),
         );
 
-        $model->setProperties(['name' => 'Ada']);
+        $model->setValues(['name' => 'Ada']);
     }
 }

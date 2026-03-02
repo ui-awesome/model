@@ -26,14 +26,14 @@ use UIAwesome\Model\Tests\Support\Model\UnionType;
  */
 final class TypeUnionTest extends TestCase
 {
-    #[DataProviderExternal(TypeUnionProvider::class, 'isPropertyTypeChecks')]
+    #[DataProviderExternal(TypeUnionProvider::class, 'isTypeChecks')]
     public function testReturnExpectedResultWhenCheckingUnionPropertyType(string $type, bool $expected): void
     {
         $model = new UnionType();
 
         self::assertSame(
             $expected,
-            $model->isPropertyType('union', $type),
+            $model->isType('union', $type),
             'Should return the expected boolean result for union type membership checks.',
         );
     }
@@ -52,7 +52,7 @@ final class TypeUnionTest extends TestCase
                     'null',
                 ],
             ],
-            $model->getPropertyTypes(),
+            $model->getTypes(),
             'Should return the declared union member types for the property.',
         );
     }
@@ -62,16 +62,16 @@ final class TypeUnionTest extends TestCase
     {
         $model = new UnionType();
 
-        $model->setPropertyValue('union', $value);
+        $model->setValue('union', $value);
 
         self::assertSame(
             $expected,
-            $model->getPropertyValue('union'),
+            $model->getValue('union'),
             'Should preserve the assigned value for each union member type.',
         );
         self::assertSame(
             $expectedType,
-            get_debug_type($model->getPropertyValue('union')),
+            get_debug_type($model->getValue('union')),
             'Should preserve the expected runtime type for each union member value.',
         );
     }
@@ -85,6 +85,6 @@ final class TypeUnionTest extends TestCase
 
         $model = new UnionType();
 
-        $model->setPropertyValue('union', []);
+        $model->setValue('union', []);
     }
 }

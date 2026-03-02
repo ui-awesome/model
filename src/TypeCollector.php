@@ -46,7 +46,7 @@ use function ucwords;
  * Usage example:
  * ```php
  * $collector = new TypeCollector($model);
- * $collector->setPropertyValue('name', 'Ada');
+ * $collector->setValue('name', 'Ada');
  * ```
  *
  * @copyright Copyright (C) 2024 Terabytesoftw.
@@ -121,8 +121,8 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $collector->addProperty('age', 'int');
-     * $collector->addProperty('tags', ['string', 'null']);
+     * $collector->add('age', 'int');
+     * $collector->add('tags', ['string', 'null']);
      * ```
      *
      * @param string $property Name of the property.
@@ -130,7 +130,7 @@ final class TypeCollector
      *
      * @phpstan-param list<string>|string $type
      */
-    public function addProperty(string $property, array|string $type): void
+    public function add(string $property, array|string $type): void
     {
         $this->properties[$property] = $type;
     }
@@ -140,14 +140,14 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $propertyTypes = $collector->getPropertyTypes();
+     * $propertyTypes = $collector->getTypes();
      * ```
      *
      * @return array List of properties types indexed by property name.
      *
      * @phpstan-return array<string, list<string>|string>
      */
-    public function getPropertyTypes(): array
+    public function getTypes(): array
     {
         return $this->properties;
     }
@@ -159,21 +159,21 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $email = $collector->getPropertyValue('profile.email');
+     * $email = $collector->getValue('profile.email');
      * ```
      *
      * @param string $property Property name.
      *
      * @return mixed Value of the property.
      */
-    public function getPropertyValue(string $property): mixed
+    public function getValue(string $property): mixed
     {
         [$currentProperty, $nestedProperty] = $this->splitProperty($property);
 
         $currentPropertyValue = $this->readProperty($currentProperty);
 
         if ($nestedProperty !== null && $currentPropertyValue instanceof ModelInterface) {
-            return $currentPropertyValue->getPropertyValue($nestedProperty);
+            return $currentPropertyValue->getValue($nestedProperty);
         }
 
         return $currentPropertyValue;
@@ -186,18 +186,18 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $hasEmail = $collector->hasProperty('profile.email');
+     * $hasEmail = $collector->has('profile.email');
      * ```
      *
      * @param string $property Property name.
      *
      * @return bool `true` if the property exists, `false` otherwise.
      */
-    public function hasProperty(string $property): bool
+    public function has(string $property): bool
     {
         [$property, $nested] = $this->splitProperty($property);
 
-        $properties = $this->getPropertyTypes();
+        $properties = $this->getTypes();
 
         if (!array_key_exists($property, $properties)) {
             return false;
@@ -219,7 +219,7 @@ final class TypeCollector
             return false;
         }
 
-        return $propertyValue->hasProperty($nested);
+        return $propertyValue->has($nested);
     }
 
     /**
@@ -227,7 +227,7 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $isString = $collector->isPropertyType('name', 'string');
+     * $isString = $collector->isType('name', 'string');
      * ```
      *
      * @param string $property Property name.
@@ -235,7 +235,7 @@ final class TypeCollector
      *
      * @return bool `true` if the property supports the specified type, `false` otherwise.
      */
-    public function isPropertyType(string $property, string $type): bool
+    public function isType(string $property, string $type): bool
     {
         $propertyTypes = $this->properties[$property] ?? '';
 
@@ -281,7 +281,7 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $collector->setProperties(
+     * $collector->setValues(
      *     [
      *         'name' => 'Ada',
      *         'age' => '30',
@@ -290,9 +290,9 @@ final class TypeCollector
      * ```
      *
      * @phpstan-param array<array-key, mixed> $data
-     * @phpstan-param list<string> $exceptProperties Camel-case property names to exclude.
+     * @phpstan-param list<string> $except Camel-case property names to exclude.
      */
-    public function setProperties(array $data, array $exceptProperties = []): void
+    public function setValues(array $data, array $except = []): void
     {
         $hasAssignments = false;
 
@@ -300,11 +300,11 @@ final class TypeCollector
             if (is_string($property)) {
                 $camelCaseName = $this->resolveInputPropertyName($property);
 
-                if (in_array($camelCaseName, $exceptProperties, true)) {
+                if (in_array($camelCaseName, $except, true)) {
                     continue;
                 }
 
-                $this->setPropertyValueInternal($camelCaseName, $value);
+                $this->setValueInternal($camelCaseName, $value);
 
                 $hasAssignments = true;
             }
@@ -322,15 +322,15 @@ final class TypeCollector
      *
      * Usage example:
      * ```php
-     * $collector->setPropertyValue('profile.email', 'ada@example.com');
+     * $collector->setValue('profile.email', 'ada@example.com');
      * ```
      *
      * @param string $property The property name.
      * @param mixed $value The value to assign.
      */
-    public function setPropertyValue(string $property, mixed $value): void
+    public function setValue(string $property, mixed $value): void
     {
-        $this->setPropertyValueInternal($property, $value);
+        $this->setValueInternal($property, $value);
         $this->initializeTimestampProperties();
     }
 
@@ -352,13 +352,13 @@ final class TypeCollector
     public function toArray(bool $snakeCase, array $exceptProperties = []): array
     {
         /** @phpstan-var list<string> $properties */
-        $properties = array_keys($this->getPropertyTypes());
+        $properties = array_keys($this->getTypes());
 
         $result = [];
 
         foreach ($properties as $property) {
             if (!in_array($property, $exceptProperties, true)) {
-                $value = $this->model->getPropertyValue($property);
+                $value = $this->model->getValue($property);
 
                 if ($snakeCase && !array_key_exists($property, $this->noSnakeCaseProperties)) {
                     $property = $this->camelCaseToSnakeCase($property);
@@ -799,9 +799,9 @@ final class TypeCollector
      *
      * @throws InvalidArgumentException if the property does not exist in the model.
      */
-    private function setPropertyValueInternal(string $property, mixed $value): void
+    private function setValueInternal(string $property, mixed $value): void
     {
-        if ($this->hasProperty($property) === false) {
+        if ($this->has($property) === false) {
             throw new InvalidArgumentException(
                 Message::UNDEFINED_PROPERTY->getMessage($property),
             );
@@ -826,10 +826,10 @@ final class TypeCollector
         $lastProperty = $properties[$lastPropertyKey];
 
         $nestedProperty = array_slice($properties, 0, $propertyCount - 1);
-        $nestedValue = $this->model->getPropertyValue(implode('.', $nestedProperty));
+        $nestedValue = $this->model->getValue(implode('.', $nestedProperty));
 
         if ($nestedValue instanceof ModelInterface) {
-            $nestedValue->setPropertyValue($lastProperty, $value);
+            $nestedValue->setValue($lastProperty, $value);
         }
     }
 

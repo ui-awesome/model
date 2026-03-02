@@ -17,7 +17,7 @@ final class TypeCollectorProvider
     /**
      * @phpstan-return array<string, array{string, string, bool}>
      */
-    public static function isPropertyTypeChecks(): array
+    public static function isTypeChecks(): array
     {
         return [
             'array property accepts array' => ['array', 'array', true],
@@ -36,7 +36,7 @@ final class TypeCollectorProvider
     /**
      * @phpstan-return array<string, array{string, mixed, mixed}>
      */
-    public static function setPropertyValueCases(): array
+    public static function setValueCases(): array
     {
         return [
             'array value' => ['array', [], []],

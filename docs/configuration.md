@@ -50,7 +50,7 @@ final class User extends AbstractModel
 
 - `load(iterable $data, ?string $modelName = null)` accepts scoped and unscoped payloads.
 - Input keys must match existing properties; undefined keys throw `InvalidArgumentException`.
-- `load()` and `setProperties()` both support explicit input mapping via `#[MapFrom('external-key')]`.
+- `load()` and `setValues()` both support explicit input mapping via `#[MapFrom('external-key')]`.
 - `isEmpty()` indicates whether loaded raw data is empty.
 
 ```php
@@ -66,11 +66,11 @@ $model->load(
 
 ## Type metadata
 
-- Use `getPropertyTypes()` to retrieve collected property types.
+- Use `getTypes()` to retrieve collected property types.
 - Nullable properties include `null` in the collected metadata.
 
 ```php
-$types = $model->getPropertyTypes();
+$types = $model->getTypes();
 /*
 [
     'apiVersion' => 'string',
@@ -86,19 +86,24 @@ $types = $model->getPropertyTypes();
 
 ## Property assignment rules
 
-- `setPropertyValue()` assigns a single property and supports nested paths (`profile.address.city`).
-- `setProperties()` assigns multiple values and converts snake_case input keys to camelCase.
+- `setValue()` assigns a single property and supports nested paths (`profile.address.city`).
+- `setValues()` assigns multiple values and converts snake_case input keys to camelCase.
 - `#[MapFrom('key')]` has priority over snake_case conversion for matching input payload keys.
 - `#[Trim]` trims string values before type casting and assignment.
 - `#[DefaultValue(...)]` applies runtime defaults when assigned values are `null` or `''`.
 - `#[Cast('array')]` converts comma-separated strings into arrays before native property casting.
 - `#[Cast(YourCaster::class)]` supports custom casting classes implementing `CastValueInterface`.
-- `setProperties($data, $exceptProperties)` exclusions are evaluated in camelCase.
+- `setValues($data, $except)` exclusions are evaluated in camelCase.
 
 ```php
-$model->setProperties(['public_email_personal' => 'dev@example.com'], ['publicEmailPersonal']);
-$model->setProperties(['user-email-address' => 'dev@example.com']);
-$model->setPropertyValue('displayName', '');
+$model->setValues(
+    ['public_email_personal' => 'dev@example.com'],
+    ['publicEmailPersonal'],
+);
+$model->setValues(
+    ['user-email-address' => 'dev@example.com'],
+);
+$model->setValue('displayName', '');
 // displayName => 'Guest'
 ```
 
@@ -108,7 +113,7 @@ $model->setPropertyValue('displayName', '');
 - Invalid date strings and overflow-normalized dates (for example `2026-02-30`) throw `InvalidArgumentException`.
 
 ```php
-$model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
+$model->setValue('publishedAt', '2026-03-01T10:00:00+00:00');
 ```
 
 ## Array serialization

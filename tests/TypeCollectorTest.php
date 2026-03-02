@@ -13,7 +13,7 @@ use TypeError;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
 use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight};
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, GetPropertyValueOverride, IntersectionType, PropertyType, ReadonlyState};
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, GetValueOverride, IntersectionType, PropertyType, ReadonlyState};
 use UIAwesome\Model\TypeCollector;
 
 /**
@@ -22,7 +22,7 @@ use UIAwesome\Model\TypeCollector;
  * Test coverage.
  * - Casts values to declared PHP property types, including stringable objects and nullable typed properties.
  * - Detects property presence for flat and nested property paths.
- * - Keeps `toArray()` aligned with custom `getPropertyValue()` overrides.
+ * - Keeps `toArray()` aligned with custom `getValue()` overrides.
  * - Resolves intersection-typed properties into the expected named type metadata.
  * - Returns null for type casting requests targeting unknown properties.
  * - Returns property names and type metadata collected from model declarations.
@@ -101,11 +101,11 @@ final class TypeCollectorTest extends TestCase
             }
         };
 
-        $model->setPropertyValue('string', $objectStringable);
+        $model->setValue('string', $objectStringable);
 
         self::assertSame(
             'joe doe',
-            $model->getPropertyValue('string'),
+            $model->getValue('string'),
             'Should cast stringable objects to string properties.',
         );
     }
@@ -114,7 +114,7 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new DateTimeType();
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'updatedAt' => '2026-02-28T10:30:00+00:00',
                 'publishedAt' => '2026-02-28T12:00:00+00:00',
@@ -122,22 +122,22 @@ final class TypeCollectorTest extends TestCase
         );
         self::assertSame(
             '2026-02-28T10:30:00+00:00',
-            $model->getPropertyValue('updatedAt')->format('Y-m-d\TH:i:sP'),
+            $model->getValue('updatedAt')->format('Y-m-d\TH:i:sP'),
             'Should preserve updatedAt timestamp and timezone after casting.',
         );
         self::assertInstanceOf(
             DateTimeImmutable::class,
-            $model->getPropertyValue('updatedAt'),
+            $model->getValue('updatedAt'),
             'Should cast ISO-8601 strings to DateTimeImmutable objects for typed properties.',
         );
         self::assertSame(
             '2026-02-28T12:00:00+00:00',
-            $model->getPropertyValue('publishedAt')->format('Y-m-d\TH:i:sP'),
+            $model->getValue('publishedAt')->format('Y-m-d\TH:i:sP'),
             'Should preserve publishedAt timestamp and timezone after casting.',
         );
         self::assertInstanceOf(
             DateTimeImmutable::class,
-            $model->getPropertyValue('publishedAt'),
+            $model->getValue('publishedAt'),
             'Should cast nullable DateTimeImmutable properties when non-null strings are provided.',
         );
     }
@@ -146,9 +146,9 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new DateTimeType();
 
-        $model->setPropertyValue('createdAt', '2026-02-28 10:30:00');
+        $model->setValue('createdAt', '2026-02-28 10:30:00');
 
-        $createdAt = $model->getPropertyValue('createdAt');
+        $createdAt = $model->getValue('createdAt');
 
         self::assertInstanceOf(
             DateTime::class,
@@ -166,17 +166,17 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new PropertyType();
 
-        $model->setPropertyValue('string', 1.1);
-        $model->setPropertyValue('float', '1.1');
+        $model->setValue('string', 1.1);
+        $model->setValue('float', '1.1');
 
         self::assertSame(
             '1.1',
-            $model->getPropertyValue('string'),
+            $model->getValue('string'),
             'Should cast numeric values assigned to string properties.',
         );
         self::assertSame(
             1.1,
-            $model->getPropertyValue('float'),
+            $model->getValue('float'),
             'Should cast numeric strings assigned to float properties.',
         );
     }
@@ -186,11 +186,11 @@ final class TypeCollectorTest extends TestCase
         $model = new DateTimeType();
         $dateTime = new DateTime('2026-02-28 14:00:00');
 
-        $model->setPropertyValue('createdAt', $dateTime);
+        $model->setValue('createdAt', $dateTime);
 
         self::assertSame(
             $dateTime,
-            $model->getPropertyValue('createdAt'),
+            $model->getValue('createdAt'),
             'Should keep existing DateTime object instances without rebuilding them.',
         );
     }
@@ -203,7 +203,7 @@ final class TypeCollectorTest extends TestCase
             [
                 'intersection' => [IntersectionLeft::class, IntersectionRight::class],
             ],
-            $model->getPropertyTypes(),
+            $model->getTypes(),
             'Should collect all named members from intersection-typed properties.',
         );
     }
@@ -224,7 +224,7 @@ final class TypeCollectorTest extends TestCase
                 'string',
                 'withoutType',
             ],
-            $model->getProperties(),
+            $model->getNames(),
             'Should return all declared property names collected from the model.',
         );
     }
@@ -245,19 +245,19 @@ final class TypeCollectorTest extends TestCase
                 'string' => 'string',
                 'withoutType' => '',
             ],
-            $model->getPropertyTypes(),
+            $model->getTypes(),
             'Should return collected property types including union and untyped properties.',
         );
     }
 
-    #[DataProviderExternal(TypeCollectorProvider::class, 'isPropertyTypeChecks')]
+    #[DataProviderExternal(TypeCollectorProvider::class, 'isTypeChecks')]
     public function testReturnExpectedResultWhenCheckingPropertyType(string $property, string $type, bool $expected): void
     {
         $model = new PropertyType();
 
         self::assertSame(
             $expected,
-            $model->isPropertyType($property, $type),
+            $model->isType($property, $type),
             'Should return the expected boolean result when checking supported property types.',
         );
     }
@@ -266,11 +266,11 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new PropertyType();
 
-        $model->addProperty('profile', 'string');
-        $model->setPropertyValue('profile', new Address(new Country()));
+        $model->add('profile', 'string');
+        $model->setValue('profile', new Address(new Country()));
 
         self::assertFalse(
-            $model->hasProperty('profile.city'),
+            $model->has('profile.city'),
             'Should return false when nested lookup starts from a property not declared as a model type.',
         );
     }
@@ -279,11 +279,11 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new PropertyType();
 
-        $model->addProperty('profile', Address::class);
-        $model->setPropertyValue('profile', 'not-a-model');
+        $model->add('profile', Address::class);
+        $model->setValue('profile', 'not-a-model');
 
         self::assertFalse(
-            $model->hasProperty('profile.city'),
+            $model->has('profile.city'),
             'Should return false when the nested root value is not a model instance.',
         );
     }
@@ -293,15 +293,15 @@ final class TypeCollectorTest extends TestCase
         $model = new Address(new Country());
 
         self::assertFalse(
-            $model->hasProperty('nonexistent.any'),
+            $model->has('nonexistent.any'),
             'Should return false when the root nested segment is missing.',
         );
         self::assertFalse(
-            $model->hasProperty('city.any'),
+            $model->has('city.any'),
             'Should return false when a scalar property is used as a nested branch.',
         );
         self::assertFalse(
-            $model->hasProperty('country.nonexistent'),
+            $model->has('country.nonexistent'),
             'Should return false when a nested property segment does not exist.',
         );
     }
@@ -340,8 +340,8 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new PropertyType();
 
-        $model->addProperty('Name', 'string');
-        $model->setPropertyValue('Name', 'joe');
+        $model->add('Name', 'string');
+        $model->setValue('Name', 'joe');
 
         self::assertArrayHasKey(
             'name',
@@ -355,14 +355,14 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
-    public function testReturnToArrayUsingCustomGetPropertyValueOverride(): void
+    public function testReturnToArrayUsingCustomGetValueOverride(): void
     {
-        $model = new GetPropertyValueOverride();
+        $model = new GetValueOverride();
 
         self::assertSame(
             ['name' => 'ada-override'],
             $model->toArray(),
-            'Should preserve custom getPropertyValue behavior when exporting model to array.',
+            'Should preserve custom getValue behavior when exporting model to array.',
         );
     }
 
@@ -371,25 +371,25 @@ final class TypeCollectorTest extends TestCase
         $model = new Address(new Country());
 
         self::assertTrue(
-            $model->hasProperty('city'),
+            $model->has('city'),
             'Should return true for an existing flat property.',
         );
         self::assertTrue(
-            $model->hasProperty('country.name'),
+            $model->has('country.name'),
             'Should return true for an existing nested property path.',
         );
     }
 
-    #[DataProviderExternal(TypeCollectorProvider::class, 'setPropertyValueCases')]
-    public function testSetPropertyValueWithSupportedInputs(string $property, mixed $value, mixed $expected): void
+    #[DataProviderExternal(TypeCollectorProvider::class, 'setValueCases')]
+    public function testSetValueWithSupportedInputs(string $property, mixed $value, mixed $expected): void
     {
         $model = new PropertyType();
 
-        $model->setPropertyValue($property, $value);
+        $model->setValue($property, $value);
 
         self::assertSame(
             $expected,
-            $model->getPropertyValue($property),
+            $model->getValue($property),
             'Should assign and return the expected value for each supported property input case.',
         );
     }
@@ -398,11 +398,11 @@ final class TypeCollectorTest extends TestCase
     {
         $model = new ReadonlyState(new Country());
 
-        $model->setPropertyValue('token', 'phase-2');
+        $model->setValue('token', 'phase-2');
 
         self::assertSame(
             'phase-2',
-            $model->getPropertyValue('token'),
+            $model->getValue('token'),
             'Should allow assigning an uninitialized readonly property once.',
         );
     }
@@ -416,7 +416,7 @@ final class TypeCollectorTest extends TestCase
             Message::INVALID_DATE_TIME_STRING->getMessage('not-a-date', DateTime::class),
         );
 
-        $model->setPropertyValue('createdAt', 'not-a-date');
+        $model->setValue('createdAt', 'not-a-date');
     }
 
     public function testThrowInvalidArgumentExceptionWhenCastingOverflowDateTimeString(): void
@@ -428,7 +428,7 @@ final class TypeCollectorTest extends TestCase
             Message::INVALID_DATE_TIME_STRING->getMessage('2026-02-30 10:30:00', DateTime::class),
         );
 
-        $model->setPropertyValue('createdAt', '2026-02-30 10:30:00');
+        $model->setValue('createdAt', '2026-02-30 10:30:00');
     }
 
     public function testThrowInvalidArgumentExceptionWhenOverwritingInitializedReadonlyProperty(): void
@@ -443,14 +443,14 @@ final class TypeCollectorTest extends TestCase
             ),
         );
 
-        $model->setPropertyValue('country', new Country());
+        $model->setValue('country', new Country());
     }
 
     public function testThrowInvalidArgumentExceptionWhenReassigningReadonlyPropertyAfterFirstInitialization(): void
     {
         $model = new ReadonlyState(new Country());
 
-        $model->setPropertyValue('token', 'phase-2');
+        $model->setValue('token', 'phase-2');
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -460,14 +460,14 @@ final class TypeCollectorTest extends TestCase
             ),
         );
 
-        $model->setPropertyValue('token', 'phase-2-update');
+        $model->setValue('token', 'phase-2-update');
     }
 
-    public function testThrowInvalidArgumentExceptionWhenReassigningReadonlyPropertyViaSetProperties(): void
+    public function testThrowInvalidArgumentExceptionWhenReassigningReadonlyPropertyViaSetValues(): void
     {
         $model = new ReadonlyState(new Country());
 
-        $model->setProperties(['token' => 'phase-1']);
+        $model->setValues(['token' => 'phase-1']);
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
@@ -477,7 +477,7 @@ final class TypeCollectorTest extends TestCase
             ),
         );
 
-        $model->setProperties(['token' => 'phase-2']);
+        $model->setValues(['token' => 'phase-2']);
     }
 
     public function testThrowTypeErrorWhenAssigningInvalidPropertyValue(): void
@@ -489,18 +489,18 @@ final class TypeCollectorTest extends TestCase
             'Cannot assign array to property UIAwesome\Model\Tests\Support\Model\PropertyType::$string of type string',
         );
 
-        $model->setPropertyValue('string', []);
+        $model->setValue('string', []);
     }
 
     public function testWriteDynamicPropertyOnlyToCollectorStorage(): void
     {
         $model = new PropertyType();
 
-        $model->addProperty('dynamicFlag', 'bool');
-        $model->setPropertyValue('dynamicFlag', true);
+        $model->add('dynamicFlag', 'bool');
+        $model->setValue('dynamicFlag', true);
 
         self::assertTrue(
-            $model->getPropertyValue('dynamicFlag'),
+            $model->getValue('dynamicFlag'),
             'Should store and return values assigned to dynamic properties.',
         );
         self::assertFalse(

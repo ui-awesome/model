@@ -85,7 +85,7 @@ $model->load(
     ],
 );
 
-$types = $model->getPropertyTypes();
+$types = $model->getTypes();
 /*
 [
     'apiVersion' => 'string',
@@ -130,7 +130,7 @@ final class JsonLdPayload extends AbstractModel
 
 $payload = new JsonLdPayload();
 
-$payload->setProperties(['@context' => 'https://schema.org']);
+$payload->setValues(['@context' => 'https://schema.org']);
 ```
 
 ## Automatic input trimming with `Trim`
@@ -155,7 +155,7 @@ final class Profile extends AbstractModel
 
 $profile = new Profile();
 
-$profile->setProperties(['display_name' => '  Ada Lovelace  ']);
+$profile->setValues(['display_name' => '  Ada Lovelace  ']);
 ```
 
 ## Forced custom casting with `Cast`
@@ -180,7 +180,7 @@ final class SearchFilter extends AbstractModel
 
 $filter = new SearchFilter();
 
-$filter->setPropertyValue('tags', 'php, yii2, model');
+$filter->setValue('tags', 'php, yii2, model');
 ```
 
 ## Runtime fallback with `DefaultValue`
@@ -205,7 +205,7 @@ final class Profile extends AbstractModel
 
 $profile = new Profile();
 
-$profile->setPropertyValue('displayName', '');
+$profile->setValue('displayName', '');
 // 'Guest'
 ```
 

@@ -16,7 +16,7 @@ use UIAwesome\Model\Tests\Support\Model\CastPayload;
  * Unit tests for custom casting through {@see \UIAwesome\Model\Attribute\Cast}.
  *
  * Test coverage.
- * - Applies cast behavior in `setPropertyValue()`, `setProperties()`, and `load()`.
+ * - Applies cast behavior in `setValue()`, `setValues()`, and `load()`.
  * - Casts comma-separated strings to arrays.
  * - Continues scanning cast metadata after static property declarations.
  * - Supports custom caster classes implementing `CastValueInterface`.
@@ -33,11 +33,11 @@ final class CastTest extends TestCase
     {
         $model = new CastPayload();
 
-        $model->setPropertyValue('tags', 'tag1,tag2, tag3');
+        $model->setValue('tags', 'tag1,tag2, tag3');
 
         self::assertSame(
             ['tag1', 'tag2', 'tag3'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should cast comma-separated string into trimmed array items.',
         );
     }
@@ -46,11 +46,11 @@ final class CastTest extends TestCase
     {
         $model = new CastPayload();
 
-        $model->setPropertyValue('tags', 'tag1, ,tag2,,');
+        $model->setValue('tags', 'tag1, ,tag2,,');
 
         self::assertSame(
             ['tag1', 'tag2'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should remove empty values produced by separator parsing.',
         );
     }
@@ -59,11 +59,11 @@ final class CastTest extends TestCase
     {
         $model = new CastPayload();
 
-        $model->setPropertyValue('tags', 7);
+        $model->setValue('tags', 7);
 
         self::assertSame(
             [7],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should cast non-string scalar values to array for array cast target.',
         );
     }
@@ -72,13 +72,13 @@ final class CastTest extends TestCase
     {
         $model = new CastPayload();
 
-        $model->setProperties([
+        $model->setValues([
             'keywords' => 'red| green |blue',
         ]);
 
         self::assertSame(
             ['red', 'green', 'blue'],
-            $model->getPropertyValue('keywords'),
+            $model->getValue('keywords'),
             'Should delegate casting to custom caster classes.',
         );
     }
@@ -98,7 +98,7 @@ final class CastTest extends TestCase
 
         self::assertSame(
             ['alpha', 'beta', 'gamma'],
-            $model->getPropertyValue('tagList'),
+            $model->getValue('tagList'),
             'Should apply MapFrom, Trim, and Cast pipeline during load.',
         );
     }
@@ -113,11 +113,11 @@ final class CastTest extends TestCase
             public array $tags = [];
         };
 
-        $model->setPropertyValue('tags', 'a,b');
+        $model->setValue('tags', 'a,b');
 
         self::assertSame(
             ['a', 'b'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should continue collecting Cast metadata after DoNotCollect properties.',
         );
     }
@@ -131,11 +131,11 @@ final class CastTest extends TestCase
             public array $tags = [];
         };
 
-        $model->setPropertyValue('tags', 'x,y');
+        $model->setValue('tags', 'x,y');
 
         self::assertSame(
             ['x', 'y'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should continue scanning properties when some do not declare Cast.',
         );
     }
@@ -150,11 +150,11 @@ final class CastTest extends TestCase
             public array $tags = [];
         };
 
-        $model->setPropertyValue('tags', 'x,y');
+        $model->setValue('tags', 'x,y');
 
         self::assertSame(
             ['x', 'y'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should continue scanning cast metadata after static property declarations.',
         );
     }
@@ -169,11 +169,11 @@ final class CastTest extends TestCase
             public array $tags = [];
         };
 
-        $model->setPropertyValue('tags', ['safe']);
+        $model->setValue('tags', ['safe']);
 
         self::assertSame(
             ['safe'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should not evaluate Cast metadata declared on DoNotCollect properties.',
         );
     }
@@ -182,11 +182,11 @@ final class CastTest extends TestCase
     {
         $model = new CastPayload();
 
-        $model->setPropertyValue('tags', ['a', 'b']);
+        $model->setValue('tags', ['a', 'b']);
 
         self::assertSame(
             ['a', 'b'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should keep array inputs unchanged for array cast target.',
         );
     }
@@ -201,7 +201,7 @@ final class CastTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(Message::CAST_SEPARATOR_EMPTY->getMessage());
 
-        $model->setPropertyValue('tags', 'a,b');
+        $model->setValue('tags', 'a,b');
     }
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotExist(): void
@@ -216,7 +216,7 @@ final class CastTest extends TestCase
             Message::INVALID_CAST_TARGET->getMessage('App\\NotFound\\Caster', $model::class, 'tags'),
         );
 
-        $model->setPropertyValue('tags', 'a,b');
+        $model->setValue('tags', 'a,b');
     }
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotImplementContract(): void
@@ -236,7 +236,7 @@ final class CastTest extends TestCase
             ),
         );
 
-        $model->setPropertyValue('tags', 'a,b');
+        $model->setValue('tags', 'a,b');
     }
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetIsBlankSpaces(): void
@@ -249,7 +249,7 @@ final class CastTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(Message::CAST_TARGET_EMPTY->getMessage());
 
-        $model->setPropertyValue('tags', 'a,b');
+        $model->setValue('tags', 'a,b');
     }
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetIsEmpty(): void
@@ -262,6 +262,6 @@ final class CastTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(Message::CAST_TARGET_EMPTY->getMessage());
 
-        $model->setPropertyValue('tags', 'a,b');
+        $model->setValue('tags', 'a,b');
     }
 }

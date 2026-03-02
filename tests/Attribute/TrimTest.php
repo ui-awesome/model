@@ -17,7 +17,7 @@ use UIAwesome\Model\Tests\Support\Model\{TrimAddress, TrimContainer, TrimProfile
  * - Applies trim behavior on nested property writes.
  * - Leaves non-string values unchanged.
  * - Preserves values for properties without trim metadata.
- * - Trims string values during `setPropertyValue()`, `setProperties()`, and `load()`.
+ * - Trims string values during `setValue()`, `setValues()`, and `load()`.
  * - Works with explicit input mapping through `MapFrom`.
  *
  * @copyright Copyright (C) 2026 Terabytesoftw.
@@ -29,11 +29,11 @@ final class TrimTest extends TestCase
     {
         $model = new TrimProfile();
 
-        $model->setPropertyValue('rawName', '  Keep Spaces  ');
+        $model->setValue('rawName', '  Keep Spaces  ');
 
         self::assertSame(
             '  Keep Spaces  ',
-            $model->getPropertyValue('rawName'),
+            $model->getValue('rawName'),
             'Should keep original spacing for properties without Trim.',
         );
     }
@@ -42,10 +42,10 @@ final class TrimTest extends TestCase
     {
         $model = new TrimProfile();
 
-        $model->setPropertyValue('nickname', null);
+        $model->setValue('nickname', null);
 
         self::assertNull(
-            $model->getPropertyValue('nickname'),
+            $model->getValue('nickname'),
             'Should preserve null values and avoid applying trim to non-string inputs.',
         );
     }
@@ -65,7 +65,7 @@ final class TrimTest extends TestCase
 
         self::assertSame(
             'Ada Lovelace',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should trim leading and trailing spaces during load().',
         );
     }
@@ -74,26 +74,26 @@ final class TrimTest extends TestCase
     {
         $model = new TrimProfile();
 
-        $model->setProperties([
+        $model->setValues([
             'display-name' => '  Ada  ',
         ]);
 
         self::assertSame(
             'Ada',
-            $model->getPropertyValue('displayName'),
+            $model->getValue('displayName'),
             'Should trim mapped values resolved by MapFrom.',
         );
     }
 
-    public function testSetPropertyValueTrimsStringInput(): void
+    public function testSetValueTrimsStringInput(): void
     {
         $model = new TrimProfile();
 
-        $model->setPropertyValue('name', '  Grace Hopper  ');
+        $model->setValue('name', '  Grace Hopper  ');
 
         self::assertSame(
             'Grace Hopper',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should trim string input when assigning a single property.',
         );
     }
@@ -102,11 +102,11 @@ final class TrimTest extends TestCase
     {
         $model = new TrimContainer(new TrimAddress());
 
-        $model->setPropertyValue('address.city', '  Madrid  ');
+        $model->setValue('address.city', '  Madrid  ');
 
         self::assertSame(
             'Madrid',
-            $model->getPropertyValue('address.city'),
+            $model->getValue('address.city'),
             'Should trim values when writing nested properties through dot notation.',
         );
     }
@@ -121,11 +121,11 @@ final class TrimTest extends TestCase
             public string $name = '';
         };
 
-        $model->setPropertyValue('name', '  Ada  ');
+        $model->setValue('name', '  Ada  ');
 
         self::assertSame(
             'Ada',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should continue scanning trim metadata after DoNotCollect properties.',
         );
     }
@@ -139,12 +139,12 @@ final class TrimTest extends TestCase
             public string $name = '';
         };
 
-        $model->addProperty('tag', 'string');
-        $model->setPropertyValue('tag', '  keep spaces  ');
+        $model->add('tag', 'string');
+        $model->setValue('tag', '  keep spaces  ');
 
         self::assertSame(
             '  keep spaces  ',
-            $model->getPropertyValue('tag'),
+            $model->getValue('tag'),
             'Should ignore trim metadata declared on static properties.',
         );
     }

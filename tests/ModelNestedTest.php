@@ -31,7 +31,7 @@ final class ModelNestedTest extends TestCase
         $model = new Address(new Country());
 
         self::assertEmpty(
-            $model->getPropertyValue('country.name'),
+            $model->getValue('country.name'),
             'Should start with an empty nested property value.',
         );
 
@@ -43,7 +43,7 @@ final class ModelNestedTest extends TestCase
         );
         self::assertSame(
             'Russia',
-            $model->getPropertyValue('country.name'),
+            $model->getValue('country.name'),
             'Should set the loaded nested property value.',
         );
     }
@@ -69,7 +69,7 @@ final class ModelNestedTest extends TestCase
         );
         self::assertSame(
             $expectedValue,
-            $user->getPropertyValue($property),
+            $user->getValue($property),
             'Should return the expected value for each loaded nested property path.',
         );
     }
@@ -88,7 +88,7 @@ final class ModelNestedTest extends TestCase
                 'profile.address.street',
                 'profile.address.country.name',
             ],
-            $user->getProperties(),
+            $user->getNames(),
             'Should return all nested properties as flattened dot-notated paths.',
         );
     }
@@ -96,11 +96,11 @@ final class ModelNestedTest extends TestCase
     public function testReturnNestedPropertyValueAfterAssignment(): void
     {
         $model = new Address(new Country());
-        $model->setPropertyValue('country.name', 'Russia');
+        $model->setValue('country.name', 'Russia');
 
         self::assertSame(
             'Russia',
-            $model->getPropertyValue('country.name'),
+            $model->getValue('country.name'),
             'Should return the assigned value for a nested property path.',
         );
     }
@@ -110,15 +110,15 @@ final class ModelNestedTest extends TestCase
     {
         $user = new User(new Profile(new Address(new Country())));
 
-        $user->setPropertyValue('name', 'valery');
-        $user->setPropertyValue('profile.bio', 'senior software engineer');
-        $user->setPropertyValue('profile.address.street', 'ulitsa 9-ya Voronezhskaya');
-        $user->setPropertyValue('profile.address.city', 'Voronezh');
-        $user->setPropertyValue('profile.address.country.name', 'Russia');
+        $user->setValue('name', 'valery');
+        $user->setValue('profile.bio', 'senior software engineer');
+        $user->setValue('profile.address.street', 'ulitsa 9-ya Voronezhskaya');
+        $user->setValue('profile.address.city', 'Voronezh');
+        $user->setValue('profile.address.country.name', 'Russia');
 
         self::assertSame(
             $expectedValue,
-            $user->getPropertyValue($property),
+            $user->getValue($property),
             'Should return the expected value after assigning each nested property path individually.',
         );
     }
@@ -128,7 +128,7 @@ final class ModelNestedTest extends TestCase
     {
         $user = new User(new Profile(new Address(new Country())));
 
-        $user->setProperties(
+        $user->setValues(
             [
                 'name' => 'valery',
                 'profile.bio' => 'senior software engineer',
@@ -140,8 +140,8 @@ final class ModelNestedTest extends TestCase
 
         self::assertSame(
             $expectedValue,
-            $user->getPropertyValue($property),
-            'Should return the expected value after assigning nested paths with setProperties().',
+            $user->getValue($property),
+            'Should return the expected value after assigning nested paths with setValues().',
         );
     }
 
@@ -157,7 +157,7 @@ final class ModelNestedTest extends TestCase
             ),
         );
 
-        $user->getPropertyValue('address.nestedAttribute');
+        $user->getValue('address.nestedAttribute');
     }
 
     public function testThrowInvalidArgumentExceptionWhenReadingMissingNestedBranch(): void
@@ -172,7 +172,7 @@ final class ModelNestedTest extends TestCase
             ),
         );
 
-        $model->getPropertyValue('profile.user');
+        $model->getValue('profile.user');
     }
 
     public function testThrowInvalidArgumentExceptionWhenReadingUndefinedNestedProperty(): void
@@ -187,6 +187,6 @@ final class ModelNestedTest extends TestCase
             ),
         );
 
-        $model->getPropertyValue('country.noExist');
+        $model->getValue('country.noExist');
     }
 }
