@@ -21,7 +21,7 @@ use UIAwesome\Model\Tests\Support\Model\Attributes;
  */
 final class TimestampTest extends TestCase
 {
-    public function testInitializeTimestampPropertiesDuringBulkSetProperties(): void
+    public function testInitializeTimestampPropertiesDuringBulkSetValues(): void
     {
         $model = new Attributes();
 

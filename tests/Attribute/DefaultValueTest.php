@@ -79,7 +79,7 @@ final class DefaultValueTest extends TestCase
         );
     }
 
-    public function testApplyDefaultWithMappedInputKeyDuringSetProperties(): void
+    public function testApplyDefaultWithMappedInputKeyDuringSetValues(): void
     {
         $model = new DefaultValuePayload();
 

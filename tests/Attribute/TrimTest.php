@@ -70,7 +70,7 @@ final class TrimTest extends TestCase
         );
     }
 
-    public function testSetPropertiesTrimsMappedInputKeys(): void
+    public function testSetValuesTrimsMappedInputKeys(): void
     {
         $model = new TrimProfile();
 
