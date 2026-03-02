@@ -36,7 +36,7 @@ final class NoSnakeCaseTest extends TestCase
             public string $apiVersion = '';
         };
 
-        $model->setPropertyValue('apiVersion', 'v3');
+        $model->setValue('apiVersion', 'v3');
 
         self::assertSame(
             ['apiVersion' => 'v3'],
@@ -54,7 +54,7 @@ final class NoSnakeCaseTest extends TestCase
             public string $apiVersion = '';
         };
 
-        $model->setPropertyValue('apiVersion', 'v4');
+        $model->setValue('apiVersion', 'v4');
 
         self::assertSame(
             ['apiVersion' => 'v4'],
@@ -67,7 +67,7 @@ final class NoSnakeCaseTest extends TestCase
     {
         $model = new NoSnakeCasePayload();
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'apiVersion' => 'v2',
                 'publicEmailPersonal' => 'admin@example.com',
@@ -85,7 +85,7 @@ final class NoSnakeCaseTest extends TestCase
     {
         $model = new NoSnakeCaseChild();
 
-        $model->setPropertyValue('apiVersion', 'v2');
+        $model->setValue('apiVersion', 'v2');
 
         self::assertSame(
             ['api_version' => 'v2'],
@@ -98,7 +98,7 @@ final class NoSnakeCaseTest extends TestCase
     {
         $model = new NoSnakeCasePayload();
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'apiVersion' => 'v1',
                 'publicEmailPersonal' => 'admin@example.com',
@@ -119,7 +119,7 @@ final class NoSnakeCaseTest extends TestCase
     {
         $model = new NoSnakeCasePayload();
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'apiVersion' => 'v1',
                 'publicEmailPersonal' => 'admin@example.com',
@@ -148,7 +148,7 @@ final class NoSnakeCaseTest extends TestCase
             public string $publicEmailPersonal = '';
         };
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'apiVersion' => 'v1',
                 'oauthClientId' => 'client-01',

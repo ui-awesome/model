@@ -21,20 +21,20 @@ use UIAwesome\Model\Tests\Support\Model\Attributes;
  */
 final class TimestampTest extends TestCase
 {
-    public function testInitializeTimestampPropertiesDuringBulkSetProperties(): void
+    public function testInitializeTimestampPropertiesDuringBulkSetValues(): void
     {
         $model = new Attributes();
 
-        $model->setProperties(['name' => 'samdark']);
+        $model->setValues(['name' => 'samdark']);
 
         self::assertGreaterThan(
             0,
-            $model->getPropertyValue('createdAt'),
+            $model->getValue('createdAt'),
             'Should initialize createdAt after bulk property assignment.',
         );
         self::assertGreaterThan(
             0,
-            $model->getPropertyValue('updatedAt'),
+            $model->getValue('updatedAt'),
             'Should initialize updatedAt after bulk property assignment.',
         );
     }
@@ -45,12 +45,12 @@ final class TimestampTest extends TestCase
 
         self::assertSame(
             'timestamp',
-            $model->getPropertyTypes()['createdAt'] ?? null,
+            $model->getTypes()['createdAt'] ?? null,
             'Should collect createdAt as a timestamp property type.',
         );
         self::assertSame(
             'timestamp',
-            $model->getPropertyTypes()['updatedAt'] ?? null,
+            $model->getTypes()['updatedAt'] ?? null,
             'Should collect updatedAt as a timestamp property type.',
         );
 
@@ -59,8 +59,8 @@ final class TimestampTest extends TestCase
             'Should load data for an attribute-driven model using its scope.',
         );
 
-        $createdAtTimestamp = $model->getPropertyValue('createdAt');
-        $updatedAtTimestamp = $model->getPropertyValue('updatedAt');
+        $createdAtTimestamp = $model->getValue('createdAt');
+        $updatedAtTimestamp = $model->getValue('updatedAt');
 
         self::assertIsInt(
             $createdAtTimestamp,
@@ -82,12 +82,12 @@ final class TimestampTest extends TestCase
         );
         self::assertSame(
             $createdAtTimestamp,
-            $model->getPropertyValue('createdAt'),
+            $model->getValue('createdAt'),
             'Should keep createdAt stable after initial assignment.',
         );
         self::assertSame(
             $updatedAtTimestamp,
-            $model->getPropertyValue('updatedAt'),
+            $model->getValue('updatedAt'),
             'Should keep updatedAt stable after initial assignment.',
         );
 
@@ -126,12 +126,12 @@ final class TimestampTest extends TestCase
 
         self::assertGreaterThan(
             0,
-            $model->getPropertyValue('createdAt'),
+            $model->getValue('createdAt'),
             'Should initialize createdAt timestamp when payload provides zero.',
         );
         self::assertGreaterThan(
             0,
-            $model->getPropertyValue('updatedAt'),
+            $model->getValue('updatedAt'),
             'Should initialize updatedAt timestamp when loading related payload fields.',
         );
     }

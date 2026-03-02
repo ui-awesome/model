@@ -28,7 +28,7 @@ interface ModelInterface
      *
      * Usage example:
      * ```php
-     * $model->addProperty('name', 'string');
+     * $model->add('name', 'string');
      * ```
      *
      * @param string $property Property name.
@@ -38,7 +38,7 @@ interface ModelInterface
      *
      * @phpstan-param list<string>|string $type
      */
-    public function addProperty(string $property, string|array $type): void;
+    public function add(string $property, string|array $type): void;
 
     /**
      * Returns the raw data for the model.
@@ -86,49 +86,49 @@ interface ModelInterface
      *
      * Usage example:
      * ```php
-     * $properties = $model->getProperties();
+     * $properties = $model->getNames();
      * ```
      *
      * @return list<string> List of property names.
      *
      * @phpstan-return list<string>
      */
-    public function getProperties(): array;
+    public function getNames(): array;
 
     /**
      * Returns the list of property types indexed by property names.
      *
      * Usage example:
      * ```php
-     * $propertyTypes = $model->getPropertyTypes();
+     * $propertyTypes = $model->getTypes();
      * ```
      *
      * @return array List of property types indexed by property names.
      *
      * @phpstan-return mixed[]
      */
-    public function getPropertyTypes(): array;
+    public function getTypes(): array;
 
     /**
      * Returns the value (raw data) for the specified property.
      *
      * Usage example:
      * ```php
-     * $name = $model->getPropertyValue('name');
+     * $name = $model->getValue('name');
      * ```
      *
      * @param string $property Property name.
      *
      * @return mixed Value (raw data) for the specified property.
      */
-    public function getPropertyValue(string $property): mixed;
+    public function getValue(string $property): mixed;
 
     /**
      * Checks if the model has the specified property.
      *
      * Usage example:
      * ```php
-     * if ($model->hasProperty('name')) {
+     * if ($model->has('name')) {
      *    // ...
      * }
      * ```
@@ -137,7 +137,7 @@ interface ModelInterface
      *
      * @return bool `true` if the model has the specified property, `false` otherwise.
      */
-    public function hasProperty(string $property): bool;
+    public function has(string $property): bool;
 
     /**
      * Whether the model has no loaded raw data.
@@ -157,7 +157,7 @@ interface ModelInterface
      *
      * Usage example:
      * ```php
-     * if ($model->isPropertyType('name', 'string')) {
+     * if ($model->isType('name', 'string')) {
      *   // ...
      * }
      * ```
@@ -167,7 +167,7 @@ interface ModelInterface
      *
      * @return bool `true` if the property is of the specified type, `false` otherwise.
      */
-    public function isPropertyType(string $property, string $type): bool;
+    public function isType(string $property, string $type): bool;
 
     /**
      * Populates the model with input data.
@@ -192,34 +192,34 @@ interface ModelInterface
     public function load(iterable $data, string|null $modelName = null): bool;
 
     /**
-     * Sets values for multiple properties.
-     *
-     * Usage example:
-     * ```php
-     * $model->setProperties(['name' => 'Ada']);
-     * ```
-     *
-     * @param array $data Key value pairs to set for the properties.
-     * @param array $exceptProperties Properties to exclude from the setting using camelCase names. If not empty, the
-     * listed properties are skipped. If empty, all properties from `$data` are applied.
-     *
-     * @phpstan-param array<array-key, mixed> $data
-     * @phpstan-param list<string> $exceptProperties
-     */
-    public function setProperties(array $data, array $exceptProperties = []): void;
-
-    /**
      * Sets the value for the specified property.
      *
      * Usage example:
      * ```php
-     * $model->setPropertyValue('name', 'Ada');
+     * $model->setValue('name', 'Ada');
      * ```
      *
      * @param string $property Property name.
      * @param mixed $value Value to set.
      */
-    public function setPropertyValue(string $property, mixed $value): void;
+    public function setValue(string $property, mixed $value): void;
+
+    /**
+     * Sets values for multiple properties.
+     *
+     * Usage example:
+     * ```php
+     * $model->setValues(['name' => 'Ada']);
+     * ```
+     *
+     * @param array $data Key value pairs to set for the properties.
+     * @param array $except Properties to exclude from the setting using camelCase names. If not empty, the listed
+     * properties are skipped. If empty, all properties from `$data` are applied.
+     *
+     * @phpstan-param array<array-key, mixed> $data
+     * @phpstan-param list<string> $except
+     */
+    public function setValues(array $data, array $except = []): void;
 
     /**
      * Returns model properties as an array.

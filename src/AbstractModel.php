@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
-use function class_exists;
+use function is_a;
 use function is_array;
 use function iterator_to_array;
 use function str_contains;
@@ -40,9 +40,9 @@ abstract class AbstractModel implements ModelInterface
      */
     private TypeCollector|null $typeCollector = null;
 
-    public function addProperty(string $property, string|array $type): void
+    public function add(string $property, string|array $type): void
     {
-        $this->typeCollector()->addProperty($property, $type);
+        $this->typeCollector()->add($property, $type);
     }
 
     /**
@@ -71,27 +71,27 @@ abstract class AbstractModel implements ModelInterface
     /**
      * @phpstan-return list<string>
      */
-    public function getProperties(): array
+    public function getNames(): array
     {
-        return $this->getNestedProperties($this, '');
+        return $this->getNestedNames($this, '');
     }
 
     /**
      * @phpstan-return array<string, list<string>|string>
      */
-    public function getPropertyTypes(): array
+    public function getTypes(): array
     {
-        return $this->typeCollector()->getPropertyTypes();
+        return $this->typeCollector()->getTypes();
     }
 
-    public function getPropertyValue(string $property): mixed
+    public function getValue(string $property): mixed
     {
-        return $this->typeCollector()->getPropertyValue($property);
+        return $this->typeCollector()->getValue($property);
     }
 
-    public function hasProperty(string $property): bool
+    public function has(string $property): bool
     {
-        return $this->typeCollector()->hasProperty($property);
+        return $this->typeCollector()->has($property);
     }
 
     public function isEmpty(): bool
@@ -99,9 +99,9 @@ abstract class AbstractModel implements ModelInterface
         return $this->data === [];
     }
 
-    public function isPropertyType(string $property, string $type): bool
+    public function isType(string $property, string $type): bool
     {
-        return $this->typeCollector()->isPropertyType($property, $type);
+        return $this->typeCollector()->isType($property, $type);
     }
 
     public function load(iterable $data, string|null $modelName = null): bool
@@ -114,25 +114,25 @@ abstract class AbstractModel implements ModelInterface
         /** @phpstan-var array<string, mixed> $rawData */
         $rawData = isset($sourceData[$scope]) && is_array($sourceData[$scope]) ? $sourceData[$scope] : $sourceData;
 
-        $this->setProperties($rawData);
+        $this->setValues($rawData);
 
         $this->data = $rawData;
 
         return $rawData !== [];
     }
 
-    /**
-     * @phpstan-param array<array-key, mixed> $data
-     * @phpstan-param list<string> $exceptProperties
-     */
-    public function setProperties(array $data, array $exceptProperties = []): void
+    public function setValue(string $property, mixed $value): void
     {
-        $this->typeCollector()->setProperties($data, $exceptProperties);
+        $this->typeCollector()->setValue($property, $value);
     }
 
-    public function setPropertyValue(string $property, mixed $value): void
+    /**
+     * @phpstan-param array<array-key, mixed> $data
+     * @phpstan-param list<string> $except
+     */
+    public function setValues(array $data, array $except = []): void
     {
-        $this->typeCollector()->setPropertyValue($property, $value);
+        $this->typeCollector()->setValues($data, $except);
     }
 
     /**
@@ -154,21 +154,22 @@ abstract class AbstractModel implements ModelInterface
      *
      * @phpstan-return list<string>
      */
-    private function getNestedProperties(ModelInterface $model, string $prefix): array
+    private function getNestedNames(ModelInterface $model, string $prefix): array
     {
         $properties = [];
 
-        foreach ($model->getPropertyTypes() as $property => $type) {
-            if (is_string($property) && is_string($type) && class_exists($type)) {
-                $nestedModel = $model->getPropertyValue($property);
+        foreach ($model->getTypes() as $property => $type) {
+            if (is_string($property) && is_string($type) && is_a($type, ModelInterface::class, true)) {
+                $nestedModel = $model->getValue($property);
 
                 if ($nestedModel instanceof ModelInterface) {
-                    $nestedProperty = $this->getNestedProperties($nestedModel, $prefix . $property . '.');
-                    $properties = [...$properties, ...$nestedProperty];
+                    $nestedNames = $this->getNestedNames($nestedModel, $prefix . $property . '.');
+                    $properties = [...$properties, ...$nestedNames];
+                    continue;
                 }
-            } else {
-                $properties[] = $prefix . $property;
             }
+
+            $properties[] = $prefix . $property;
         }
 
         return $properties;

@@ -31,11 +31,11 @@ final class DefaultValueTest extends TestCase
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('bio', '   ');
+        $model->setValue('bio', '   ');
 
         self::assertSame(
             'Unknown',
-            $model->getPropertyValue('bio'),
+            $model->getValue('bio'),
             'Should trim whitespace and apply default when the resulting value is empty.',
         );
     }
@@ -44,11 +44,11 @@ final class DefaultValueTest extends TestCase
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('tags', null);
+        $model->setValue('tags', null);
 
         self::assertSame(
             ['php', 'model'],
-            $model->getPropertyValue('tags'),
+            $model->getValue('tags'),
             'Should apply default string and then cast it to an array using the configured Cast attribute.',
         );
     }
@@ -57,11 +57,11 @@ final class DefaultValueTest extends TestCase
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('status', '');
+        $model->setValue('status', '');
 
         self::assertSame(
             'draft',
-            $model->getPropertyValue('status'),
+            $model->getValue('status'),
             'Should apply configured default value when assigned input is an empty string.',
         );
     }
@@ -70,24 +70,24 @@ final class DefaultValueTest extends TestCase
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('displayName', null);
+        $model->setValue('displayName', null);
 
         self::assertSame(
             'Guest',
-            $model->getPropertyValue('displayName'),
+            $model->getValue('displayName'),
             'Should apply configured default value when assigned input is null.',
         );
     }
 
-    public function testApplyDefaultWithMappedInputKeyDuringSetProperties(): void
+    public function testApplyDefaultWithMappedInputKeyDuringSetValues(): void
     {
         $model = new DefaultValuePayload();
 
-        $model->setProperties(['user-locale' => '']);
+        $model->setValues(['user-locale' => '']);
 
         self::assertSame(
             'en_US',
-            $model->getPropertyValue('locale'),
+            $model->getValue('locale'),
             'Should apply defaults after resolving mapped input keys.',
         );
     }
@@ -101,11 +101,11 @@ final class DefaultValueTest extends TestCase
             public string $name = '';
         };
 
-        $model->setPropertyValue('name', null);
+        $model->setValue('name', null);
 
         self::assertSame(
             'guest',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should continue scanning properties when some entries do not declare DefaultValue.',
         );
     }
@@ -120,11 +120,11 @@ final class DefaultValueTest extends TestCase
             public string $name = '';
         };
 
-        $model->setPropertyValue('name', null);
+        $model->setValue('name', null);
 
         self::assertSame(
             'ok',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should continue collecting DefaultValue metadata after static properties.',
         );
     }
@@ -140,11 +140,11 @@ final class DefaultValueTest extends TestCase
             public string $name = '';
         };
 
-        $model->setPropertyValue('name', null);
+        $model->setValue('name', null);
 
         self::assertSame(
             'kept',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should ignore DefaultValue metadata declared on DoNotCollect properties.',
         );
     }
@@ -153,10 +153,10 @@ final class DefaultValueTest extends TestCase
     {
         $model = new DefaultValueChild();
 
-        $model->setPropertyValue('status', null);
+        $model->setValue('status', null);
 
         self::assertNull(
-            $model->getPropertyValue('status'),
+            $model->getValue('status'),
             'Should ignore parent DoNotCollect DefaultValue metadata for child properties with the same name.',
         );
     }
@@ -165,11 +165,11 @@ final class DefaultValueTest extends TestCase
     {
         $model = new DefaultValuePayload();
 
-        $model->setPropertyValue('displayName', 'Ada');
+        $model->setValue('displayName', 'Ada');
 
         self::assertSame(
             'Ada',
-            $model->getPropertyValue('displayName'),
+            $model->getValue('displayName'),
             'Should keep explicit non-empty values instead of replacing them with defaults.',
         );
     }

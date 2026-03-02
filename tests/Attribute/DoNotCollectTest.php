@@ -25,7 +25,7 @@ final class DoNotCollectTest extends TestCase
 
         self::assertArrayNotHasKey(
             'flag',
-            $model->getPropertyTypes(),
+            $model->getTypes(),
             'Should omit DoNotCollect properties from collected type metadata.',
         );
     }
@@ -36,7 +36,7 @@ final class DoNotCollectTest extends TestCase
 
         self::assertNotContains(
             'flag',
-            $model->getProperties(),
+            $model->getNames(),
             'Should omit DoNotCollect properties from flattened property names.',
         );
     }

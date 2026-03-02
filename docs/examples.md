@@ -32,9 +32,9 @@ final class User extends AbstractModel
 $model = new User();
 
 $model->load(['User' => ['name' => 'Jane', 'user-age' => 20]]);
-echo $model->getPropertyValue('name');
+echo $model->getValue('name');
 // "Jane"
-echo $model->getPropertyValue('age');
+echo $model->getValue('age');
 // 20
 ```
 
@@ -84,8 +84,8 @@ final class JsonLdContext extends AbstractModel
 
 $model = new JsonLdContext();
 
-$model->setProperties(['@context' => 'https://schema.org']);
-echo $model->getPropertyValue('context');
+$model->setValues(['@context' => 'https://schema.org']);
+echo $model->getValue('context');
 // "https://schema.org"
 ```
 
@@ -113,8 +113,8 @@ final class Profile extends AbstractModel
 
 $profile = new Profile(new Address());
 
-$profile->setPropertyValue('address.city', 'Madrid');
-echo $profile->getPropertyValue('address.city');
+$profile->setValue('address.city', 'Madrid');
+echo $profile->getValue('address.city');
 // "Madrid"
 ```
 
@@ -133,9 +133,9 @@ final class DynamicModel extends AbstractModel {}
 
 $model = new DynamicModel();
 
-$model->addProperty('name', 'string');
-$model->addProperty('age', 'int');
-$model->addProperty('createdAt', 'timestamp');
+$model->add('name', 'string');
+$model->add('age', 'int');
+$model->add('createdAt', 'timestamp');
 
 $model->load(
     [
@@ -144,9 +144,9 @@ $model->load(
     ],
     'DynamicModel',
 );
-echo $model->getPropertyValue('name');
+echo $model->getValue('name');
 // "John Doe"
-echo $model->getPropertyValue('createdAt');
+echo $model->getValue('createdAt');
 // current timestamp
 ```
 
@@ -175,8 +175,8 @@ final class Post extends AbstractModel
 
 $model = new Post();
 
-$model->setPropertyValue('publishedAt', '2026-03-01T10:00:00+00:00');
-echo $model->getPropertyValue('publishedAt')->format(DATE_ATOM);
+$model->setValue('publishedAt', '2026-03-01T10:00:00+00:00');
+echo $model->getValue('publishedAt')->format(DATE_ATOM);
 // "2026-03-01T10:00:00+00:00"
 ```
 
@@ -200,8 +200,8 @@ final class Profile extends AbstractModel
 
 $model = new Profile();
 
-$model->setPropertyValue('displayName', '  Ada  ');
-echo $model->getPropertyValue('displayName');
+$model->setValue('displayName', '  Ada  ');
+echo $model->getValue('displayName');
 // "Ada"
 ```
 
@@ -225,8 +225,8 @@ final class SearchFilter extends AbstractModel
 
 $model = new SearchFilter();
 
-$model->setPropertyValue('tags', 'php, yii2, model');
-print_r($model->getPropertyValue('tags'));
+$model->setValue('tags', 'php, yii2, model');
+print_r($model->getValue('tags'));
 // Array ( [0] => php [1] => yii2 [2] => model )
 ```
 
@@ -250,8 +250,8 @@ final class Profile extends AbstractModel
 
 $model = new Profile();
 
-$model->setPropertyValue('displayName', '');
-echo $model->getPropertyValue('displayName');
+$model->setValue('displayName', '');
+echo $model->getValue('displayName');
 // "Guest"
 ```
 

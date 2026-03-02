@@ -36,7 +36,7 @@ final class ModelProvider
     /**
      * @phpstan-return array<string, array{array<string, mixed>}>
      */
-    public static function setPropertiesPayloads(): array
+    public static function setValuesPayloads(): array
     {
         return [
             'native values' => [[

@@ -18,6 +18,7 @@
 - Bug #15: Consolidated `TypeCollector` metadata collection into a single reflection pass, removing repeated collector loops while preserving map-key validation and attribute-driven behavior (@terabytesoftw)
 - Bug #16: Refactored `snakeCaseToCamelCase` method for improved readability and performance by consolidating logic into a single return statement (@terabytesoftw)
 - Bug #17: Added dedicated regression coverage to ensure `TypeCollector::toArray()` preserves custom `getPropertyValue()` override behavior (@terabytesoftw)
+- Enh #18: Simplified the model property API across public contracts, implementation, tests, and docs (@terabytesoftw)
 
 ## 0.1.0 March 18, 2024
 

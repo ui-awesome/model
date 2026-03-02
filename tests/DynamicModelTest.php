@@ -27,9 +27,9 @@ final class DynamicModelTest extends TestCase
     {
         $model = new Dynamic();
 
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
+        $model->add('name', 'string');
+        $model->add('age', 'int');
+        $model->add('email', 'string');
 
         self::assertSame(
             [
@@ -37,7 +37,7 @@ final class DynamicModelTest extends TestCase
                 'age',
                 'email',
             ],
-            $model->getProperties(),
+            $model->getNames(),
             'Should return registered dynamic property names in insertion order.',
         );
         self::assertSame(
@@ -46,7 +46,7 @@ final class DynamicModelTest extends TestCase
                 'age' => 'int',
                 'email' => 'string',
             ],
-            $model->getPropertyTypes(),
+            $model->getTypes(),
             'Should return registered dynamic property types keyed by property name.',
         );
     }
@@ -55,12 +55,12 @@ final class DynamicModelTest extends TestCase
     {
         $model = new Dynamic();
 
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
-        $model->addProperty('address.city', 'string');
-        $model->addProperty('address.state', 'string');
-        $model->addProperty('address.zip', 'string');
+        $model->add('name', 'string');
+        $model->add('age', 'int');
+        $model->add('email', 'string');
+        $model->add('address.city', 'string');
+        $model->add('address.state', 'string');
+        $model->add('address.zip', 'string');
 
         self::assertSame(
             [
@@ -71,7 +71,7 @@ final class DynamicModelTest extends TestCase
                 'address.state',
                 'address.zip',
             ],
-            $model->getProperties(),
+            $model->getNames(),
             'Should return nested dynamic property paths in insertion order.',
         );
         self::assertSame(
@@ -83,7 +83,7 @@ final class DynamicModelTest extends TestCase
                 'address.state' => 'string',
                 'address.zip' => 'string',
             ],
-            $model->getPropertyTypes(),
+            $model->getTypes(),
             'Should return types for nested dynamic property paths.',
         );
     }
@@ -92,10 +92,10 @@ final class DynamicModelTest extends TestCase
     {
         $model = new Dynamic();
 
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
-        $model->addProperty('created_at', 'timestamp');
+        $model->add('name', 'string');
+        $model->add('age', 'int');
+        $model->add('email', 'string');
+        $model->add('created_at', 'timestamp');
 
         $data = [
             'name' => 'John Doe',
@@ -107,21 +107,21 @@ final class DynamicModelTest extends TestCase
 
         self::assertSame(
             'John Doe',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should keep loaded string values for dynamic properties.',
         );
         self::assertSame(
             30,
-            $model->getPropertyValue('age'),
+            $model->getValue('age'),
             'Should keep loaded integer values for dynamic properties.',
         );
         self::assertSame(
             'test@example.com',
-            $model->getPropertyValue('email'),
+            $model->getValue('email'),
             'Should keep loaded email values for dynamic properties.',
         );
         self::assertTrue(
-            $model->getPropertyValue('created_at') > 0,
+            $model->getValue('created_at') > 0,
             'Should auto-initialize timestamp properties with a positive integer value.',
         );
     }
@@ -130,16 +130,16 @@ final class DynamicModelTest extends TestCase
     {
         $modelNested = new Dynamic();
 
-        $modelNested->addProperty('city', 'string');
-        $modelNested->addProperty('state', 'string');
-        $modelNested->addProperty('zip', 'string');
-        $modelNested->addProperty('createdAt', 'timestamp');
+        $modelNested->add('city', 'string');
+        $modelNested->add('state', 'string');
+        $modelNested->add('zip', 'string');
+        $modelNested->add('createdAt', 'timestamp');
 
         $model = new DynamicNested($modelNested);
 
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
+        $model->add('name', 'string');
+        $model->add('age', 'int');
+        $model->add('email', 'string');
 
         $data = [
             'name' => 'John Doe',
@@ -154,36 +154,36 @@ final class DynamicModelTest extends TestCase
 
         self::assertSame(
             'John Doe',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should load top-level dynamic name values.',
         );
         self::assertSame(
             30,
-            $model->getPropertyValue('age'),
+            $model->getValue('age'),
             'Should load top-level dynamic age values.',
         );
         self::assertSame(
             'test@example.com',
-            $model->getPropertyValue('email'),
+            $model->getValue('email'),
             'Should load top-level dynamic email values.',
         );
         self::assertSame(
             'New York',
-            $model->getPropertyValue('dynamic.city'),
+            $model->getValue('dynamic.city'),
             'Should load nested city values.',
         );
         self::assertSame(
             'NY',
-            $model->getPropertyValue('dynamic.state'),
+            $model->getValue('dynamic.state'),
             'Should load nested state values.',
         );
         self::assertSame(
             '10001',
-            $model->getPropertyValue('dynamic.zip'),
+            $model->getValue('dynamic.zip'),
             'Should load nested ZIP values.',
         );
         self::assertTrue(
-            $model->getPropertyValue('dynamic.createdAt') > 0,
+            $model->getValue('dynamic.createdAt') > 0,
             'Should initialize nested timestamp properties with a positive integer value.',
         );
     }
@@ -192,9 +192,9 @@ final class DynamicModelTest extends TestCase
     {
         $model = new Dynamic();
 
-        $model->addProperty('name', 'string');
-        $model->addProperty('age', 'int');
-        $model->addProperty('email', 'string');
+        $model->add('name', 'string');
+        $model->add('age', 'int');
+        $model->add('email', 'string');
 
         $data = [
             'name' => 'John Doe',
@@ -206,17 +206,17 @@ final class DynamicModelTest extends TestCase
 
         self::assertSame(
             'John Doe',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should load the dynamic name property value.',
         );
         self::assertSame(
             30,
-            $model->getPropertyValue('age'),
+            $model->getValue('age'),
             'Should load the dynamic age property value.',
         );
         self::assertSame(
             'test@example.com',
-            $model->getPropertyValue('email'),
+            $model->getValue('email'),
             'Should load the dynamic email property value.',
         );
     }
@@ -233,6 +233,6 @@ final class DynamicModelTest extends TestCase
             ),
         );
 
-        $model->getPropertyValue('property.name');
+        $model->getValue('property.name');
     }
 }

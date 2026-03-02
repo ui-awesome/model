@@ -56,22 +56,22 @@ final class ModelTest extends TestCase
 
         self::assertSame(
             'int',
-            get_debug_type($model->getPropertyValue('int')),
+            get_debug_type($model->getValue('int')),
             'Should cast integer strings to int.',
         );
         self::assertSame(
             'float',
-            get_debug_type($model->getPropertyValue('float')),
+            get_debug_type($model->getValue('float')),
             'Should cast numeric strings to float.',
         );
         self::assertSame(
             'bool',
-            get_debug_type($model->getPropertyValue('bool')),
+            get_debug_type($model->getValue('bool')),
             'Should cast boolean-like strings to bool.',
         );
         self::assertSame(
             'string',
-            get_debug_type($model->getPropertyValue('string')),
+            get_debug_type($model->getValue('string')),
             'Should keep string values as string.',
         );
     }
@@ -80,7 +80,7 @@ final class ModelTest extends TestCase
     {
         $model = new Profile(new Address(new Country()));
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'public_email_personal' => 'admin@example.com',
                 'bio' => 'bio',
@@ -92,12 +92,12 @@ final class ModelTest extends TestCase
 
         self::assertSame(
             '',
-            $model->getPropertyValue('publicEmailPersonal'),
+            $model->getValue('publicEmailPersonal'),
             'Should keep excluded properties unchanged when they appear first in the payload.',
         );
         self::assertSame(
             'bio',
-            $model->getPropertyValue('bio'),
+            $model->getValue('bio'),
             'Should continue assigning subsequent non-excluded properties after skipping one entry.',
         );
     }
@@ -116,7 +116,7 @@ final class ModelTest extends TestCase
         );
         self::assertSame(
             'Japan',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should set property values from traversable scoped payloads.',
         );
         self::assertSame(
@@ -136,7 +136,7 @@ final class ModelTest extends TestCase
         );
         self::assertSame(
             'Russia',
-            $model->getPropertyValue('name'),
+            $model->getValue('name'),
             'Should set the property value from loaded data.',
         );
     }
@@ -176,12 +176,12 @@ final class ModelTest extends TestCase
 
         self::assertSame(
             'bio',
-            $model->getPropertyValue('bio'),
+            $model->getValue('bio'),
             'Should set direct property values from scoped payload.',
         );
         self::assertSame(
             'admin@example.com',
-            $model->getPropertyValue('publicEmailPersonal'),
+            $model->getValue('publicEmailPersonal'),
             'Should map snake_case input keys to camelCase properties during load.',
         );
     }
@@ -191,7 +191,7 @@ final class ModelTest extends TestCase
         $address = new Address(new Country());
         $model = new Profile($address);
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'bio' => 'bio',
                 'publicEmailPersonal' => 'admin@example.com',
@@ -215,7 +215,7 @@ final class ModelTest extends TestCase
 
         self::assertSame(
             ['name'],
-            $model->getProperties(),
+            $model->getNames(),
             'Should return declared model properties in definition order.',
         );
     }
@@ -266,7 +266,7 @@ final class ModelTest extends TestCase
         $address = new Address(new Country());
         $model = new Profile($address);
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'bio' => 'bio',
                 'publicEmailPersonal' => 'admin@example.com',
@@ -299,7 +299,7 @@ final class ModelTest extends TestCase
         $model = new Country();
 
         self::assertTrue(
-            $model->hasProperty('name'),
+            $model->has('name'),
             'Should return true for an existing property.',
         );
     }
@@ -313,64 +313,77 @@ final class ModelTest extends TestCase
     ): void {
         $model = new PropertyType();
 
-        $model->setPropertyValue($property, $value);
+        $model->setValue($property, $value);
 
         self::assertSame(
             $expected,
-            $model->getPropertyValue($property),
+            $model->getValue($property),
             'Should return the exact value assigned to the property.',
         );
         self::assertSame(
             $expectedType,
-            get_debug_type($model->getPropertyValue($property)),
+            get_debug_type($model->getValue($property)),
             'Should preserve the expected runtime type for the property value.',
         );
     }
 
-    #[DataProviderExternal(ModelProvider::class, 'setPropertiesPayloads')]
-    public function testSetPropertiesForNativeAndCastableValues(array $properties): void
+    public function testSetSinglePropertyValue(): void
+    {
+        $model = new Country();
+
+        $model->setValue('name', 'Russia');
+
+        self::assertSame(
+            'Russia',
+            $model->getValue('name'),
+            'Should set and return the assigned property value.',
+        );
+    }
+
+    #[DataProviderExternal(ModelProvider::class, 'setValuesPayloads')]
+    public function testSetValuesForNativeAndCastableValues(array $properties): void
     {
         $model = new PropertyType();
 
-        $model->setProperties($properties);
+        $model->setValues($properties);
 
         self::assertSame(
             'array',
-            get_debug_type($model->getPropertyValue('array')),
+            get_debug_type($model->getValue('array')),
             'Should keep array properties as arrays.',
         );
         self::assertSame(
             'bool',
-            get_debug_type($model->getPropertyValue('bool')),
+            get_debug_type($model->getValue('bool')),
             'Should cast boolean properties correctly.',
         );
         self::assertSame(
             'float',
-            get_debug_type($model->getPropertyValue('float')),
+            get_debug_type($model->getValue('float')),
             'Should cast float properties correctly.',
         );
         self::assertSame(
             'int',
-            get_debug_type($model->getPropertyValue('int')),
+            get_debug_type($model->getValue('int')),
             'Should cast integer properties correctly.',
         );
         self::assertSame(
             stdClass::class,
-            get_debug_type($model->getPropertyValue('object')),
+            get_debug_type($model->getValue('object')),
             'Should keep object properties as objects.',
         );
         self::assertSame(
             'string',
-            get_debug_type($model->getPropertyValue('string')),
+            get_debug_type($model->getValue('string')),
             'Should keep string properties as strings.',
         );
     }
 
-    public function testSetPropertiesUsingSnakeCaseInputMappedToCamelCase(): void
+    public function testSetValuesUsingSnakeCaseInputMappedToCamelCase(): void
     {
         $model = new Profile(new Address(new Country()));
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'bio' => 'bio',
                 'public_email_personal' => 'admin@example.com',
@@ -379,26 +392,13 @@ final class ModelTest extends TestCase
 
         self::assertSame(
             'bio',
-            $model->getPropertyValue('bio'),
+            $model->getValue('bio'),
             'Should set direct property values from input.',
         );
         self::assertSame(
             'admin@example.com',
-            $model->getPropertyValue('publicEmailPersonal'),
+            $model->getValue('publicEmailPersonal'),
             'Should map snake_case input keys to camelCase model properties.',
-        );
-    }
-
-    public function testSetSinglePropertyValue(): void
-    {
-        $model = new Country();
-
-        $model->setPropertyValue('name', 'Russia');
-
-        self::assertSame(
-            'Russia',
-            $model->getPropertyValue('name'),
-            'Should set and return the assigned property value.',
         );
     }
 
@@ -406,7 +406,7 @@ final class ModelTest extends TestCase
     {
         $model = new Profile(new Address(new Country()));
 
-        $model->setProperties(
+        $model->setValues(
             [
                 'bio' => 'bio',
                 'public_email_personal' => 'admin@example.com',
@@ -418,12 +418,12 @@ final class ModelTest extends TestCase
 
         self::assertSame(
             'bio',
-            $model->getPropertyValue('bio'),
+            $model->getValue('bio'),
             'Should set values for properties not listed in exclusions.',
         );
         self::assertSame(
             '',
-            $model->getPropertyValue('publicEmailPersonal'),
+            $model->getValue('publicEmailPersonal'),
             'Should skip assigning values for excluded properties.',
         );
     }
@@ -440,7 +440,7 @@ final class ModelTest extends TestCase
             ),
         );
 
-        $model->getPropertyValue('noExist');
+        $model->getValue('noExist');
     }
 
     public function testThrowInvalidArgumentExceptionWhenLoadingUndefinedProperty(): void
@@ -466,6 +466,6 @@ final class ModelTest extends TestCase
             ),
         );
 
-        $model->setProperties(['noExist' => []]);
+        $model->setValues(['noExist' => []]);
     }
 }
