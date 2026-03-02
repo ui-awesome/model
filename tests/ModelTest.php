@@ -327,6 +327,19 @@ final class ModelTest extends TestCase
         );
     }
 
+    public function testSetSinglePropertyValue(): void
+    {
+        $model = new Country();
+
+        $model->setValue('name', 'Russia');
+
+        self::assertSame(
+            'Russia',
+            $model->getValue('name'),
+            'Should set and return the assigned property value.',
+        );
+    }
+
     #[DataProviderExternal(ModelProvider::class, 'setValuesPayloads')]
     public function testSetValuesForNativeAndCastableValues(array $properties): void
     {
@@ -386,19 +399,6 @@ final class ModelTest extends TestCase
             'admin@example.com',
             $model->getValue('publicEmailPersonal'),
             'Should map snake_case input keys to camelCase model properties.',
-        );
-    }
-
-    public function testSetSinglePropertyValue(): void
-    {
-        $model = new Country();
-
-        $model->setValue('name', 'Russia');
-
-        self::assertSame(
-            'Russia',
-            $model->getValue('name'),
-            'Should set and return the assigned property value.',
         );
     }
 

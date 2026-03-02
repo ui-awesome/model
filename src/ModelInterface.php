@@ -192,6 +192,19 @@ interface ModelInterface
     public function load(iterable $data, string|null $modelName = null): bool;
 
     /**
+     * Sets the value for the specified property.
+     *
+     * Usage example:
+     * ```php
+     * $model->setValue('name', 'Ada');
+     * ```
+     *
+     * @param string $property Property name.
+     * @param mixed $value Value to set.
+     */
+    public function setValue(string $property, mixed $value): void;
+
+    /**
      * Sets values for multiple properties.
      *
      * Usage example:
@@ -207,19 +220,6 @@ interface ModelInterface
      * @phpstan-param list<string> $except
      */
     public function setValues(array $data, array $except = []): void;
-
-    /**
-     * Sets the value for the specified property.
-     *
-     * Usage example:
-     * ```php
-     * $model->setValue('name', 'Ada');
-     * ```
-     *
-     * @param string $property Property name.
-     * @param mixed $value Value to set.
-     */
-    public function setValue(string $property, mixed $value): void;
 
     /**
      * Returns model properties as an array.

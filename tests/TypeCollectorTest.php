@@ -380,6 +380,19 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testSetReadonlyPropertyWhenUninitialized(): void
+    {
+        $model = new ReadonlyState(new Country());
+
+        $model->setValue('token', 'phase-2');
+
+        self::assertSame(
+            'phase-2',
+            $model->getValue('token'),
+            'Should allow assigning an uninitialized readonly property once.',
+        );
+    }
+
     #[DataProviderExternal(TypeCollectorProvider::class, 'setValueCases')]
     public function testSetValueWithSupportedInputs(string $property, mixed $value, mixed $expected): void
     {
@@ -391,19 +404,6 @@ final class TypeCollectorTest extends TestCase
             $expected,
             $model->getValue($property),
             'Should assign and return the expected value for each supported property input case.',
-        );
-    }
-
-    public function testSetReadonlyPropertyWhenUninitialized(): void
-    {
-        $model = new ReadonlyState(new Country());
-
-        $model->setValue('token', 'phase-2');
-
-        self::assertSame(
-            'phase-2',
-            $model->getValue('token'),
-            'Should allow assigning an uninitialized readonly property once.',
         );
     }
 

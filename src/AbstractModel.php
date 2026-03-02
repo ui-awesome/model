@@ -121,6 +121,11 @@ abstract class AbstractModel implements ModelInterface
         return $rawData !== [];
     }
 
+    public function setValue(string $property, mixed $value): void
+    {
+        $this->typeCollector()->setValue($property, $value);
+    }
+
     /**
      * @phpstan-param array<array-key, mixed> $data
      * @phpstan-param list<string> $except
@@ -128,11 +133,6 @@ abstract class AbstractModel implements ModelInterface
     public function setValues(array $data, array $except = []): void
     {
         $this->typeCollector()->setValues($data, $except);
-    }
-
-    public function setValue(string $property, mixed $value): void
-    {
-        $this->typeCollector()->setValue($property, $value);
     }
 
     /**

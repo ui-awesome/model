@@ -277,6 +277,25 @@ final class TypeCollector
     }
 
     /**
+     * Sets a value for one property.
+     *
+     * Dot notation is supported for nested models, for example `profile.email`.`
+     *
+     * Usage example:
+     * ```php
+     * $collector->setValue('profile.email', 'ada@example.com');
+     * ```
+     *
+     * @param string $property The property name.
+     * @param mixed $value The value to assign.
+     */
+    public function setValue(string $property, mixed $value): void
+    {
+        $this->setValueInternal($property, $value);
+        $this->initializeTimestampProperties();
+    }
+
+    /**
      * Sets values for multiple properties at once.
      *
      * Usage example:
@@ -313,25 +332,6 @@ final class TypeCollector
         if ($hasAssignments) {
             $this->initializeTimestampProperties();
         }
-    }
-
-    /**
-     * Sets a value for one property.
-     *
-     * Dot notation is supported for nested models, for example `profile.email`.`
-     *
-     * Usage example:
-     * ```php
-     * $collector->setValue('profile.email', 'ada@example.com');
-     * ```
-     *
-     * @param string $property The property name.
-     * @param mixed $value The value to assign.
-     */
-    public function setValue(string $property, mixed $value): void
-    {
-        $this->setValueInternal($property, $value);
-        $this->initializeTimestampProperties();
     }
 
     /**

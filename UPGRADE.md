@@ -46,7 +46,7 @@
 - If your code asserts exact output from `getPropertyTypes()`, update expectations for nullable properties to include `'null'`.
 - Update `setProperties()` exclusions to camelCase names, e.g. `publicEmailPersonal` instead of `public_email_personal`.
 - Review `load()` payload keys if your models intentionally use underscored property names, because snake_case keys are now normalized to camelCase during assignment.
-- Handle `readonly` reassignment attempts as application-level exceptions when using `setValue()` or `setProperties()`.
+- Handle `readonly` reassignment attempts as application-level exceptions when using `setValue()` or `setValues()`.
 - Validate incoming date strings before assignment if inputs are user-provided, because invalid values now fail fast with `InvalidArgumentException`.
 - Update tests or input sanitization if your code previously relied on PHP date overflow normalization.
 
