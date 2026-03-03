@@ -11,10 +11,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{DefaultValue, MapFrom, NoSnakeCase, Trim};
+use UIAwesome\Model\BaseModel;
 
-final class User extends AbstractModel
+final class User extends BaseModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';
@@ -47,10 +47,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\NoSnakeCase;
+use UIAwesome\Model\BaseModel;
 
-final class ApiPayload extends AbstractModel
+final class ApiPayload extends BaseModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v2';
@@ -73,10 +73,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\MapFrom;
+use UIAwesome\Model\BaseModel;
 
-final class JsonLdContext extends AbstractModel
+final class JsonLdContext extends BaseModel
 {
     #[MapFrom('@context')]
     public string $context = '';
@@ -98,15 +98,15 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 
-final class Address extends AbstractModel
+final class Address extends BaseModel
 {
     public string $city = '';
     public string $street = '';
 }
 
-final class Profile extends AbstractModel
+final class Profile extends BaseModel
 {
     public function __construct(public readonly Address $address) {}
 }
@@ -127,9 +127,9 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 
-final class DynamicModel extends AbstractModel {}
+final class DynamicModel extends BaseModel {}
 
 $model = new DynamicModel();
 
@@ -166,9 +166,9 @@ declare(strict_types=1);
 namespace App\Model;
 
 use DateTimeImmutable;
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 
-final class Post extends AbstractModel
+final class Post extends BaseModel
 {
     public DateTimeImmutable $publishedAt;
 }
@@ -189,10 +189,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\Trim;
+use UIAwesome\Model\BaseModel;
 
-final class Profile extends AbstractModel
+final class Profile extends BaseModel
 {
     #[Trim]
     public string $displayName = '';
@@ -214,10 +214,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\Cast;
+use UIAwesome\Model\BaseModel;
 
-final class SearchFilter extends AbstractModel
+final class SearchFilter extends BaseModel
 {
     #[Cast('array')]
     public array $tags = [];
@@ -239,10 +239,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\DefaultValue;
+use UIAwesome\Model\BaseModel;
 
-final class Profile extends AbstractModel
+final class Profile extends BaseModel
 {
     #[DefaultValue('Guest')]
     public string $displayName = '';

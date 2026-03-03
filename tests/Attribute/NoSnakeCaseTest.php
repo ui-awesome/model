@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests\Attribute;
 
 use PHPUnit\Framework\TestCase;
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{DoNotCollect, NoSnakeCase};
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Tests\Support\Model\{NoSnakeCaseChild, NoSnakeCasePayload};
 
 /**
@@ -28,7 +28,7 @@ final class NoSnakeCaseTest extends TestCase
 {
     public function testCollectNoSnakeCaseMetadataAfterDoNotCollectProperty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             public string $ignored = '';
 
@@ -47,7 +47,7 @@ final class NoSnakeCaseTest extends TestCase
 
     public function testCollectNoSnakeCaseMetadataAfterStaticPropertyDeclaration(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             public static string $ignored = '';
 
             #[NoSnakeCase]
@@ -138,7 +138,7 @@ final class NoSnakeCaseTest extends TestCase
 
     public function testPreserveMultipleNoSnakeCaseProperties(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[NoSnakeCase]
             public string $apiVersion = '';
 

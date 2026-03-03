@@ -7,8 +7,8 @@ namespace UIAwesome\Model\Tests\Attribute;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{Cast, DoNotCollect};
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Support\Model\CastPayload;
 
@@ -105,7 +105,7 @@ final class CastTest extends TestCase
 
     public function testCollectCastMetadataAfterDoNotCollectProperty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             public string $ignored = '';
 
@@ -124,7 +124,7 @@ final class CastTest extends TestCase
 
     public function testCollectCastMetadataAfterPropertyWithoutCastAttribute(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             public string $name = '';
 
             #[Cast('array')]
@@ -142,7 +142,7 @@ final class CastTest extends TestCase
 
     public function testCollectCastMetadataAfterStaticPropertyDeclaration(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Cast('array')]
             public static string $ignored = '';
 
@@ -161,7 +161,7 @@ final class CastTest extends TestCase
 
     public function testIgnoreCastMetadataOnDoNotCollectProperty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             #[Cast('')]
             public array $ignored = [];
@@ -193,7 +193,7 @@ final class CastTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenCastSeparatorIsEmpty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Cast('array', '')]
             public array $tags = [];
         };
@@ -206,7 +206,7 @@ final class CastTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotExist(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Cast('App\\NotFound\\Caster')]
             public array $tags = [];
         };
@@ -221,7 +221,7 @@ final class CastTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotImplementContract(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Cast(stdClass::class)]
             public array $tags = [];
         };
@@ -241,7 +241,7 @@ final class CastTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetIsBlankSpaces(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Cast('   ')]
             public array $tags = [];
         };
@@ -254,7 +254,7 @@ final class CastTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenCastTargetIsEmpty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Cast('')]
             public array $tags = [];
         };

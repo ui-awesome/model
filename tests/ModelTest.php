@@ -10,7 +10,7 @@ use NonNamespaced;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\ModelProvider;
 use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, PropertyType};
@@ -20,7 +20,7 @@ use function get_debug_type;
 require __DIR__ . '/Support/Model/NonNamespaced.php';
 
 /**
- * Unit tests for the {@see AbstractModel} behavior through concrete and anonymous test models.
+ * Unit tests for the {@see BaseModel} behavior through concrete and anonymous test models.
  *
  * Test coverage.
  * - Converts model data to `array` format with exclusions and optional snake_case keys.
@@ -40,7 +40,7 @@ final class ModelTest extends TestCase
 {
     public function testCastValuesWhenLoadingWithEmptyScope(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             private int $int = 1;
             private string $string = 'string';
             private float $float = 3.14;
@@ -245,7 +245,7 @@ final class ModelTest extends TestCase
             'Should return the short class name for namespaced models.',
         );
 
-        $model = new class extends AbstractModel {};
+        $model = new class extends BaseModel {};
 
         self::assertEmpty(
             $model->getModelName(),

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Support\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\DoNotCollect;
+use UIAwesome\Model\BaseModel;
 
 /**
  * Stub profile model with nested address relation used for tests.
@@ -13,7 +13,7 @@ use UIAwesome\Model\Attribute\DoNotCollect;
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class Profile extends AbstractModel
+final class Profile extends BaseModel
 {
     #[DoNotCollect]
     public array $avatar = [];

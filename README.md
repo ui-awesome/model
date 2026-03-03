@@ -47,10 +47,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{Cast, DefaultValue, MapFrom, NoSnakeCase, Timestamp, Trim};
+use UIAwesome\Model\BaseModel;
 
-final class User extends AbstractModel
+final class User extends BaseModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';
@@ -119,10 +119,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\MapFrom;
+use UIAwesome\Model\BaseModel;
 
-final class JsonLdPayload extends AbstractModel
+final class JsonLdPayload extends BaseModel
 {
     #[MapFrom('@context')]
     public string $context = '';
@@ -144,10 +144,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\Trim;
+use UIAwesome\Model\BaseModel;
 
-final class Profile extends AbstractModel
+final class Profile extends BaseModel
 {
     #[Trim]
     public string $displayName = '';
@@ -169,10 +169,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\Cast;
+use UIAwesome\Model\BaseModel;
 
-final class SearchFilter extends AbstractModel
+final class SearchFilter extends BaseModel
 {
     #[Cast('array')]
     public array $tags = [];
@@ -194,10 +194,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\DefaultValue;
+use UIAwesome\Model\BaseModel;
 
-final class Profile extends AbstractModel
+final class Profile extends BaseModel
 {
     #[DefaultValue('Guest')]
     public string $displayName = '';
@@ -220,10 +220,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\NoSnakeCase;
+use UIAwesome\Model\BaseModel;
 
-final class ApiPayload extends AbstractModel
+final class ApiPayload extends BaseModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';

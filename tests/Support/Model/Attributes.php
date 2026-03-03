@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Support\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\DoNotCollect;
 use UIAwesome\Model\Attribute\Timestamp;
+use UIAwesome\Model\BaseModel;
 
 /**
  * Stub model with attribute-driven properties used for tests.
@@ -14,7 +14,7 @@ use UIAwesome\Model\Attribute\Timestamp;
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class Attributes extends AbstractModel
+final class Attributes extends BaseModel
 {
     #[Timestamp]
     private int $createdAt = 0;

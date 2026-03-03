@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Support\Model;
 
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 
 use function is_string;
 
@@ -14,7 +14,7 @@ use function is_string;
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class GetValueOverride extends AbstractModel
+final class GetValueOverride extends BaseModel
 {
     public string $name = 'ada';
 

@@ -16,7 +16,7 @@ use function substr;
  *
  * Usage example:
  * ```php
- * final class UserForm extends AbstractModel
+ * final class UserForm extends BaseModel
  * {
  *     public string $name = '';
  * }
@@ -28,7 +28,7 @@ use function substr;
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-abstract class AbstractModel implements ModelInterface
+abstract class BaseModel implements ModelInterface
 {
     /**
      * @phpstan-var mixed[]

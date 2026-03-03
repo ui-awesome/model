@@ -6,7 +6,7 @@ This guide describes model design conventions and behavior that affect runtime c
 
 ## Model declaration
 
-Create models by extending `AbstractModel` and declaring typed properties.
+Create models by extending `BaseModel` and declaring typed properties.
 
 ```php
 <?php
@@ -15,10 +15,10 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
+use UIAwesome\Model\BaseModel;
 
-final class User extends AbstractModel
+final class User extends BaseModel
 {
     #[NoSnakeCase]
     public string $apiVersion = 'v1';

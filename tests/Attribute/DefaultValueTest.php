@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests\Attribute;
 
 use PHPUnit\Framework\TestCase;
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{DefaultValue, DoNotCollect};
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Tests\Support\Model\{DefaultValueChild, DefaultValuePayload};
 
 /**
@@ -94,7 +94,7 @@ final class DefaultValueTest extends TestCase
 
     public function testCollectDefaultValueMetadataAfterPropertyWithoutAttribute(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             public string $title = '';
 
             #[DefaultValue('guest')]
@@ -112,7 +112,7 @@ final class DefaultValueTest extends TestCase
 
     public function testCollectDefaultValueMetadataAfterStaticPropertyDeclaration(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DefaultValue('ignored-static')]
             public static string $ignored = '';
 
@@ -131,7 +131,7 @@ final class DefaultValueTest extends TestCase
 
     public function testIgnoreDefaultValueMetadataOnDoNotCollectProperty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             #[DefaultValue('ignored')]
             public string $ignored = '';

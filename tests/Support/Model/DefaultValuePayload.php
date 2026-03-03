@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Support\Model;
 
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, Trim};
+use UIAwesome\Model\BaseModel;
 
 /**
  * Stub model with DefaultValue-driven properties for tests.
@@ -13,7 +13,7 @@ use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, Trim};
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class DefaultValuePayload extends AbstractModel
+final class DefaultValuePayload extends BaseModel
 {
     #[Trim]
     #[DefaultValue('Unknown')]

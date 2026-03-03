@@ -9,7 +9,7 @@ namespace UIAwesome\Model;
  *
  * Usage example:
  * ```php
- * final class UserForm extends AbstractModel
+ * final class UserForm extends BaseModel
  * {
  *     public string $name = '';
  * }
@@ -57,7 +57,7 @@ interface ModelInterface
     /**
      * Returns the model name that this model class should use.
      *
-     * The model name is mainly used by {@see AbstractModel} to decide how to name the input fields for the properties
+     * The model name is mainly used by {@see BaseModel} to decide how to name the input fields for the properties
      * in a model.
      * - If the model name is "A" and an property name is "b", then the corresponding input name would be "A[b]".
      * - If the model name is an empty string, then the input name would be "b".

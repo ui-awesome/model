@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests\Attribute;
 
 use PHPUnit\Framework\TestCase;
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\DoNotCollect;
 use UIAwesome\Model\Attribute\Trim;
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Tests\Support\Model\{TrimAddress, TrimContainer, TrimProfile};
 
 /**
@@ -113,7 +113,7 @@ final class TrimTest extends TestCase
 
     public function testTrimCollectionContinuesAfterDoNotCollectProperty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             public string $ignored = '';
 
@@ -132,7 +132,7 @@ final class TrimTest extends TestCase
 
     public function testTrimMetadataIgnoresStaticProperties(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[Trim]
             public static string $tag = '';
 
