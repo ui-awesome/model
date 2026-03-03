@@ -542,11 +542,10 @@ final class TypeCollector
                 $this->defaultValueProperties[$propertyName] = $defaultValue->value;
             }
 
-            foreach (Reflector::propertyAttributeInstances($this->model, $propertyName, MapFrom::class) as $mapFrom) {
-                if (!$mapFrom instanceof MapFrom) {
-                    continue;
-                }
+            /** @phpstan-var list<MapFrom> $mapFromAttributes */
+            $mapFromAttributes = Reflector::propertyAttributeInstances($this->model, $propertyName, MapFrom::class);
 
+            foreach ($mapFromAttributes as $mapFrom) {
                 $key = $mapFrom->key;
 
                 if (array_key_exists($key, $this->mapFromKeys) && $this->mapFromKeys[$key] !== $propertyName) {
