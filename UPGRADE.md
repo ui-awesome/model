@@ -13,6 +13,7 @@
 - `getProperties(): array` was renamed to `getNames(): array`.
 - `hasProperty(string $property): bool` was renamed to `has(string $property): bool`.
 - `addProperty(string $property, string|array $type): void` was renamed to `add(string $property, string|array $type): void`.
+- Base class `UIAwesome\Model\AbstractModel` was renamed to `UIAwesome\Model\BaseModel`.
 - `getPropertyTypes(): array` was renamed to `getTypes(): array`.
 - `isPropertyType(string $property, string $type): bool` was renamed to `isType(string $property, string $type): bool`.
 - `setProperties(array $data, array $exceptProperties = []): void` was renamed to `setValues(array $data, array $except = []): void`.
@@ -37,6 +38,7 @@
 - Replace all calls to `getProperties()` with `getNames()`.
 - Replace all calls to `hasProperty($property)` with `has($property)`.
 - Replace all calls to `addProperty($property, $type)` with `add($property, $type)`.
+- Replace `use UIAwesome\Model\AbstractModel;` with `use UIAwesome\Model\BaseModel;` and update all `extends AbstractModel` to `extends BaseModel`.
 - Replace all calls to `getPropertyTypes()` with `getTypes()`.
 - Replace all calls to `isPropertyType($property, $type)` with `isType($property, $type)`.
 - Replace all calls to `setProperties($data, $exceptProperties)` with `setValues($data, $except)`.
