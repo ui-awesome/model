@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model;
 
+use PHPForge\Helper\Reflector;
+
 use function is_a;
 use function is_array;
 use function iterator_to_array;
-use function str_contains;
-use function strrchr;
-use function substr;
 
 /**
  * Base implementation of {@see ModelInterface}.
@@ -55,17 +54,7 @@ abstract class BaseModel implements ModelInterface
 
     public function getModelName(): string
     {
-        if (str_contains(static::class, '@anonymous')) {
-            return '';
-        }
-
-        $className = strrchr(static::class, '\\');
-
-        if ($className === false) {
-            return static::class;
-        }
-
-        return substr($className, 1);
+        return Reflector::shortName(static::class);
     }
 
     /**

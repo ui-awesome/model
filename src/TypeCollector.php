@@ -8,11 +8,8 @@ use DateTime;
 use DateTimeImmutable;
 use Exception;
 use InvalidArgumentException;
-use ReflectionClass;
-use ReflectionIntersectionType;
-use ReflectionNamedType;
+use PHPForge\Helper\Reflector;
 use ReflectionProperty;
-use ReflectionUnionType;
 use UIAwesome\Model\Attribute\{Cast, DefaultValue, DoNotCollect, MapFrom, NoSnakeCase, Timestamp, Trim};
 use UIAwesome\Model\Exception\Message;
 
@@ -97,13 +94,6 @@ final class TypeCollector
     private array $properties = [];
 
     /**
-     * Reflection handle for the model class.
-     *
-     * @phpstan-var ReflectionClass<ModelInterface>
-     */
-    private ReflectionClass $reflection;
-
-    /**
      * Marks properties that require trim normalization.
      *
      * @phpstan-var array<string, true>
@@ -112,7 +102,6 @@ final class TypeCollector
 
     public function __construct(private readonly ModelInterface $model)
     {
-        $this->reflection = new ReflectionClass($this->model);
         $this->collectMetadata();
     }
 
@@ -529,38 +518,34 @@ final class TypeCollector
      */
     private function collectMetadata(): void
     {
-        foreach ($this->reflection->getProperties() as $property) {
+        foreach (Reflector::properties($this->model) as $property) {
             if ($property->isStatic() || $this->hasDoNotCollectAttribute($property)) {
                 continue;
             }
 
             $propertyName = $property->getName();
-            $this->properties[$propertyName] = $this->resolvePropertyType($property);
+            $this->properties[$propertyName] = $this->resolvePropertyType($propertyName);
 
-            if ($property->getAttributes(Timestamp::class) !== []) {
+            if (Reflector::propertyAttributes($this->model, $propertyName, Timestamp::class) !== []) {
                 $this->properties[$propertyName] = 'timestamp';
             }
 
-            $castAttributes = $property->getAttributes(Cast::class);
+            $cast = Reflector::firstPropertyAttribute($this->model, $propertyName, Cast::class);
 
-            if ($castAttributes !== []) {
-                /** @phpstan-var Cast $cast */
-                $cast = $castAttributes[0]->newInstance();
+            if ($cast instanceof Cast) {
                 $this->castProperties[$propertyName] = $cast;
             }
 
-            $defaultValueAttributes = $property->getAttributes(DefaultValue::class);
+            $defaultValue = Reflector::firstPropertyAttribute($this->model, $propertyName, DefaultValue::class);
 
-            if ($defaultValueAttributes !== []) {
-                /** @phpstan-var DefaultValue $defaultValue */
-                $defaultValue = $defaultValueAttributes[0]->newInstance();
+            if ($defaultValue instanceof DefaultValue) {
                 $this->defaultValueProperties[$propertyName] = $defaultValue->value;
             }
 
-            foreach ($property->getAttributes(MapFrom::class) as $attribute) {
-                /** @phpstan-var MapFrom $mapFrom */
-                $mapFrom = $attribute->newInstance();
+            /** @phpstan-var list<MapFrom> $mapFromAttributes */
+            $mapFromAttributes = Reflector::propertyAttributeInstances($this->model, $propertyName, MapFrom::class);
 
+            foreach ($mapFromAttributes as $mapFrom) {
                 $key = $mapFrom->key;
 
                 if (array_key_exists($key, $this->mapFromKeys) && $this->mapFromKeys[$key] !== $propertyName) {
@@ -578,11 +563,11 @@ final class TypeCollector
                 $this->mapFromKeys[$key] = $propertyName;
             }
 
-            if ($property->getAttributes(NoSnakeCase::class) !== []) {
+            if (Reflector::propertyAttributes($this->model, $propertyName, NoSnakeCase::class) !== []) {
                 $this->noSnakeCaseProperties[$propertyName] = true;
             }
 
-            if ($property->getAttributes(Trim::class) !== []) {
+            if (Reflector::propertyAttributes($this->model, $propertyName, Trim::class) !== []) {
                 $this->trimProperties[$propertyName] = true;
             }
         }
@@ -611,7 +596,7 @@ final class TypeCollector
      */
     private function hasDeclaredProperty(string $property): bool
     {
-        return $this->reflection->hasProperty($property);
+        return Reflector::hasProperty($this->model, $property);
     }
 
     /**
@@ -623,7 +608,7 @@ final class TypeCollector
      */
     private function hasDoNotCollectAttribute(ReflectionProperty $property): bool
     {
-        return $property->getAttributes(DoNotCollect::class) !== [];
+        return Reflector::propertyAttributes($this->model, $property->getName(), DoNotCollect::class) !== [];
     }
 
     /**
@@ -691,7 +676,7 @@ final class TypeCollector
         }
 
         if ($this->hasDeclaredProperty($property)) {
-            return $this->reflection->getProperty($property)->getValue($this->model);
+            return Reflector::property($this->model, $property)->getValue($this->model);
         }
 
         return $this->dynamicValues[$property] ?? null;
@@ -718,46 +703,19 @@ final class TypeCollector
      *
      * @phpstan-return list<string>|string
      */
-    private function resolvePropertyType(ReflectionProperty $property): array|string
+    private function resolvePropertyType(string $property): array|string
     {
-        /** @phpstan-var ReflectionIntersectionType|ReflectionNamedType|ReflectionUnionType|null $type */
-        $type = $property->getType();
+        $types = Reflector::propertyTypeNames($this->model, $property);
 
-        if ($type === null) {
+        if ($types === []) {
             return '';
         }
 
-        if ($type instanceof ReflectionIntersectionType) {
-            $typeNames = [];
-
-            foreach ($type->getTypes() as $intersectionType) {
-                if ($intersectionType instanceof ReflectionNamedType) {
-                    $typeNames[] = $intersectionType->getName();
-                }
-            }
-
-            return $typeNames;
+        if (count($types) === 1) {
+            return $types[0];
         }
 
-        if ($type instanceof ReflectionUnionType) {
-            $typeNames = [];
-
-            foreach ($type->getTypes() as $unionType) {
-                if ($unionType instanceof ReflectionNamedType) {
-                    $typeNames[] = $unionType->getName();
-                }
-            }
-
-            return $typeNames;
-        }
-
-        $typeName = $type->getName();
-
-        if ($type->allowsNull() && $typeName !== 'null') {
-            return [$typeName, 'null'];
-        }
-
-        return $typeName;
+        return $types;
     }
 
     /**
@@ -896,7 +854,7 @@ final class TypeCollector
         if ($this->hasDeclaredProperty($property) === false) {
             $this->dynamicValues[$property] = $value;
         } else {
-            $reflectionProperty = $this->reflection->getProperty($property);
+            $reflectionProperty = Reflector::property($this->model, $property);
 
             if ($reflectionProperty->isReadOnly() && $reflectionProperty->isInitialized($this->model)) {
                 throw new InvalidArgumentException(
