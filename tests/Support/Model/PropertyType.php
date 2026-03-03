@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Support\Model;
 
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 
 /**
  * Stub model declaring scalar, nullable, and untyped properties for tests.
@@ -12,7 +12,7 @@ use UIAwesome\Model\AbstractModel;
  * @copyright Copyright (C) 2024 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class PropertyType extends AbstractModel
+final class PropertyType extends BaseModel
 {
     public string $name = '';
 

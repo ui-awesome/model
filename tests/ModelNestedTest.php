@@ -7,7 +7,7 @@ namespace UIAwesome\Model\Tests;
 use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\DataProviderExternal;
 use PHPUnit\Framework\TestCase;
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\ModelNestedProvider;
 use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
@@ -29,7 +29,7 @@ final class ModelNestedTest extends TestCase
 {
     public function testKeepCollectingNamesAfterNestedModelProperty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             public Address $address;
             public string $label = '';
 

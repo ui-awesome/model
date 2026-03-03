@@ -6,7 +6,7 @@ namespace UIAwesome\Model\Tests\Support\Model;
 
 use DateTime;
 use DateTimeImmutable;
-use UIAwesome\Model\AbstractModel;
+use UIAwesome\Model\BaseModel;
 
 /**
  * Stub model declaring DateTime typed properties for tests.
@@ -14,7 +14,7 @@ use UIAwesome\Model\AbstractModel;
  * @copyright Copyright (C) 2026 Terabytesoftw.
  * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
-final class DateTimeType extends AbstractModel
+final class DateTimeType extends BaseModel
 {
     public DateTime $createdAt;
 

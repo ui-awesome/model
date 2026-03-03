@@ -6,8 +6,8 @@ namespace UIAwesome\Model\Tests\Attribute;
 
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
-use UIAwesome\Model\AbstractModel;
 use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom};
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Support\Model\{MapFromDuplicate, MapFromPayload};
 
@@ -28,7 +28,7 @@ final class MapFromTest extends TestCase
 {
     public function testCollectMappedKeysAfterDoNotCollectPropertyDeclaration(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             public string $ignored = '';
 
@@ -47,7 +47,7 @@ final class MapFromTest extends TestCase
 
     public function testIgnoreMapFromDeclaredOnDoNotCollectPropertyWhenCheckingDuplicates(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[DoNotCollect]
             #[MapFrom('same-key')]
             public string $ignored = '';
@@ -170,7 +170,7 @@ final class MapFromTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenMapFromKeyIsEmpty(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[MapFrom('')]
             public string $name = '';
         };
@@ -185,7 +185,7 @@ final class MapFromTest extends TestCase
 
     public function testThrowInvalidArgumentExceptionWhenMapFromKeyIsWhitespaceOnly(): void
     {
-        $model = new class extends AbstractModel {
+        $model = new class extends BaseModel {
             #[MapFrom('   ')]
             public string $name = '';
         };
