@@ -1,70 +1,56 @@
-<svg fill="none" viewBox="0 0 1200 440" width="100%" height="340" xmlns="http://www.w3.org/2000/svg">
-    <foreignObject width="100%" height="100%">
-        <div xmlns="http://www.w3.org/1999/xhtml">
-            <style>
-                .container {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 20px;
-                    padding: 20px;
-                }
-                .card {
-                    border-left: 4px solid #1f883d;
-                    padding: 12px;
-                    margin-bottom: 16px;
-                    border-radius: 6px;
-                    background: rgba(31, 136, 61, 0.1);
-                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                    width: 100%;
-                    box-sizing: border-box;
-                }
-                .title {
-                    margin: 0 0 8px 0;
-                    font-weight: 600;
-                }
-                .content {
-                    margin: 0;
-                    line-height: 1.5;
-                }
+<svg viewBox="0 0 1200 380" width="100%" height="340" xmlns="http://www.w3.org/2000/svg">
+    <style>
+        text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        .box-bg { fill: #e6f4ea; stroke: #a7cdb3; stroke-width: 1; }
+        .title { font-weight: 700; font-size: 16px; fill: #1a202c; }
+        .content { font-size: 13px; fill: #4a5568; }
+    </style>
 
-                @media (prefers-color-scheme: light) {
-                    .title { color: #000000; }
-                    .content { color: #333333; }
-                    .card { background: rgba(31, 136, 61, 0.1); }
-                }
+    <g>
+        <rect class="box-bg" x="20" y="20" width="570" height="100" rx="6"/>
+        <rect x="20" y="20" width="4" height="100" fill="#1f883d"/>
+        <text class="title" x="40" y="50">Array Serialization</text>
+        <text class="content" x="40" y="78">Serialize model state with optional snake_case output</text>
+        <text class="content" x="40" y="98">Selective key preservation and explicit field exclusions</text>
+    </g>
 
-                @media (prefers-color-scheme: dark) {
-                    .title { color: #ffffff; }
-                    .content { color: #ffffff; }
-                    .card { background: rgba(31, 136, 61, 0.2); }
-                }
-            </style>
-            <div class="container">
-                <div class="card">
-                    <p class="title"><strong>Array Serialization</strong></p>
-                    <p class="content">Serialize model state with optional snake_case output, selective key preservation, and explicit field exclusions.</p>
-                </div>
-                <div class="card">
-                    <p class="title"><strong>Attribute Controls</strong></p>
-                    <p class="content"><code>#[MapFrom]</code>, <code>#[Trim]</code>, <code>#[DefaultValue]</code>, <code>#[Cast]</code>, and <code>#[NoSnakeCase]</code> control binding, normalization, runtime defaults, conversion, and output key behavior.</p>
-                </div>
-                <div class="card">
-                    <p class="title"><strong>Model Loading</strong></p>
-                    <p class="content">Supports scoped payload loading from forms or request arrays with strict property validation.</p>
-                </div>
-                <div class="card">
-                    <p class="title"><strong>Nested Paths</strong></p>
-                    <p class="content">Read and write nested values with dot notation such as <code>profile.address.city</code>.</p>
-                </div>
-                <div class="card">
-                    <p class="title"><strong>Strict Quality Gates</strong></p>
-                    <p class="content">Tested with PHPUnit, analyzed with PHPStan max, and verified by mutation testing.</p>
-                </div>
-                <div class="card">
-                    <p class="title"><strong>Typed Properties</strong></p>
-                    <p class="content">Reflection-based type collection with scalar and DateTime casting plus safe readonly write protection.</p>
-                </div>
-            </div>
-        </div>
-    </foreignObject>
+    <g>
+        <rect class="box-bg" x="610" y="20" width="570" height="100" rx="6"/>
+        <rect x="610" y="20" width="4" height="100" fill="#1f883d"/>
+        <text class="title" x="630" y="50">Attribute Controls</text>
+        <text class="content" x="630" y="78">#[MapFrom], #[Trim], #[DefaultValue], #[Cast], #[NoSnakeCase]</text>
+        <text class="content" x="630" y="98">Control binding, defaults, casting and output key behavior</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="20" y="140" width="570" height="100" rx="6"/>
+        <rect x="20" y="140" width="4" height="100" fill="#1f883d"/>
+        <text class="title" x="40" y="170">Model Loading</text>
+        <text class="content" x="40" y="198">Load scoped payloads from forms or request arrays</text>
+        <text class="content" x="40" y="218">Strict property validation during binding</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="610" y="140" width="570" height="100" rx="6"/>
+        <rect x="610" y="140" width="4" height="100" fill="#1f883d"/>
+        <text class="title" x="630" y="170">Nested Paths</text>
+        <text class="content" x="630" y="198">Read and write nested values with dot notation</text>
+        <text class="content" x="630" y="218">Address deep graphs such as profile.address.city</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="20" y="260" width="570" height="100" rx="6"/>
+        <rect x="20" y="260" width="4" height="100" fill="#1f883d"/>
+        <text class="title" x="40" y="290">Strict Quality Gates</text>
+        <text class="content" x="40" y="318">Tested with PHPUnit and analyzed with PHPStan max</text>
+        <text class="content" x="40" y="338">Verified by 100% mutation testing</text>
+    </g>
+
+    <g>
+        <rect class="box-bg" x="610" y="260" width="570" height="100" rx="6"/>
+        <rect x="610" y="260" width="4" height="100" fill="#1f883d"/>
+        <text class="title" x="630" y="290">Typed Properties</text>
+        <text class="content" x="630" y="318">Reflection-based type collection with scalar and DateTime casting</text>
+        <text class="content" x="630" y="338">Safe readonly write protection</text>
+    </g>
 </svg>

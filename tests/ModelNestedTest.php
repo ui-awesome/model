@@ -5,26 +5,19 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests;
 
 use InvalidArgumentException;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\ModelNestedProvider;
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, Profile, User};
+use UIAwesome\Model\Tests\Support\Model\{Address, Country, Dynamic, Profile, User};
 
 /**
  * Unit tests for nested property access and assignment across composed model graphs.
  *
- * Test coverage.
- * - Loads and assigns deeply nested paths, then reads the expected values for each nested segment.
- * - Returns flattened nested property lists for composed models.
- * - Throws invalid argument exceptions for undefined nested paths and non-nested base properties.
- *
  * {@see ModelNestedProvider} for test case data providers.
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('nested')]
 final class ModelNestedTest extends TestCase
 {
     public function testKeepCollectingNamesAfterNestedModelProperty(): void
@@ -43,6 +36,20 @@ final class ModelNestedTest extends TestCase
             ['address.city', 'address.street', 'address.country.name', 'label'],
             $model->getNames(),
             'Should continue collecting property names declared after a nested model property.',
+        );
+    }
+
+    public function testKeepNonStringKeyedModelPropertyFlatWhenCollectingNames(): void
+    {
+        $model = new Dynamic();
+
+        $model->add('0', Country::class);
+        $model->setValue('0', new Country());
+
+        self::assertSame(
+            ['0'],
+            $model->getNames(),
+            'Non-string property key must not be flattened, even when typed as a model.',
         );
     }
 

@@ -5,22 +5,60 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests\Attribute;
 
 use DateTime;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
+use UIAwesome\Model\Attribute\Timestamp;
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Tests\Support\Model\Attributes;
 
 /**
  * Unit tests for timestamp behavior driven by {@see \UIAwesome\Model\Attribute\Timestamp}.
- *
- * Test coverage.
- * - Initializes timestamp properties during bulk assignment and scoped load operations.
- * - Keeps initialized timestamp values stable after first assignment.
- * - Exposes timestamp values as positive integers convertible to `DateTime`.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class TimestampTest extends TestCase
 {
+    public function testDoNotInitializeTimestampPropertiesWhenNoStringKeyedValuesAreAssigned(): void
+    {
+        $model = new Attributes();
+
+        $model->setValues([]);
+
+        self::assertSame(
+            0,
+            $model->getValue('createdAt'),
+            'Empty assignment must leave `createdAt` untouched.',
+        );
+        self::assertSame(
+            0,
+            $model->getValue('updatedAt'),
+            'Empty assignment must leave `updatedAt` untouched.',
+        );
+
+        $model->setValues([0 => 'positional']);
+
+        self::assertSame(
+            0,
+            $model->getValue('createdAt'),
+            'Non-string keys must not trigger timestamp initialization.',
+        );
+    }
+
+    public function testDoNotOverwriteNonZeroTimestampPropertyDuringInitialization(): void
+    {
+        $model = new class extends BaseModel {
+            #[Timestamp]
+            public int $createdAt = 12345;
+        };
+
+        $model->setValues(['createdAt' => 67890]);
+
+        self::assertSame(
+            67890,
+            $model->getValue('createdAt'),
+            'Non-zero timestamp value must be preserved, not replaced by `time()`.',
+        );
+    }
+
     public function testInitializeTimestampPropertiesDuringBulkSetValues(): void
     {
         $model = new Attributes();

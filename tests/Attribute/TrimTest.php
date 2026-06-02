@@ -4,25 +4,16 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Attribute;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
-use UIAwesome\Model\Attribute\DoNotCollect;
-use UIAwesome\Model\Attribute\Trim;
+use UIAwesome\Model\Attribute\{DoNotCollect, Trim};
 use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Tests\Support\Model\{TrimAddress, TrimContainer, TrimProfile};
 
 /**
  * Unit tests for input normalization using {@see \UIAwesome\Model\Attribute\Trim}.
- *
- * Test coverage.
- * - Applies trim behavior on nested property writes.
- * - Leaves non-string values unchanged.
- * - Preserves values for properties without trim metadata.
- * - Trims string values during `setValue()`, `setValues()`, and `load()`.
- * - Works with explicit input mapping through `MapFrom`.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class TrimTest extends TestCase
 {
     public function testDoNotTrimPropertiesWithoutAttribute(): void

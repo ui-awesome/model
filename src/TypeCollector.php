@@ -45,9 +45,6 @@ use function ucwords;
  * $collector = new TypeCollector($model);
  * $collector->setValue('name', 'Ada');
  * ```
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class TypeCollector
 {
@@ -361,7 +358,7 @@ final class TypeCollector
     }
 
     /**
-     * Applies runtime defaults for values assigned as null or empty string.
+     * Applies runtime defaults for values assigned as `null` or empty string.
      *
      * @param string $property Property receiving the assigned value.
      * @param mixed $value Normalized value to inspect.
@@ -542,7 +539,6 @@ final class TypeCollector
                 $this->defaultValueProperties[$propertyName] = $defaultValue->value;
             }
 
-            /** @phpstan-var list<MapFrom> $mapFromAttributes */
             $mapFromAttributes = Reflector::propertyAttributeInstances($this->model, $propertyName, MapFrom::class);
 
             foreach ($mapFromAttributes as $mapFrom) {
@@ -612,11 +608,7 @@ final class TypeCollector
     }
 
     /**
-     * Initializes properties with the `timestamp` type to the current time if they are null or zero.
-     *
-     * This method iterates through all properties and checks if they have the `timestamp` type.
-     * - If a property has this type and its current value is null or zero, it sets the property's value to the current
-     *   time using the `time()` function.
+     * Initializes `timestamp` properties to the current time when their value is `null` or `0`.
      */
     private function initializeTimestampProperties(): void
     {
@@ -719,13 +711,11 @@ final class TypeCollector
     }
 
     /**
-     * Resolves the type to be used for casting when multiple types are defined for a property.
+     * Resolves the casting type from declared property types.
      *
-     * This method takes an array of expected types and returns the type to be used for casting.
-     * - If there is exactly one non-null type in the array, that type is returned.
-     * - Otherwise, null is returned, indicating that no specific type can be determined for casting.
+     * Returns the single non-null type, or `null` when zero or multiple non-null types make the choice ambiguous.
      *
-     * @return string|null Type to be used for casting, or null if no specific type can be determined.
+     * @return string|null Single non-null type, or `null` when no specific type can be determined.
      *
      * @phpstan-param list<string> $expectedTypes
      */
@@ -746,11 +736,7 @@ final class TypeCollector
     }
 
     /**
-     * Sets the value of a property, supporting nested properties using dot notation.
-     *
-     * This method checks if the property exists and then sets its value.
-     * - If the property is nested (indicated by dot notation), it traverses the nested properties to set the value at
-     *   the correct level.
+     * Sets the value of a property, traversing dot-notation paths to assign nested properties at the correct level.
      *
      * @param string $property Name of the property to set, which can include dot notation for nested properties.
      * @param mixed $value Value to assign to the property.
@@ -840,11 +826,7 @@ final class TypeCollector
     }
 
     /**
-     * Writes a value to a property, supporting both declared and dynamic properties.
-     *
-     * This method checks if the property is declared in the class. If it is, it uses reflection to set the value
-     * directly on the model instance.
-     * - If the property is not declared, it stores the value in the `$dynamicValues` array.
+     * Writes a value to a property, using reflection for declared properties and dynamic storage otherwise.
      *
      * @param string $property Name of the property to write to.
      * @param mixed $value Value to assign to the property.

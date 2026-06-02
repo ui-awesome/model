@@ -5,28 +5,18 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests\Attribute;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use UIAwesome\Model\Attribute\{Cast, DoNotCollect};
-use UIAwesome\Model\BaseModel;
+use UIAwesome\Model\{BaseModel, CastValueInterface};
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Support\Model\CastPayload;
 
 /**
  * Unit tests for custom casting through {@see \UIAwesome\Model\Attribute\Cast}.
- *
- * Test coverage.
- * - Applies cast behavior in `setValue()`, `setValues()`, and `load()`.
- * - Casts comma-separated strings to arrays.
- * - Continues scanning cast metadata after static property declarations.
- * - Supports custom caster classes implementing `CastValueInterface`.
- * - Supports mapped keys and trim normalization before cast execution.
- * - Throws explicit exceptions for invalid cast targets and invalid caster classes.
- * - Validates `Cast` attribute configuration for empty/blank target and empty separator.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class CastTest extends TestCase
 {
     public function testCastArrayFromCommaSeparatedString(): void
@@ -232,7 +222,7 @@ final class CastTest extends TestCase
                 stdClass::class,
                 $model::class,
                 'tags',
-                \UIAwesome\Model\CastValueInterface::class,
+                CastValueInterface::class,
             ),
         );
 

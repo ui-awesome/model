@@ -10,9 +10,6 @@ use stdClass;
  * Data provider for {@see \UIAwesome\Model\Tests\TypeUnionTest} test cases.
  *
  * Provides representative input/output pairs for union property type checks and accepted union values.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class TypeUnionProvider
 {

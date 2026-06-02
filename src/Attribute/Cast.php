@@ -20,15 +20,12 @@ use function trim;
  * #[Cast(App\Model\CsvToArrayCaster::class)]
  * public array $keywords = [];
  * ```
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
-final class Cast
+final readonly class Cast
 {
-    public readonly string $separator;
-    public readonly string $target;
+    public string $separator;
+    public string $target;
 
     public function __construct(string $target, string $separator = ',')
     {

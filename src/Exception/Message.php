@@ -10,9 +10,6 @@ use function sprintf;
  * Represents reusable error message templates for model exceptions.
  *
  * Use {@see Message::getMessage()} to format template values via `sprintf()` placeholders.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 enum Message: string
 {

@@ -15,9 +15,6 @@ use function trim;
 
 /**
  * Stub caster that converts pipe-separated strings to trimmed arrays for tests.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class PipeSeparatedCaster implements CastValueInterface
 {
@@ -28,7 +25,7 @@ final class PipeSeparatedCaster implements CastValueInterface
         }
 
         $items = array_map(
-            static fn(string $item): string => trim($item),
+            trim(...),
             explode('|', $value),
         );
 

@@ -9,11 +9,8 @@ use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight}
 
 /**
  * Stub model with intersection-typed property used for tests.
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class IntersectionType extends BaseModel
 {
-    private IntersectionLeft&IntersectionRight $intersection;
+    private readonly IntersectionLeft&IntersectionRight $intersection;
 }

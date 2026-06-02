@@ -7,7 +7,7 @@ namespace UIAwesome\Model\Tests;
 use ArrayIterator;
 use InvalidArgumentException;
 use NonNamespaced;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use UIAwesome\Model\BaseModel;
@@ -22,20 +22,9 @@ require __DIR__ . '/Support/Model/NonNamespaced.php';
 /**
  * Unit tests for the {@see BaseModel} behavior through concrete and anonymous test models.
  *
- * Test coverage.
- * - Converts model data to `array` format with exclusions and optional snake_case keys.
- * - Loads scoped and unscoped payloads while preserving typed property casting behavior.
- * - Resolves model names for namespaced, anonymous, and non-namespaced models.
- * - Returns model metadata, including loaded data and declared property names.
- * - Sets individual and bulk properties, including snake_case to camelCase mapping and exclusion lists.
- * - Throws invalid argument exceptions for undefined properties during read and write operations.
- * - Verifies property existence and empty-state behavior on new model instances.
- *
  * {@see ModelProvider} for test case data providers.
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('model')]
 final class ModelTest extends TestCase
 {
     public function testCastValuesWhenLoadingWithEmptyScope(): void
@@ -102,6 +91,25 @@ final class ModelTest extends TestCase
         );
     }
 
+    public function testLoadDataFromGeneratorPayloadUsingModelScope(): void
+    {
+        $model = new Country();
+
+        $payload = (static function (): \Generator {
+            yield 'Country' => ['name' => 'Japan'];
+        })();
+
+        self::assertTrue(
+            $model->load($payload),
+            'Non-array iterable payloads must be converted to an array before scope lookup.',
+        );
+        self::assertSame(
+            'Japan',
+            $model->getValue('name'),
+            'Generator payload must populate scoped property values.',
+        );
+    }
+
     public function testLoadDataFromTraversablePayloadUsingModelScope(): void
     {
         $model = new Country();
@@ -138,6 +146,21 @@ final class ModelTest extends TestCase
             'Russia',
             $model->getValue('name'),
             'Should set the property value from loaded data.',
+        );
+    }
+
+    public function testLoadDataUsingExplicitModelNameOverridingClassScope(): void
+    {
+        $model = new Country();
+
+        self::assertTrue(
+            $model->load(['custom_scope' => ['name' => 'Japan']], 'custom_scope'),
+            'Explicit model name must take precedence over the class short name.',
+        );
+        self::assertSame(
+            'Japan',
+            $model->getValue('name'),
+            'Scope must resolve via the explicit model name, not `getModelName()`.',
         );
     }
 
