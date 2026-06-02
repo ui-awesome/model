@@ -11,17 +11,17 @@
 `AbstractModel` and most public methods were renamed for a shorter, consistent API. Update every call site and `use`
 statement.
 
-| Before (`0.1.x`) | After (`0.2.0`) |
-| --- | --- |
+| Before (`0.1.x`)                | After (`0.2.0`)             |
+| ------------------------------- | --------------------------- |
 | `UIAwesome\Model\AbstractModel` | `UIAwesome\Model\BaseModel` |
-| `addProperty()` | `add()` |
-| `getProperties()` | `getNames()` |
-| `getPropertiesTypes()` | `getTypes()` |
-| `getPropertyValue()` | `getValue()` |
-| `hasProperty()` | `has()` |
-| `isPropertyType()` | `isType()` |
-| `setProperties()` | `setValues()` |
-| `setPropertyValue()` | `setValue()` |
+| `addProperty()`                 | `add()`                     |
+| `getProperties()`               | `getNames()`                |
+| `getPropertiesTypes()`          | `getTypes()`                |
+| `getPropertyValue()`            | `getValue()`                |
+| `hasProperty()`                 | `has()`                     |
+| `isPropertyType()`              | `isType()`                  |
+| `setProperties()`               | `setValues()`               |
+| `setPropertyValue()`            | `setValue()`                |
 
 - `setPropertiesValues()` was removed; use `setValues()`.
 - `toArray()` named argument `exceptPropierties` was corrected to `exceptProperties`.
