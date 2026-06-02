@@ -5,22 +5,15 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Support\Model\{Dynamic, DynamicNested};
 
 /**
  * Unit tests for dynamic runtime property registration, loading, and nested dynamic access.
- *
- * Test coverage.
- * - Adds dynamic properties and returns synchronized property names and type metadata.
- * - Initializes timestamp dynamic properties during model loading.
- * - Loads values into dynamic models for flat and nested dynamic paths.
- * - Throws invalid argument exceptions when reading unknown dynamic property paths.
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('dynamic')]
 final class DynamicModelTest extends TestCase
 {
     public function testAddDynamicPropertiesAndReturnRegisteredMetadata(): void

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Attribute;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Attribute\{DefaultValue, DoNotCollect};
 use UIAwesome\Model\BaseModel;
@@ -11,20 +12,8 @@ use UIAwesome\Model\Tests\Support\Model\{DefaultValueChild, DefaultValuePayload}
 
 /**
  * Unit tests for runtime fallback assignment using {@see \UIAwesome\Model\Attribute\DefaultValue}.
- *
- * Test coverage.
- * - Applies default values when input is `null` or an empty string.
- * - Applies defaults after trim normalization for whitespace-only strings.
- * - Applies defaults before custom casting in the assignment pipeline.
- * - Applies defaults with mapped input keys via `MapFrom`.
- * - Continues collecting `DefaultValue` metadata after non-decorated or ignored properties.
- * - Ignores `DefaultValue` metadata declared on `DoNotCollect` and static properties.
- * - Ignores parent `DoNotCollect` `DefaultValue` metadata when child properties reuse names.
- * - Keeps explicit non-empty values unchanged.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class DefaultValueTest extends TestCase
 {
     public function testApplyDefaultAfterTrimForWhitespaceOnlyString(): void

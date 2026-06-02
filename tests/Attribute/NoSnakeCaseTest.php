@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Attribute;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Attribute\{DoNotCollect, NoSnakeCase};
 use UIAwesome\Model\BaseModel;
@@ -11,19 +12,8 @@ use UIAwesome\Model\Tests\Support\Model\{NoSnakeCaseChild, NoSnakeCasePayload};
 
 /**
  * Unit tests for selective key preservation using {@see \UIAwesome\Model\Attribute\NoSnakeCase}.
- *
- * Test coverage.
- * - Collects and preserves multiple NoSnakeCase properties in the same model.
- * - Continues scanning NoSnakeCase metadata after `DoNotCollect` properties.
- * - Continues scanning NoSnakeCase metadata after static property declarations.
- * - Has no effect when `snakeCase: false`; original property names remain unchanged.
- * - Ignores NoSnakeCase metadata declared on parent `DoNotCollect` properties when child properties reuse names.
- * - Preserves marked property names and keeps snake_case conversion for non-marked properties when `snakeCase: true`.
- * - Respects `exceptProperties`, including exclusions of NoSnakeCase-marked properties.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class NoSnakeCaseTest extends TestCase
 {
     public function testCollectNoSnakeCaseMetadataAfterDoNotCollectProperty(): void

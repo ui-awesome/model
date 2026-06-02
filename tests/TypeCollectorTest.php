@@ -7,32 +7,29 @@ namespace UIAwesome\Model\Tests;
 use DateTime;
 use DateTimeImmutable;
 use InvalidArgumentException;
-use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
 use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight};
-use UIAwesome\Model\Tests\Support\Model\{Address, Country, DateTimeType, GetValueOverride, IntersectionType, PropertyType, ReadonlyState};
+use UIAwesome\Model\Tests\Support\Model\{
+    Address,
+    Country,
+    DateTimeType,
+    GetValueOverride,
+    IntersectionType,
+    PropertyType,
+    ReadonlyState,
+};
 use UIAwesome\Model\TypeCollector;
 
 /**
  * Unit tests for property collection and runtime type casting via {@see TypeCollector}.
  *
- * Test coverage.
- * - Casts values to declared PHP property types, including stringable objects and nullable typed properties.
- * - Detects property presence for flat and nested property paths.
- * - Keeps `toArray()` aligned with custom `getValue()` overrides.
- * - Resolves intersection-typed properties into the expected named type metadata.
- * - Returns null for type casting requests targeting unknown properties.
- * - Returns property names and type metadata collected from model declarations.
- * - Throws type errors when assigned values violate declared property types.
- *
  * {@see TypeCollectorProvider} for test case data providers.
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('type-collector')]
 final class TypeCollectorTest extends TestCase
 {
     public function testCastNullableIntPropertyWithPhpTypeCast(): void

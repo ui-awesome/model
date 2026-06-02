@@ -1,9 +1,9 @@
 <!-- markdownlint-disable MD041 -->
 <p align="center">
     <a href="https://github.com/ui-awesome/model" target="_blank">
-        <img src="https://avatars.githubusercontent.com/u/103309199?s%25253D400%252526u%25253Dca3561c692f53ed7eb290d3bb226a2828741606f%252526v%25253D4" height="100px" alt="UIAwesome">
+        <img src="https://raw.githubusercontent.com/ui-awesome/.github/refs/heads/main/logo/ui_awesome.png" alt="UI Awesome" width="25%">
     </a>
-    <h1 align="center">UIAwesome Model for PHP</h1>
+    <h1 align="center">Model for PHP</h1>
     <br>
 </p>
 <!-- markdownlint-enable MD041 -->
@@ -28,8 +28,8 @@
 ## Features
 
 <picture>
-    <source media="(min-width: 768px)" srcset="./docs/svgs/features.svg">
-    <img src="./docs/svgs/features-mobile.svg" alt="Feature Overview" style="width: 100%;">
+    <source media="(max-width: 767px)" srcset="./docs/svgs/features-mobile.svg">
+    <img src="./docs/svgs/features.svg" alt="Feature Overview" style="width: 100%;">
 </picture>
 
 ## Installation
@@ -250,12 +250,11 @@ For detailed configuration options and advanced usage.
 - ⚙️ [Configuration Reference](docs/configuration.md)
 - 💡 [Usage Examples](docs/examples.md)
 - 🧪 [Testing Guide](docs/testing.md)
-- 🛠️ [Development Guide](docs/development.md)
 - 🔄 [Upgrade Guide](UPGRADE.md)
 
 ## Package information
 
-[![PHP](https://img.shields.io/badge/%3E%3D8.1-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.1/en.php)
+[![PHP](https://img.shields.io/badge/%3E%3D8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.3/en.php)
 [![Latest Stable Version](https://img.shields.io/packagist/v/ui-awesome/model.svg?style=for-the-badge&logo=packagist&logoColor=white&label=Stable)](https://packagist.org/packages/ui-awesome/model)
 [![Total Downloads](https://img.shields.io/packagist/dt/ui-awesome/model.svg?style=for-the-badge&logo=composer&logoColor=white&label=Downloads)](https://packagist.org/packages/ui-awesome/model)
 
@@ -268,6 +267,7 @@ For detailed configuration options and advanced usage.
 ## Our social networks
 
 [![Follow on X](https://img.shields.io/badge/-Follow%20on%20X-1DA1F2.svg?style=for-the-badge&logo=x&logoColor=white&labelColor=000000)](https://x.com/Terabytesoftw)
+[![Follow on Facebook](https://img.shields.io/badge/-Follow%20on%20Facebook-1877F2.svg?style=for-the-badge&logo=facebook&logoColor=white&labelColor=000000)](https://www.facebook.com/wilmer.arambula.9)
 
 ## License
 

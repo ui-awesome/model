@@ -4,19 +4,14 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests\Attribute;
 
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Tests\Support\Model\Attributes;
 
 /**
  * Unit tests for exclusion behavior driven by {@see \UIAwesome\Model\Attribute\DoNotCollect}.
- *
- * Test coverage.
- * - Excludes `DoNotCollect` properties from collected type metadata.
- * - Excludes `DoNotCollect` properties from flattened model property lists.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class DoNotCollectTest extends TestCase
 {
     public function testExcludeDoNotCollectPropertyFromCollectedTypes(): void

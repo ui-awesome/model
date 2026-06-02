@@ -4,28 +4,60 @@ declare(strict_types=1);
 
 namespace UIAwesome\Model\Tests;
 
-use PHPUnit\Framework\Attributes\DataProviderExternal;
+use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use TypeError;
 use UIAwesome\Model\Tests\Provider\TypeUnionProvider;
-use UIAwesome\Model\Tests\Support\Model\UnionType;
+use UIAwesome\Model\Tests\Support\Model\{Dynamic, UnionType};
+
+use function get_debug_type;
 
 /**
  * Unit tests for union-typed property handling on model values.
  *
- * Test coverage.
- * - Accepts all supported union member values and returns them without unintended transformations.
- * - Returns union type metadata in the expected declaration order.
- * - Throws a type error when assigning values outside the declared union.
- * - Validates whether a candidate type belongs to the declared union.
- *
  * {@see TypeUnionProvider} for test case data providers.
- *
- * @copyright Copyright (C) 2024 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('type-union')]
 final class TypeUnionTest extends TestCase
 {
+    public function testCastSingleNonNullUnionMemberWhenNullIsDeclaredFirst(): void
+    {
+        $model = new Dynamic();
+
+        $model->add('value', ['null', 'int']);
+        $model->setValue('value', '5');
+
+        self::assertSame(
+            5,
+            $model->getValue('value'),
+            'Single non-null union member must be applied for casting regardless of key position.',
+        );
+        self::assertSame(
+            'int',
+            get_debug_type($model->getValue('value')),
+            'Value must be cast to the only non-null union member type.',
+        );
+    }
+
+    public function testDoNotCastWhenMultipleNonNullUnionMembersExist(): void
+    {
+        $model = new Dynamic();
+
+        $model->add('value', ['int', 'string']);
+        $model->setValue('value', '5');
+
+        self::assertSame(
+            '5',
+            $model->getValue('value'),
+            'Ambiguous non-null union types must leave the value uncast.',
+        );
+        self::assertSame(
+            'string',
+            get_debug_type($model->getValue('value')),
+            'Value must keep its original runtime type when casting is ambiguous.',
+        );
+    }
+
     #[DataProviderExternal(TypeUnionProvider::class, 'isTypeChecks')]
     public function testReturnExpectedResultWhenCheckingUnionPropertyType(string $type, bool $expected): void
     {

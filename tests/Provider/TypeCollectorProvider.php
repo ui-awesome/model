@@ -8,9 +8,6 @@ namespace UIAwesome\Model\Tests\Provider;
  * Data provider for {@see \UIAwesome\Model\Tests\TypeCollectorTest} test cases.
  *
  * Provides representative input/output pairs for property type checks and property assignment scenarios.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
 final class TypeCollectorProvider
 {

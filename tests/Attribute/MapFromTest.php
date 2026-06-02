@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace UIAwesome\Model\Tests\Attribute;
 
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\TestCase;
 use UIAwesome\Model\Attribute\{DoNotCollect, MapFrom};
 use UIAwesome\Model\BaseModel;
@@ -13,17 +14,8 @@ use UIAwesome\Model\Tests\Support\Model\{MapFromDuplicate, MapFromPayload};
 
 /**
  * Unit tests for explicit input-key mapping with {@see \UIAwesome\Model\Attribute\MapFrom}.
- *
- * Test coverage.
- * - Applies mapping consistently across `setValues()` and `load()`.
- * - Keeps `exceptProperties` behavior based on resolved camelCase property names.
- * - Maps non-snake_case payload keys to model properties via `MapFrom`.
- * - Preserves snake_case to camelCase fallback for properties without `MapFrom`.
- * - Throws explicit errors for duplicate `MapFrom` key declarations.
- *
- * @copyright Copyright (C) 2026 Terabytesoftw.
- * @license https://opensource.org/license/bsd-3-clause BSD 3-Clause License.
  */
+#[Group('attribute')]
 final class MapFromTest extends TestCase
 {
     public function testCollectMappedKeysAfterDoNotCollectPropertyDeclaration(): void
