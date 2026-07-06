@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix(model): refactor model metadata internals to use `PHPForge\Helper\Reflector` for reflection, property attributes, and model short-name resolution while preserving public behavior.
 - chore: update dependencies and configuration files.
 - chore: update configuration files and dependencies, improve linter settings.
+- ci: replace Super-Linter with reusable quality and security workflows, pin reusable workflow references, group Dependabot updates, and refresh project status badges.
 
 ## 0.1.0 March 18, 2024
 
