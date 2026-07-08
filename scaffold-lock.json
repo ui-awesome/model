@@ -1,7 +1,7 @@
 {
     "providers": {
         "php-forge/baseline": {
-            "version": "0.1.5",
+            "version": "0.1.7",
             "path": "vendor/php-forge/baseline"
         },
         "php-forge/coding-standard": {
@@ -59,7 +59,7 @@
             "mode": "preserve"
         },
         ".github/linters/.codespellrc": {
-            "hash": "sha256:711974817a65cb2e28e1a6ee94677c20d574d0fc50fe3c95fba17a90102913a3",
+            "hash": "sha256:0ec9825d6022c7b0edcdbc6f8a8e3fdea30bbd65f76084cc9f046bdd432bdc1f",
             "provider": "php-forge/baseline",
             "source": "metadata/.github/linters/.codespellrc",
             "mode": "replace"
