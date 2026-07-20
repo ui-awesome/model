@@ -38,8 +38,9 @@ statement.
   uncast.
 - Property exclusions in `setValues()` are matched by camelCase names (for example `publicEmailPersonal`, not
   `public_email_personal`).
-- `load()` normalizes snake_case payload keys to camelCase, so both `public_email_personal` and `publicEmailPersonal`
-  bind to the same property, and it now supports generators and other `Traversable` payloads.
+- `load()` and `setValues()` normalize snake_case payload keys to camelCase, so both `public_email_personal` and
+  `publicEmailPersonal` bind to the same property.
+- `load()` now supports generators and other `Traversable` payloads.
 - Timestamp properties are initialized after a successful assignment when their value is `null` or `0`; `getValue()`
   no longer mutates timestamps while reading.
 - Reassigning an already initialized `readonly` property now throws `InvalidArgumentException` instead of surfacing a
@@ -63,10 +64,13 @@ statement.
 - Use `#[Cast('array')]` or a `CastValueInterface` implementation for custom conversion.
 - Use `#[NoSnakeCase]` to preserve a property key during snake_case serialization.
 
-`#[DoNotCollect]` and `#[Timestamp]` remain available; static and excluded properties do not contribute metadata.
+`#[DoNotCollect]` and `#[Timestamp]` remain available. During metadata collection, static and `#[DoNotCollect]`
+properties are skipped before type or attribute metadata is stored; later eligible properties are still collected.
 
 ### Package requirements
 
 - `php-forge/helper ^0.3` is now a runtime dependency for reflection metadata.
+- The direct `php-forge/support` development requirement was removed; it remains available transitively through
+  `php-forge/helper`.
 - `ext-mbstring` is no longer required by the package.
 - The package license changed from MIT to BSD-3-Clause.

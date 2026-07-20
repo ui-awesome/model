@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat(attribute): add `#[DefaultValue]`, `#[MapFrom]`, `#[NoSnakeCase]`, and `#[Trim]`.
 - feat(exception)!: add the `Message` enum and standardize exception messages.
 - fix(model): preserve custom `getValue()` overrides during serialization and avoid leading underscores for PascalCase keys.
-- fix(model): collect reflection and attribute metadata consistently across static and `#[DoNotCollect]` properties.
+- fix(model): skip metadata from static and `#[DoNotCollect]` properties without stopping collection for later properties.
 - chore!: require PHP `^8.3` and `php-forge/helper ^0.3`, and remove unused `ext-mbstring` and `php-forge/support` requirements.
 - chore!: change the package license from MIT to BSD-3-Clause.
 - fix(model): simplify nested type, date validation, and attribute metadata checks with regression coverage for 100% mutation testing.
