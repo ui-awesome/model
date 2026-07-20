@@ -70,6 +70,16 @@ final class TypeUnionTest extends TestCase
         );
     }
 
+    public function testReturnFalseWhenNestedPathTargetsUnionProperty(): void
+    {
+        $model = new UnionType();
+
+        self::assertFalse(
+            $model->has('union.value'),
+            'Union-typed properties must not be treated as nested model paths.',
+        );
+    }
+
     public function testReturnUnionPropertyTypeMetadata(): void
     {
         $model = new UnionType();

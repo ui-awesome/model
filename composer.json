@@ -21,7 +21,6 @@
     ],
     "require": {
         "php": "^8.3",
-        "ext-mbstring": "*",
         "php-forge/helper": "^0.3"
     },
     "require-dev": {
@@ -29,7 +28,6 @@
         "maglnet/composer-require-checker": "^4.1",
         "php-forge/baseline": "^0.1",
         "php-forge/coding-standard": "^0.3",
-        "php-forge/support": "^0.3",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.2",
         "phpstan/phpstan-strict-rules": "^2.0.3",

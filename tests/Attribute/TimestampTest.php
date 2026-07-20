@@ -77,6 +77,24 @@ final class TimestampTest extends TestCase
         );
     }
 
+    public function testInitializeTimestampPropertiesDuringSingleValueAssignment(): void
+    {
+        $model = new Attributes();
+
+        $model->setValue('name', 'samdark');
+
+        self::assertGreaterThan(
+            0,
+            $model->getValue('createdAt'),
+            'Should initialize createdAt after assigning a single property.',
+        );
+        self::assertGreaterThan(
+            0,
+            $model->getValue('updatedAt'),
+            'Should initialize updatedAt after assigning a single property.',
+        );
+    }
+
     public function testLoadAttributesAndInitializeTimestampProperties(): void
     {
         $model = new Attributes();

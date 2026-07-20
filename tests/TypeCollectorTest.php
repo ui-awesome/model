@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use TypeError;
+use UIAwesome\Model\BaseModel;
 use UIAwesome\Model\Exception\Message;
 use UIAwesome\Model\Tests\Provider\TypeCollectorProvider;
 use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight};
@@ -303,6 +304,18 @@ final class TypeCollectorTest extends TestCase
         );
     }
 
+    public function testReturnFalseWithoutReadingUninitializedNonModelProperty(): void
+    {
+        $model = new class extends BaseModel {
+            public string $name;
+        };
+
+        self::assertFalse(
+            $model->has('name.value'),
+            'Non-model properties must be rejected before reading an uninitialized value.',
+        );
+    }
+
     public function testReturnNullWhenCastingNullValueForKnownProperty(): void
     {
         $typeCollector = new TypeCollector(new PropertyType());
@@ -487,6 +500,16 @@ final class TypeCollectorTest extends TestCase
         );
 
         $model->setValue('string', []);
+    }
+
+    #[DataProviderExternal(TypeCollectorProvider::class, 'invalidNumericAssignments')]
+    public function testThrowTypeErrorWhenAssigningNonNumericStringToNumericProperty(string $property): void
+    {
+        $model = new PropertyType();
+
+        $this->expectException(TypeError::class);
+
+        $model->setValue($property, 'not-a-number');
     }
 
     public function testWriteDynamicPropertyOnlyToCollectorStorage(): void

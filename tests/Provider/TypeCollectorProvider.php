@@ -12,6 +12,17 @@ namespace UIAwesome\Model\Tests\Provider;
 final class TypeCollectorProvider
 {
     /**
+     * @phpstan-return array<string, array{string}>
+     */
+    public static function invalidNumericAssignments(): array
+    {
+        return [
+            'float property' => ['float'],
+            'integer property' => ['int'],
+        ];
+    }
+
+    /**
      * @phpstan-return array<string, array{string, string, bool}>
      */
     public static function isTypeChecks(): array
