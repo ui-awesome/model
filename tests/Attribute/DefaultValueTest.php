@@ -162,4 +162,19 @@ final class DefaultValueTest extends TestCase
             'Should keep explicit non-empty values instead of replacing them with defaults.',
         );
     }
+
+    public function testLoadAppliesDefaultValueToEmptyInput(): void
+    {
+        $model = new DefaultValuePayload();
+
+        self::assertTrue(
+            $model->load(['DefaultValuePayload' => ['status' => '']]),
+            'Should load scoped input for properties with runtime defaults.',
+        );
+        self::assertSame(
+            'draft',
+            $model->getValue('status'),
+            'Should apply the configured default while loading empty input.',
+        );
+    }
 }

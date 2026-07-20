@@ -30,7 +30,6 @@ use function is_array;
 use function is_object;
 use function is_scalar;
 use function lcfirst;
-use function max;
 use function method_exists;
 use function str_contains;
 use function str_replace;
@@ -195,7 +194,7 @@ final class TypeCollector
 
         $propertyTypes = $properties[$property];
 
-        if (!is_string($propertyTypes) || $propertyTypes === '' || !is_a($propertyTypes, ModelInterface::class, true)) {
+        if (!is_string($propertyTypes) || !is_a($propertyTypes, ModelInterface::class, true)) {
             return false;
         }
 
@@ -346,7 +345,7 @@ final class TypeCollector
             if (!in_array($property, $exceptProperties, true)) {
                 $value = $this->model->getValue($property);
 
-                if ($snakeCase && !array_key_exists($property, $this->noSnakeCaseProperties)) {
+                if ($snakeCase && !($this->noSnakeCaseProperties[$property] ?? false)) {
                     $property = $this->camelCaseToSnakeCase($property);
                 }
 
@@ -414,13 +413,9 @@ final class TypeCollector
             $errors = $dateTimeClass::getLastErrors();
 
             if (is_array($errors)) {
-                $issueCount = max($errors['warning_count'], $errors['error_count']);
-
-                if ($issueCount > 0) {
-                    throw new InvalidArgumentException(
-                        Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
-                    );
-                }
+                throw new InvalidArgumentException(
+                    Message::INVALID_DATE_TIME_STRING->getMessage($value, $dateTimeClass),
+                );
             }
 
             return $dateTime;
@@ -818,7 +813,7 @@ final class TypeCollector
      */
     private function trimValueIfRequired(string $property, mixed $value): mixed
     {
-        if (!array_key_exists($property, $this->trimProperties) || !is_string($value)) {
+        if (!($this->trimProperties[$property] ?? false) || !is_string($value)) {
             return $value;
         }
 
