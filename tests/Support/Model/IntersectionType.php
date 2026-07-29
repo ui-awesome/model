@@ -12,5 +12,22 @@ use UIAwesome\Model\Tests\Support\Contract\{IntersectionLeft, IntersectionRight}
  */
 final class IntersectionType extends BaseModel
 {
+    /**
+     * @phpstan-ignore property.uninitializedReadonly (Reflected for type metadata, never assigned.)
+     */
     private readonly IntersectionLeft&IntersectionRight $intersection;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        if (!isset($this->intersection)) {
+            return [];
+        }
+
+        return [
+            'intersection' => $this->intersection,
+        ];
+    }
 }

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.1 Under development
 
+- chore: run PHPStan over the test suite.
+
 ## 0.2.0 July 20, 2026
 
 - feat(model)!: rename `AbstractModel` to `BaseModel` and simplify the public model and collector APIs; see `UPGRADE.md`.

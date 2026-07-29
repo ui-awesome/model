@@ -15,12 +15,22 @@ final class Attributes extends BaseModel
 {
     #[Timestamp]
     private int $createdAt = 0;
-
     #[DoNotCollect]
     private string $flag = '';
-
     private string $name = '';
-
     #[Timestamp]
     private int $updatedAt = 0;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'createdAt' => $this->createdAt,
+            'flag' => $this->flag,
+            'name' => $this->name,
+            'updatedAt' => $this->updatedAt,
+        ];
+    }
 }

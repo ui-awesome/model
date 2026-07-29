@@ -15,21 +15,19 @@ final class DefaultValuePayload extends BaseModel
     #[Trim]
     #[DefaultValue('Unknown')]
     public string $bio = '';
-
     #[DefaultValue('Guest')]
     public string $displayName = '';
-
     #[DoNotCollect]
     #[DefaultValue('ignored')]
     public string $internal = '';
-
     #[MapFrom('user-locale')]
     #[DefaultValue('en_US')]
     public string $locale = '';
-
     #[DefaultValue('draft')]
     public string|null $status = null;
-
+    /**
+     * @var array<int, string>
+     */
     #[Cast('array')]
     #[DefaultValue('php,model')]
     public array $tags = [];

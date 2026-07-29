@@ -14,6 +14,5 @@ final class NoSnakeCasePayload extends BaseModel
 {
     #[NoSnakeCase]
     public string $apiVersion = '';
-
     public string $publicEmailPersonal = '';
 }

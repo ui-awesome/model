@@ -11,5 +11,18 @@ use UIAwesome\Model\BaseModel;
  */
 final class UnionType extends BaseModel
 {
+    /**
+     * @phpstan-ignore property.unusedType, property.unusedType, property.unusedType, property.unusedType
+     */
     private bool|int|object|string|null $union = null;
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'union' => $this->union,
+        ];
+    }
 }

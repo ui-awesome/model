@@ -11,7 +11,9 @@ use UIAwesome\Model\BaseModel;
  */
 final class User extends BaseModel
 {
+    /**
+     * @phpstan-ignore property.uninitialized (Assigned through the model API, never in a constructor.)
+     */
     public string $name;
-
     public function __construct(public Profile $profile) {}
 }

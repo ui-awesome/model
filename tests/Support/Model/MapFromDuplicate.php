@@ -14,7 +14,6 @@ final class MapFromDuplicate extends BaseModel
 {
     #[MapFrom('duplicate-key')]
     public string $first = '';
-
     #[MapFrom('duplicate-key')]
     public string $second = '';
 }

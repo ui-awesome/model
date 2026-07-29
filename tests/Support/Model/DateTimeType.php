@@ -13,9 +13,13 @@ use UIAwesome\Model\BaseModel;
  */
 final class DateTimeType extends BaseModel
 {
+    /**
+     * @phpstan-ignore property.uninitialized (Assigned through the model API, never in a constructor.)
+     */
     public DateTime $createdAt;
-
     public DateTimeImmutable|null $publishedAt = null;
-
+    /**
+     * @phpstan-ignore property.uninitialized (Assigned through the model API, never in a constructor.)
+     */
     public DateTimeImmutable $updatedAt;
 }
