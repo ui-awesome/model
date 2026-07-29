@@ -99,6 +99,9 @@ final class CastTest extends TestCase
             #[DoNotCollect]
             public string $ignored = '';
 
+            /**
+             * @var array<int, string>
+             */
             #[Cast('array')]
             public array $tags = [];
         };
@@ -117,6 +120,9 @@ final class CastTest extends TestCase
         $model = new class extends BaseModel {
             public string $name = '';
 
+            /**
+             * @var array<int, string>
+             */
             #[Cast('array')]
             public array $tags = [];
         };
@@ -136,6 +142,9 @@ final class CastTest extends TestCase
             #[Cast('array')]
             public static string $ignored = '';
 
+            /**
+             * @var array<int, string>
+             */
             #[Cast('array')]
             public array $tags = [];
         };
@@ -152,10 +161,16 @@ final class CastTest extends TestCase
     public function testIgnoreCastMetadataOnDoNotCollectProperty(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @var array<int, string>
+             */
             #[DoNotCollect]
             #[Cast('')]
             public array $ignored = [];
 
+            /**
+             * @var array<int, string>
+             */
             public array $tags = [];
         };
 
@@ -184,6 +199,9 @@ final class CastTest extends TestCase
     public function testThrowInvalidArgumentExceptionWhenCastSeparatorIsEmpty(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @var array<int, string>
+             */
             #[Cast('array', '')]
             public array $tags = [];
         };
@@ -197,6 +215,9 @@ final class CastTest extends TestCase
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotExist(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @var array<int, string>
+             */
             #[Cast('App\\NotFound\\Caster')]
             public array $tags = [];
         };
@@ -212,6 +233,9 @@ final class CastTest extends TestCase
     public function testThrowInvalidArgumentExceptionWhenCastTargetClassDoesNotImplementContract(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @var array<int, string>
+             */
             #[Cast(stdClass::class)]
             public array $tags = [];
         };
@@ -232,6 +256,9 @@ final class CastTest extends TestCase
     public function testThrowInvalidArgumentExceptionWhenCastTargetIsBlankSpaces(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @var array<int, string>
+             */
             #[Cast('   ')]
             public array $tags = [];
         };
@@ -245,6 +272,9 @@ final class CastTest extends TestCase
     public function testThrowInvalidArgumentExceptionWhenCastTargetIsEmpty(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @var array<int, string>
+             */
             #[Cast('')]
             public array $tags = [];
         };

@@ -39,14 +39,14 @@ final class TypeCollectorTest extends TestCase
 
         $castValue = $typeCollector->phpTypeCast('nullable', '2');
 
+        self::assertIsInt(
+            $castValue,
+            'Should return int runtime type when nullable int property receives numeric string.',
+        );
         self::assertSame(
             2,
             $castValue,
             'Should resolve nullable int property to the non-null member type for casting.',
-        );
-        self::assertIsInt(
-            $castValue,
-            'Should return int runtime type when nullable int property receives numeric string.',
         );
     }
 
@@ -60,25 +60,25 @@ final class TypeCollectorTest extends TestCase
         );
 
         $floatValue = $typeCollector->phpTypeCast('float', '1.5');
+        self::assertIsFloat(
+            $floatValue,
+            'Should preserve float runtime type after casting.',
+        );
         self::assertSame(
             1.5,
             $floatValue,
             'Should cast numeric strings to float for float properties.',
         );
-        self::assertIsFloat(
-            $floatValue,
-            'Should preserve float runtime type after casting.',
-        );
 
         $intValue = $typeCollector->phpTypeCast('int', '2');
+        self::assertIsInt(
+            $intValue,
+            'Should preserve int runtime type after casting.',
+        );
         self::assertSame(
             2,
             $intValue,
             'Should cast numeric strings to int for int properties.',
-        );
-        self::assertIsInt(
-            $intValue,
-            'Should preserve int runtime type after casting.',
         );
 
         self::assertSame(
@@ -118,25 +118,28 @@ final class TypeCollectorTest extends TestCase
                 'publishedAt' => '2026-02-28T12:00:00+00:00',
             ],
         );
+        $updatedAt = $model->getValue('updatedAt');
+        $publishedAt = $model->getValue('publishedAt');
+
+        self::assertInstanceOf(
+            DateTimeImmutable::class,
+            $updatedAt,
+            'Should cast ISO-8601 strings to DateTimeImmutable objects for typed properties.',
+        );
         self::assertSame(
             '2026-02-28T10:30:00+00:00',
-            $model->getValue('updatedAt')->format('Y-m-d\TH:i:sP'),
+            $updatedAt->format('Y-m-d\TH:i:sP'),
             'Should preserve updatedAt timestamp and timezone after casting.',
         );
         self::assertInstanceOf(
             DateTimeImmutable::class,
-            $model->getValue('updatedAt'),
-            'Should cast ISO-8601 strings to DateTimeImmutable objects for typed properties.',
+            $publishedAt,
+            'Should cast nullable DateTimeImmutable properties when non-null strings are provided.',
         );
         self::assertSame(
             '2026-02-28T12:00:00+00:00',
-            $model->getValue('publishedAt')->format('Y-m-d\TH:i:sP'),
+            $publishedAt->format('Y-m-d\TH:i:sP'),
             'Should preserve publishedAt timestamp and timezone after casting.',
-        );
-        self::assertInstanceOf(
-            DateTimeImmutable::class,
-            $model->getValue('publishedAt'),
-            'Should cast nullable DateTimeImmutable properties when non-null strings are provided.',
         );
     }
 
@@ -307,6 +310,9 @@ final class TypeCollectorTest extends TestCase
     public function testReturnFalseWithoutReadingUninitializedNonModelProperty(): void
     {
         $model = new class extends BaseModel {
+            /**
+             * @phpstan-ignore property.uninitialized (Left uninitialized on purpose for this test.)
+             */
             public string $name;
         };
 
@@ -353,14 +359,16 @@ final class TypeCollectorTest extends TestCase
         $model->add('Name', 'string');
         $model->setValue('Name', 'joe');
 
+        $data = $model->toArray(true);
+
         self::assertArrayHasKey(
             'name',
-            $model->toArray(true),
+            $data,
             'Should expose PascalCase properties as snake_case keys.',
         );
         self::assertSame(
             'joe',
-            $model->toArray(true)['name'],
+            $data['name'] ?? null,
             'Should keep the assigned value for converted snake_case keys.',
         );
     }
@@ -524,6 +532,7 @@ final class TypeCollectorTest extends TestCase
             'Should store and return values assigned to dynamic properties.',
         );
         self::assertFalse(
+            /** @phpstan-ignore function.impossibleType (Regression guard against deprecated dynamic properties.) */
             property_exists($model, 'dynamicFlag'),
             'Should not create runtime dynamic properties on the model instance.',
         );

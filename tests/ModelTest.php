@@ -33,7 +33,24 @@ final class ModelTest extends TestCase
             private int $int = 1;
             private string $string = 'string';
             private float $float = 3.14;
+
+            /**
+             * @phpstan-ignore property.tooWideBool (Assigned through the model API, never in this class.)
+             */
             private bool $bool = true;
+
+            /**
+             * @return array<string, mixed>
+             */
+            public function __debugInfo(): array
+            {
+                return [
+                    'int' => $this->int,
+                    'string' => $this->string,
+                    'float' => $this->float,
+                    'bool' => $this->bool,
+                ];
+            }
         };
 
         $model->load([
@@ -363,6 +380,9 @@ final class ModelTest extends TestCase
         );
     }
 
+    /**
+     * @param array<string, mixed> $properties
+     */
     #[DataProviderExternal(ModelProvider::class, 'setValuesPayloads')]
     public function testSetValuesForNativeAndCastableValues(array $properties): void
     {

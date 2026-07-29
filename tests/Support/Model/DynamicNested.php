@@ -12,4 +12,14 @@ use UIAwesome\Model\BaseModel;
 final class DynamicNested extends BaseModel
 {
     public function __construct(private readonly Dynamic $dynamic) {}
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'dynamic' => $this->dynamic,
+        ];
+    }
 }

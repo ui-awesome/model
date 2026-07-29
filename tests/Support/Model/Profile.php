@@ -12,13 +12,13 @@ use UIAwesome\Model\BaseModel;
  */
 final class Profile extends BaseModel
 {
+    /**
+     * @var array<array-key, mixed>
+     */
     #[DoNotCollect]
     public array $avatar = [];
-
     public string $bio = '';
-
     public string $pathAvatar = '';
-
     public string $publicEmailPersonal = '';
 
     public function __construct(public readonly Address $address) {}

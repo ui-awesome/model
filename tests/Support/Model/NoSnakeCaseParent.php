@@ -15,4 +15,14 @@ class NoSnakeCaseParent extends BaseModel
     #[DoNotCollect]
     #[NoSnakeCase]
     private string $apiVersion = '';
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'apiVersion' => $this->apiVersion,
+        ];
+    }
 }

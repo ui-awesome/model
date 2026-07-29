@@ -15,4 +15,14 @@ class DefaultValueParent extends BaseModel
     #[DoNotCollect]
     #[DefaultValue('parent-default')]
     private string $status = '';
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function __debugInfo(): array
+    {
+        return [
+            'status' => $this->status,
+        ];
+    }
 }

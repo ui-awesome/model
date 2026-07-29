@@ -14,9 +14,7 @@ final class MapFromPayload extends BaseModel
 {
     #[MapFrom('@context')]
     public string $context = '';
-
     public string $publicEmailPersonal = '';
-
     #[MapFrom('user-email-address')]
     public string $userEmailAddress = '';
 }
