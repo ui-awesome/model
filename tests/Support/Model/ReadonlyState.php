@@ -15,5 +15,6 @@ final class ReadonlyState extends BaseModel
      * @phpstan-ignore property.uninitializedReadonly (Assigned through the model API, never in a constructor.)
      */
     public readonly string $token;
+
     public function __construct(public readonly Country $country) {}
 }

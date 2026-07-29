@@ -20,5 +20,6 @@ final class Profile extends BaseModel
     public string $bio = '';
     public string $pathAvatar = '';
     public string $publicEmailPersonal = '';
+
     public function __construct(public readonly Address $address) {}
 }
