@@ -8,12 +8,6 @@ use Attribute;
 
 /**
  * Applies a runtime default when assigned input is `null` or an empty string.
- *
- * Usage example:
- * ```php
- * #[DefaultValue('Guest')]
- * public string $displayName = '';
- * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class DefaultValue

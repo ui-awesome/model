@@ -38,12 +38,6 @@ use function ucwords;
 
 /**
  * Collects and manages model property types and values.
- *
- * Usage example:
- * ```php
- * $collector = new TypeCollector($model);
- * $collector->setValue('name', 'Ada');
- * ```
  */
 final class TypeCollector
 {
@@ -104,12 +98,6 @@ final class TypeCollector
     /**
      * Adds a new property to the list of properties types.
      *
-     * Usage example:
-     * ```php
-     * $collector->add('age', 'int');
-     * $collector->add('tags', ['string', 'null']);
-     * ```
-     *
      * @param string $property Name of the property.
      * @param array|string $type Type of the property.
      *
@@ -122,11 +110,6 @@ final class TypeCollector
 
     /**
      * Returns the list of properties types indexed by property name.
-     *
-     * Usage example:
-     * ```php
-     * $propertyTypes = $collector->getTypes();
-     * ```
      *
      * @return array List of properties types indexed by property name.
      *
@@ -141,11 +124,6 @@ final class TypeCollector
      * Returns the value of a property.
      *
      * Dot notation is supported for nested models, for example `profile.email`.
-     *
-     * Usage example:
-     * ```php
-     * $email = $collector->getValue('profile.email');
-     * ```
      *
      * @param string $property Property name.
      *
@@ -174,11 +152,6 @@ final class TypeCollector
      * Checks whether a property exists.
      *
      * Dot notation is supported for nested models, for example `profile.email`.
-     *
-     * Usage example:
-     * ```php
-     * $hasEmail = $collector->has('profile.email');
-     * ```
      *
      * @param string $property Property name.
      *
@@ -220,11 +193,6 @@ final class TypeCollector
     /**
      * Checks whether a property supports the specified type.
      *
-     * Usage example:
-     * ```php
-     * $isString = $collector->isType('name', 'string');
-     * ```
-     *
      * @param string $property Property name.
      * @param string $type Type name.
      *
@@ -239,11 +207,6 @@ final class TypeCollector
 
     /**
      * Converts the value of an property to the type specified by type hinting in the PHPDoc.
-     *
-     * Usage example:
-     * ```php
-     * $age = $collector->phpTypeCast('age', '30'); // returns int(30) if the 'age' property is typed as int.
-     * ```
      *
      * @param string $property Property name.
      * @param mixed $value Value to be converted.
@@ -276,11 +239,6 @@ final class TypeCollector
      *
      * Dot notation is supported for nested models, for example `profile.email`.`
      *
-     * Usage example:
-     * ```php
-     * $collector->setValue('profile.email', 'ada@example.com');
-     * ```
-     *
      * @param string $property The property name.
      * @param mixed $value The value to assign.
      */
@@ -292,16 +250,6 @@ final class TypeCollector
 
     /**
      * Sets values for multiple properties at once.
-     *
-     * Usage example:
-     * ```php
-     * $collector->setValues(
-     *     [
-     *         'name' => 'Ada',
-     *         'age' => '30',
-     *     ],
-     * );
-     * ```
      *
      * @phpstan-param array<array-key, mixed> $data
      * @phpstan-param list<string> $except Camel-case property names to exclude.
@@ -332,10 +280,6 @@ final class TypeCollector
     /**
      * Returns an array representation of the model properties and their values.
      *
-     * Usage example:
-     * ```php
-     * $array = $collector->toArray(true, ['password']);
-     * ```
      * @param bool $snakeCase Whether to convert property names to snake_case.
      * @param array $exceptProperties camelCase property names to exclude from the resulting array.
      *
