@@ -16,17 +16,6 @@ use function iterator_to_array;
 
 /**
  * Base implementation of {@see ModelInterface}.
- *
- * Usage example:
- * ```php
- * final class UserForm extends BaseModel
- * {
- *     public string $name = '';
- * }
- *
- * $model = new UserForm();
- * $model->load(['UserForm' => ['name' => 'Ada']]);
- * ```
  */
 abstract class BaseModel implements ModelInterface
 {

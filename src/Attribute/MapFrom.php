@@ -12,12 +12,6 @@ use function trim;
 
 /**
  * Maps a model property from an explicit input key.
- *
- * Usage example:
- * ```php
- * #[MapFrom('user-email-address')]
- * public string $publicEmail = '';
- * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class MapFrom

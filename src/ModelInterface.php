@@ -6,27 +6,11 @@ namespace UIAwesome\Model;
 
 /**
  * Interface implemented by classes supporting model data binding.
- *
- * Usage example:
- * ```php
- * final class UserForm extends BaseModel
- * {
- *     public string $name = '';
- * }
- *
- * $model = new UserForm();
- * $model->load(['UserForm' => ['name' => 'Ada']]);
- * ```
  */
 interface ModelInterface
 {
     /**
      * Adds a new property to the model.
-     *
-     * Usage example:
-     * ```php
-     * $model->add('name', 'string');
-     * ```
      *
      * @param string $property Property name.
      * @param array|string $type Property type. This can be a string or an array of strings representing the property
@@ -39,11 +23,6 @@ interface ModelInterface
 
     /**
      * Returns the raw data for the model.
-     *
-     * Usage example:
-     * ```php
-     * $data = $model->getData();
-     * ```
      *
      * @return array Raw data for the model.
      *
@@ -64,14 +43,6 @@ interface ModelInterface
      * - By default, this method returns the model class name (without the namespace part) as the model name.
      * - You may override it when the model is used in different forms.
      *
-     * Usage example:
-     * ```php
-     * public function getModelName(): string
-     * {
-     *     return 'UserForm';
-     * }
-     * ```
-     *
      * @return string Model name class, without a namespace part or empty string when class is anonymous.
      *
      * {@see load()}
@@ -80,11 +51,6 @@ interface ModelInterface
 
     /**
      * Returns the list of property names.
-     *
-     * Usage example:
-     * ```php
-     * $properties = $model->getNames();
-     * ```
      *
      * @return list<string> List of property names.
      *
@@ -95,11 +61,6 @@ interface ModelInterface
     /**
      * Returns the list of property types indexed by property names.
      *
-     * Usage example:
-     * ```php
-     * $propertyTypes = $model->getTypes();
-     * ```
-     *
      * @return array List of property types indexed by property names.
      *
      * @phpstan-return mixed[]
@@ -108,11 +69,6 @@ interface ModelInterface
 
     /**
      * Returns the value (raw data) for the specified property.
-     *
-     * Usage example:
-     * ```php
-     * $name = $model->getValue('name');
-     * ```
      *
      * @param string $property Property name.
      *
@@ -123,13 +79,6 @@ interface ModelInterface
     /**
      * Checks if the model has the specified property.
      *
-     * Usage example:
-     * ```php
-     * if ($model->has('name')) {
-     *    // ...
-     * }
-     * ```
-     *
      * @param string $property Property name.
      *
      * @return bool `true` if the model has the specified property, `false` otherwise.
@@ -139,25 +88,12 @@ interface ModelInterface
     /**
      * Whether the model has no loaded raw data.
      *
-     * Usage example:
-     * ```php
-     * if ($model->isEmpty()) {
-     *    // ...
-     * }
-     * ```
      * @return bool `true` if the model has no loaded raw data, `false` otherwise.
      */
     public function isEmpty(): bool;
 
     /**
      * Checks if the property is of the specified type.
-     *
-     * Usage example:
-     * ```php
-     * if ($model->isType('name', 'string')) {
-     *   // ...
-     * }
-     * ```
      *
      * @param string $property Property name.
      * @param string $type Type name.
@@ -174,11 +110,6 @@ interface ModelInterface
      * If the model name is an empty string, `load()` populates the model with the whole `$data` array instead of
      * `$data['ModelName']`.
      *
-     * Usage example:
-     * ```php
-     * $model->load($_POST);
-     * ```
-     *
      * @param iterable $data Data array to load, typically server request properties.
      * @param string|null $modelName Scope from which to get data.
      *
@@ -191,11 +122,6 @@ interface ModelInterface
     /**
      * Sets the value for the specified property.
      *
-     * Usage example:
-     * ```php
-     * $model->setValue('name', 'Ada');
-     * ```
-     *
      * @param string $property Property name.
      * @param mixed $value Value to set.
      */
@@ -203,11 +129,6 @@ interface ModelInterface
 
     /**
      * Sets values for multiple properties.
-     *
-     * Usage example:
-     * ```php
-     * $model->setValues(['name' => 'Ada']);
-     * ```
      *
      * @param array $data Key value pairs to set for the properties.
      * @param array $except Properties to exclude from the setting using camelCase names. If not empty, the listed
@@ -220,11 +141,6 @@ interface ModelInterface
 
     /**
      * Returns model properties as an array.
-     *
-     * Usage example:
-     * ```php
-     * $array = $model->toArray();
-     * ```
      *
      * @param bool $snakeCase Whether keys should be converted to snake_case.
      * @param array $exceptProperties List of properties to exclude.

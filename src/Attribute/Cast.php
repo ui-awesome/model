@@ -12,14 +12,6 @@ use function trim;
 
 /**
  * Forces custom casting before native property type casting.
- *
- * Usage examples:
- * ```php
- * #[Cast('array')]
- * public array $tags = [];
- * #[Cast(App\Model\CsvToArrayCaster::class)]
- * public array $keywords = [];
- * ```
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class Cast
