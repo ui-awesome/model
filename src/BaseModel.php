@@ -23,11 +23,17 @@ abstract class BaseModel implements ModelInterface
      * @phpstan-var mixed[]
      */
     private array $data = [];
-
     /**
      * Lazily initialized collector handling property metadata and value assignment.
      */
     private TypeCollector|null $typeCollector = null;
+
+    public function __clone(): void
+    {
+        if ($this->typeCollector !== null) {
+            $this->typeCollector = $this->typeCollector->withModel($this);
+        }
+    }
 
     public function add(string $property, string|array $type): void
     {

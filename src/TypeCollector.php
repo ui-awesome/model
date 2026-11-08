@@ -90,7 +90,7 @@ final class TypeCollector
      */
     private array $trimProperties = [];
 
-    public function __construct(private readonly ModelInterface $model)
+    public function __construct(private ModelInterface $model)
     {
         $this->collectMetadata();
     }
@@ -308,6 +308,17 @@ final class TypeCollector
         }
 
         return $result;
+    }
+
+    /**
+     * Copies the collector state for another model without collecting metadata or assigning values again.
+     */
+    public function withModel(ModelInterface $model): self
+    {
+        $new = clone $this;
+        $new->model = $model;
+
+        return $new;
     }
 
     /**
