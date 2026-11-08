@@ -161,6 +161,12 @@ final class TypeCollector
             return $currentPropertyValue->getValue($nestedProperty);
         }
 
+        if ($nestedProperty !== null) {
+            throw new InvalidArgumentException(
+                Message::UNDEFINED_PROPERTY_WITH_CLASS->getMessage($this->model::class, $property),
+            );
+        }
+
         return $currentPropertyValue;
     }
 
@@ -194,7 +200,11 @@ final class TypeCollector
 
         $propertyTypes = $properties[$property];
 
-        if (!is_string($propertyTypes) || !is_a($propertyTypes, ModelInterface::class, true)) {
+        if (is_array($propertyTypes)) {
+            $propertyTypes = $this->resolveUnambiguousType($propertyTypes);
+        }
+
+        if ($propertyTypes === null || !is_a($propertyTypes, ModelInterface::class, true)) {
             return false;
         }
 
@@ -253,7 +263,7 @@ final class TypeCollector
         }
 
         if (is_array($expectedTypes)) {
-            $typeForCasting = $this->resolveTypeForCasting($expectedTypes);
+            $typeForCasting = $this->resolveUnambiguousType($expectedTypes);
 
             return $typeForCasting === null ? $value : $this->performTypeCasting($typeForCasting, $value);
         }
@@ -706,7 +716,7 @@ final class TypeCollector
     }
 
     /**
-     * Resolves the casting type from declared property types.
+     * Resolves the single non-null type from declared property types.
      *
      * Returns the single non-null type, or `null` when zero or multiple non-null types make the choice ambiguous.
      *
@@ -714,7 +724,7 @@ final class TypeCollector
      *
      * @phpstan-param list<string> $expectedTypes
      */
-    private function resolveTypeForCasting(array $expectedTypes): string|null
+    private function resolveUnambiguousType(array $expectedTypes): string|null
     {
         $typesWithoutNull = array_values(
             array_filter(
