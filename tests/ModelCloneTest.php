@@ -8,7 +8,7 @@ use PHPUnit\Framework\Attributes\{DataProviderExternal, Group};
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use UIAwesome\Model\Tests\Provider\ModelCloneProvider;
-use UIAwesome\Model\Tests\Support\Model\{CloneState, Country, Dynamic};
+use UIAwesome\Model\Tests\Support\Model\{CloneHook, CloneState, Country, Dynamic, DynamicNested};
 
 /**
  * Unit tests for collector ownership and model state preservation during cloning.
@@ -19,10 +19,8 @@ use UIAwesome\Model\Tests\Support\Model\{CloneState, Country, Dynamic};
 final class ModelCloneTest extends TestCase
 {
     #[DataProviderExternal(ModelCloneProvider::class, 'collectorStates')]
-    public function testLoadScopedDataOnCloneAndOriginalIndependently(bool $initialized): void
+    public function testLoadScopedDataOnCloneAndOriginalIndependently(Country|CloneHook $original, bool $initialized): void
     {
-        $original = new Country();
-
         $original->name = 'Original';
 
         if ($initialized) {
@@ -61,7 +59,7 @@ final class ModelCloneTest extends TestCase
             'Clone loading must not replace original load data.',
         );
         self::assertTrue(
-            $original->load(['Country' => ['name' => 'Changed original']]),
+            $original->load([$original->getModelName() => ['name' => 'Changed original']]),
             'Original scope must still load.',
         );
         self::assertSame(
@@ -123,6 +121,61 @@ final class ModelCloneTest extends TestCase
             ['displayName' => 'Copy'],
             $copy->toArray(true, ['castValue', 'defaultValue', 'updatedAt']),
             'Clone serialization must retain NoSnakeCase, exclusions and DoNotCollect metadata.',
+        );
+    }
+
+    public function testPreserveBulkDataBeforeFirstCloneAccess(): void
+    {
+        $original = new Dynamic();
+
+        $original->add('count', 'int');
+
+        $original->load(
+            ['edit' => ['count' => '7']],
+            'edit',
+        );
+
+        $copy = clone $original;
+
+        $original->load(
+            ['edit' => ['count' => '8']],
+            'edit',
+        );
+
+        self::assertSame(
+            7,
+            $copy->getValue('count'),
+            'Original bulk writes must preserve the untouched clone value.',
+        );
+        self::assertSame(
+            ['count' => '7'],
+            $copy->getData(),
+            'Clone must retain its original scoped load data.',
+        );
+        self::assertSame(
+            8,
+            $original->getValue('count'),
+            'The original must retain its bulk assignment.',
+        );
+    }
+
+    public function testPreserveDefinitionsBeforeFirstCloneAccess(): void
+    {
+        $original = new Dynamic();
+
+        $original->add('count', 'int');
+
+        $copy = clone $original;
+
+        $original->add('originalOnly', 'bool');
+
+        self::assertFalse(
+            $copy->has('originalOnly'),
+            'Original registration must preserve the untouched clone definitions.',
+        );
+        self::assertTrue(
+            $original->has('originalOnly'),
+            'The original must retain its new registration.',
         );
     }
 
@@ -247,6 +300,42 @@ final class ModelCloneTest extends TestCase
         );
     }
 
+    public function testPreserveStateBeforeFirstCloneAccess(): void
+    {
+        $original = new CloneHook();
+
+        $original->name = 'Original';
+
+        $original->add('count', 'int');
+        $original->setValue('count', 7);
+
+        $copy = clone $original;
+
+        $original->setValue('count', 8);
+        $original->add('originalOnly', 'bool');
+        $original->setValue('name', 'Changed original');
+
+        self::assertSame(
+            7,
+            $copy->getValue('count'),
+            'Original writes must preserve the untouched clone snapshot.',
+        );
+        self::assertFalse(
+            $copy->has('originalOnly'),
+            'Original registrations must not reach an untouched clone.',
+        );
+        self::assertSame(
+            'Original',
+            $copy->getValue('name'),
+            'The clone collector must read its own native state.',
+        );
+        self::assertSame(
+            8,
+            $original->getValue('count'),
+            'The original must retain its updated dynamic value.',
+        );
+    }
+
     public function testReadDirectPropertyChangesFromEachInitializedModel(): void
     {
         $original = new Country();
@@ -280,10 +369,42 @@ final class ModelCloneTest extends TestCase
         );
     }
 
-    #[DataProviderExternal(ModelCloneProvider::class, 'collectorStates')]
-    public function testSetValueOnCloneAndOriginalIndependently(bool $initialized): void
+    public function testRetainDynamicStateDuringNestedLoad(): void
     {
-        $original = new Country();
+        $nested = new Dynamic();
+
+        $nested->add('city', 'string');
+
+        $model = new DynamicNested($nested);
+
+        $model->add('count', 'int');
+        $model->add('updatedAt', 'timestamp');
+
+        $model->load(
+            ['edit' => ['dynamic.city' => 'City', 'count' => '8']],
+            'edit',
+        );
+
+        self::assertSame(
+            'City',
+            $model->getValue('dynamic.city'),
+            'Nested loading must still traverse the model.'
+        );
+        self::assertSame(
+            8,
+            $model->getValue('count'),
+            'Nested reads must not detach an active bulk assignment.'
+        );
+        self::assertGreaterThan(
+            0,
+            $model->getValue('updatedAt'),
+            'Nested reads must not lose dynamic timestamps.'
+        );
+    }
+
+    #[DataProviderExternal(ModelCloneProvider::class, 'collectorStates')]
+    public function testSetValueOnCloneAndOriginalIndependently(Country|CloneHook $original, bool $initialized): void
+    {
         $original->name = 'Original';
 
         if ($initialized) {

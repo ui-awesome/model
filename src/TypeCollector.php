@@ -191,6 +191,14 @@ final class TypeCollector
     }
 
     /**
+     * Checks whether this collector is bound to the exact model instance.
+     */
+    public function isForModel(ModelInterface $model): bool
+    {
+        return $this->model === $model;
+    }
+
+    /**
      * Checks whether a property supports the specified type.
      *
      * @param string $property Property name.
@@ -311,10 +319,18 @@ final class TypeCollector
     }
 
     /**
-     * Copies the collector state for another model without collecting metadata or assigning values again.
+     * Copies collector state for the same model class without collecting metadata or assigning values again.
+     *
+     * @throws InvalidArgumentException if the target model has a different concrete class.
      */
     public function withModel(ModelInterface $model): self
     {
+        if ($this->model::class !== $model::class) {
+            throw new InvalidArgumentException(
+                Message::COLLECTOR_MODEL_CLASS_MISMATCH->getMessage($this->model::class, $model::class),
+            );
+        }
+
         $new = clone $this;
         $new->model = $model;
 

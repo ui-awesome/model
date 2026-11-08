@@ -28,16 +28,9 @@ abstract class BaseModel implements ModelInterface
      */
     private TypeCollector|null $typeCollector = null;
 
-    public function __clone(): void
-    {
-        if ($this->typeCollector !== null) {
-            $this->typeCollector = $this->typeCollector->withModel($this);
-        }
-    }
-
     public function add(string $property, string|array $type): void
     {
-        $this->typeCollector()->add($property, $type);
+        $this->typeCollector(true)->add($property, $type);
     }
 
     /**
@@ -108,7 +101,7 @@ abstract class BaseModel implements ModelInterface
 
     public function setValue(string $property, mixed $value): void
     {
-        $this->typeCollector()->setValue($property, $value);
+        $this->typeCollector(true)->setValue($property, $value);
     }
 
     /**
@@ -117,7 +110,7 @@ abstract class BaseModel implements ModelInterface
      */
     public function setValues(array $data, array $except = []): void
     {
-        $this->typeCollector()->setValues($data, $except);
+        $this->typeCollector(true)->setValues($data, $except);
     }
 
     /**
@@ -170,14 +163,18 @@ abstract class BaseModel implements ModelInterface
     }
 
     /**
-     * Returns the model type collector, initializing it on first access.
+     * Returns a collector bound to this model, initializing or copying its state when needed.
      *
-     * @return TypeCollector Shared collector instance for the model.
+     * Copying before writes isolates clones before their first access, regardless of custom clone hooks.
+     *
+     * @return TypeCollector Collector owned by the receiving model.
      */
-    private function typeCollector(): TypeCollector
+    private function typeCollector(bool $forWrite = false): TypeCollector
     {
         if ($this->typeCollector === null) {
             $this->typeCollector = new TypeCollector($this);
+        } elseif ($forWrite || !$this->typeCollector->isForModel($this)) {
+            $this->typeCollector = $this->typeCollector->withModel($this);
         }
 
         return $this->typeCollector;

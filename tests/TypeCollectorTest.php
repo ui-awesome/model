@@ -18,6 +18,7 @@ use UIAwesome\Model\Tests\Support\Model\{
     Address,
     Country,
     DateTimeType,
+    Dynamic,
     GetValueOverride,
     IntersectionType,
     PropertyType,
@@ -193,6 +194,24 @@ final class TypeCollectorTest extends TestCase
             $dateTime,
             $model->getValue('createdAt'),
             'Should keep existing DateTime object instances without rebuilding them.',
+        );
+    }
+
+    public function testMatchExactCollectorOwner(): void
+    {
+        $model = new Country();
+
+        $copy = clone $model;
+
+        $collector = new TypeCollector($model);
+
+        self::assertTrue(
+            $collector->isForModel($model),
+            'Collector must recognize its bound model.',
+        );
+        self::assertFalse(
+            $collector->isForModel($copy),
+            'An equal clone is not the same collector owner.',
         );
     }
 
@@ -496,6 +515,18 @@ final class TypeCollectorTest extends TestCase
         );
 
         $model->setValues(['token' => 'phase-2']);
+    }
+
+    public function testThrowInvalidArgumentExceptionWhenRebindingDifferentModelClass(): void
+    {
+        $collector = new TypeCollector(new Country());
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage(
+            "Cannot rebind collector for '" . Country::class . "' to model of class '" . Dynamic::class . "'.",
+        );
+
+        $collector->withModel(new Dynamic());
     }
 
     public function testThrowTypeErrorWhenAssigningInvalidPropertyValue(): void

@@ -26,6 +26,14 @@ enum Message: string
      * Format: "Cast target cannot be empty."
      */
     case CAST_TARGET_EMPTY = 'Cast target cannot be empty.';
+
+    /**
+     * Indicates an attempt to reuse collector metadata with a different model class.
+     *
+     * Format: "Cannot rebind collector for '%s' to model of class '%s'."
+     */
+    case COLLECTOR_MODEL_CLASS_MISMATCH = "Cannot rebind collector for '%s' to model of class '%s'.";
+
     /**
      * Indicates duplicate input-key mapping across model properties.
      *

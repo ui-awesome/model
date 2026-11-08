@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - chore: remove obsolete scaffold tooling and align package maintenance checks with PHP Forge conventions.
 - fix: support present nullable model paths consistently and reject nested reads through non-model values.
 - docs: remove usage examples from attribute classes and interfaces for cleaner documentation.
-- fix: isolate cloned model collectors while preserving registered types, dynamic values and metadata.
+- fix: isolate cloned model collectors, including custom clone hooks, while preserving registered types, values and metadata.
 
 ## 0.2.1 July 29, 2026
 
