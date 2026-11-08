@@ -90,7 +90,7 @@ final class TypeCollector
      */
     private array $trimProperties = [];
 
-    public function __construct(private readonly ModelInterface $model)
+    public function __construct(private ModelInterface $model)
     {
         $this->collectMetadata();
     }
@@ -188,6 +188,14 @@ final class TypeCollector
         }
 
         return $propertyValue->has($nested);
+    }
+
+    /**
+     * Checks whether this collector is bound to the exact model instance.
+     */
+    public function isForModel(ModelInterface $model): bool
+    {
+        return $this->model === $model;
     }
 
     /**
@@ -308,6 +316,25 @@ final class TypeCollector
         }
 
         return $result;
+    }
+
+    /**
+     * Copies collector state for the same model class without collecting metadata or assigning values again.
+     *
+     * @throws InvalidArgumentException if the target model has a different concrete class.
+     */
+    public function withModel(ModelInterface $model): self
+    {
+        if ($this->model::class !== $model::class) {
+            throw new InvalidArgumentException(
+                Message::COLLECTOR_MODEL_CLASS_MISMATCH->getMessage($this->model::class, $model::class),
+            );
+        }
+
+        $new = clone $this;
+        $new->model = $model;
+
+        return $new;
     }
 
     /**
