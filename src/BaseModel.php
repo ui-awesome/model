@@ -20,6 +20,10 @@ use function iterator_to_array;
 abstract class BaseModel implements ModelInterface
 {
     /**
+     * Keeps reentrant assignments on the collector selected for the active outer write.
+     */
+    private int $collectorWriteDepth = 0;
+    /**
      * @phpstan-var mixed[]
      */
     private array $data = [];
@@ -101,7 +105,14 @@ abstract class BaseModel implements ModelInterface
 
     public function setValue(string $property, mixed $value): void
     {
-        $this->typeCollector(true)->setValue($property, $value);
+        $collector = $this->typeCollector(true);
+        ++$this->collectorWriteDepth;
+
+        try {
+            $collector->setValue($property, $value);
+        } finally {
+            --$this->collectorWriteDepth;
+        }
     }
 
     /**
@@ -110,7 +121,14 @@ abstract class BaseModel implements ModelInterface
      */
     public function setValues(array $data, array $except = []): void
     {
-        $this->typeCollector(true)->setValues($data, $except);
+        $collector = $this->typeCollector(true);
+        ++$this->collectorWriteDepth;
+
+        try {
+            $collector->setValues($data, $except);
+        } finally {
+            --$this->collectorWriteDepth;
+        }
     }
 
     /**
@@ -165,7 +183,8 @@ abstract class BaseModel implements ModelInterface
     /**
      * Returns a collector bound to this model, initializing or copying its state when needed.
      *
-     * Copying before writes isolates clones before their first access, regardless of custom clone hooks.
+     * Copying before outer writes isolates clones regardless of custom clone hooks. Reentrant writes share the active
+     * collector, while rebinding a clone clears any inherited write depth.
      *
      * @return TypeCollector Collector owned by the receiving model.
      */
@@ -173,8 +192,9 @@ abstract class BaseModel implements ModelInterface
     {
         if ($this->typeCollector === null) {
             $this->typeCollector = new TypeCollector($this);
-        } elseif ($forWrite || !$this->typeCollector->isForModel($this)) {
+        } elseif (!$this->typeCollector->isForModel($this) || ($forWrite && $this->collectorWriteDepth === 0)) {
             $this->typeCollector = $this->typeCollector->withModel($this);
+            $this->collectorWriteDepth = 0;
         }
 
         return $this->typeCollector;
