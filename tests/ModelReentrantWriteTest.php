@@ -80,6 +80,7 @@ final class ModelReentrantWriteTest extends TestCase
             'The active-scope clone must remain independently writable.',
         );
     }
+
     #[DataProviderExternal(ModelReentrantWriteProvider::class, 'bulkEntryPoints')]
     public function testPreserveReentrantWrites(bool $scoped): void
     {
