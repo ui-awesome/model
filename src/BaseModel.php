@@ -6,8 +6,12 @@ namespace UIAwesome\Model;
 
 use PHPForge\Helper\Reflector;
 
+use function array_filter;
+use function array_values;
+use function count;
 use function is_a;
 use function is_array;
+use function is_string;
 use function iterator_to_array;
 
 /**
@@ -145,7 +149,16 @@ abstract class BaseModel implements ModelInterface
         $properties = [];
 
         foreach ($model->getTypes() as $property => $type) {
-            if (is_string($property) && is_string($type) && is_a($type, ModelInterface::class, true)) {
+            $types = is_array($type)
+                ? array_values(array_filter($type, static fn(mixed $type): bool => $type !== 'null'))
+                : [$type];
+
+            if (
+                is_string($property)
+                && count($types) === 1
+                && is_string($types[0])
+                && is_a($types[0], ModelInterface::class, true)
+            ) {
                 $nestedModel = $model->getValue($property);
 
                 if ($nestedModel instanceof ModelInterface) {
