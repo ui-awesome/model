@@ -279,7 +279,7 @@ the [changelog](CHANGELOG.md). This package is framework-independent; it is not 
 
 [![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ui-awesome/model/actions/workflows/static.yml)
 [![Quality](https://img.shields.io/github/actions/workflow/status/ui-awesome/model/quality.yml?style=for-the-badge&label=Quality&logo=github)](https://github.com/ui-awesome/model/actions/workflows/quality.yml)
-[![StyleCI](https://img.shields.io/badge/StyleCI-Passing-44CC11.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/773929534?branch=main)
+[![StyleCI](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fgithub.styleci.io%2Frepos%2F773929534%2Fshield%3Fbranch%3Dmain&query=%2F%2F*%5Blocal-name%28%29%3D%27text%27%5D%5B2%5D&label=StyleCI&style=for-the-badge&logo=github&logoColor=white&color=4F5D95)](https://github.styleci.io/repos/773929534?branch=main)
 
 ## Security
 

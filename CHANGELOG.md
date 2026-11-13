@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.3 Under development
 
+- docs: update StyleCI badge in `README.md` to use dynamic XML for real-time status.
+
 ## 0.2.2 November 13, 2026
 
 - chore: remove obsolete scaffold tooling and align package maintenance checks with PHP Forge conventions.
