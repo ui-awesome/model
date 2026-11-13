@@ -286,6 +286,12 @@ the [changelog](CHANGELOG.md). This package is framework-independent; it is not 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/ui-awesome/model/badge?style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/ui-awesome/model)
 [![Zizmor](https://img.shields.io/github/actions/workflow/status/ui-awesome/model/security.yml?style=for-the-badge&label=Zizmor&logo=github)](https://github.com/ui-awesome/model/actions/workflows/security.yml)
 
+## Built with AI
+
+[![Built with Claude Code](https://img.shields.io/badge/Built%20with-Claude%20Code-D97757.svg?style=for-the-badge&logo=claude&logoColor=white)](https://claude.com/claude-code)
+[![Built with Codex](https://img.shields.io/badge/Built%20with-Codex-10A37F.svg?style=for-the-badge&logo=openaigym&logoColor=white)](https://openai.com/codex)
+[![Reviewed by CodeRabbit](https://img.shields.io/badge/Reviewed%20by-CodeRabbit-FF570A.svg?style=for-the-badge&logo=coderabbit&logoColor=white)](https://www.coderabbit.ai)
+
 ## Our social networks
 
 [![Follow on X](https://img.shields.io/badge/-Follow%20on%20X-1DA1F2.svg?style=for-the-badge&logo=x&logoColor=white&labelColor=000000)](https://x.com/Terabytesoftw)
