@@ -1,0 +1,5 @@
+---
+interface:
+  display_name: "UI Awesome Model"
+  short_description: "Map typed PHP models and inspect nested values"
+  default_prompt: "Use $ui-awesome-model to map typed input and verify nested values, serialization and clone isolation."

@@ -12,5 +12,10 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class DefaultValue
 {
+    /**
+     * Configures the value applied to `null` or empty-string input.
+     *
+     * @param mixed $value Runtime default value.
+     */
     public function __construct(public mixed $value) {}
 }

@@ -90,6 +90,11 @@ final class TypeCollector
      */
     private array $trimProperties = [];
 
+    /**
+     * Collects property metadata for the supplied model.
+     *
+     * @param ModelInterface $model Model whose properties are collected and assigned.
+     */
     public function __construct(private ModelInterface $model)
     {
         $this->collectMetadata();

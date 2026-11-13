@@ -16,9 +16,23 @@ use function trim;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class Cast
 {
+    /**
+     * Separates string items when casting to an array.
+     */
     public string $separator;
+    /**
+     * Identifies the cast type or custom caster class.
+     */
     public string $target;
 
+    /**
+     * Configures a nonempty cast target and array separator.
+     *
+     * @param string $target Cast type or custom caster class.
+     * @param string $separator Nonempty separator for array casts.
+     *
+     * @throws InvalidArgumentException When the target or separator is empty.
+     */
     public function __construct(string $target, string $separator = ',')
     {
         if (trim($target) === '') {

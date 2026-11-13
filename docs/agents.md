@@ -18,6 +18,8 @@ composer skills:show
 With manual synchronization configured, run `composer skills:update`. These commands assume the application setup is
 already authorized and complete. Installing a package under `vendor/` alone does not expose a skill at the application root.
 
+### Optional npx installation
+
 For optional project-scoped installation, list the local source first:
 
 ```bash
