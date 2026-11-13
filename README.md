@@ -12,14 +12,14 @@
     <a href="https://github.com/ui-awesome/model/actions/workflows/build.yml" target="_blank">
         <img src="https://img.shields.io/github/actions/workflow/status/ui-awesome/model/build.yml?style=for-the-badge&label=PHPUnit&logo=github" alt="PHPUnit">
     </a>
+    <a href="https://codecov.io/github/ui-awesome/model" target="_blank">
+        <img src="https://img.shields.io/codecov/c/github/ui-awesome/model.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage" alt="Coverage">
+    </a>
     <a href="https://dashboard.stryker-mutator.io/reports/github.com/ui-awesome/model/main" target="_blank">
         <img src="https://img.shields.io/endpoint?style=for-the-badge&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fui-awesome%2Fmodel%2Fmain" alt="Mutation Testing">
     </a>
     <a href="https://github.com/ui-awesome/model/actions/workflows/static.yml" target="_blank">
         <img src="https://img.shields.io/github/actions/workflow/status/ui-awesome/model/static.yml?style=for-the-badge&label=PHPStan&logo=github" alt="PHPStan">
-    </a>
-    <a href="https://github.com/ui-awesome/model/actions/workflows/security.yml" target="_blank">
-        <img src="https://img.shields.io/github/actions/workflow/status/ui-awesome/model/security.yml?style=for-the-badge&label=Security&logo=github" alt="Security">
     </a>
 </p>
 
@@ -255,6 +255,20 @@ For detailed configuration options and advanced usage.
 - 🧪 [Testing Guide](docs/testing.md)
 - 🔄 [Upgrade Guide](UPGRADE.md)
 
+## AI assistance
+
+AI agents: read the [documentation index](https://yii2-framework.github.io/docs/llms.txt) and fetch the Markdown version
+of a page by appending `index.md` to its URL. The
+[AI agents guide](https://yii2-framework.github.io/docs/project/ai-agents/) covers skill installation, client setup and
+verification.
+
+- 🤖 [`ui-awesome-model` skill](docs/agents.md): typed input mapping, property attributes, nested values with dot
+  notation and model serialization.
+
+Match the installed package revision. If hosted documentation does not match or is unavailable, use the
+[repository guides](#documentation), the [skill source](skills/ui-awesome-model/SKILL.md), the source PHPDoc and
+the [changelog](CHANGELOG.md). This package is framework-independent; it is not a database model or a validation layer.
+
 ## Package information
 
 [![PHP](https://img.shields.io/badge/%3E%3D8.3-777BB4.svg?style=for-the-badge&logo=php&logoColor=white)](https://www.php.net/releases/8.3/en.php)
@@ -263,10 +277,14 @@ For detailed configuration options and advanced usage.
 
 ## Project status
 
-[![Codecov](https://img.shields.io/codecov/c/github/ui-awesome/model.svg?style=for-the-badge&logo=codecov&logoColor=white&label=Coverage)](https://codecov.io/github/ui-awesome/model)
 [![PHPStan Level Max](https://img.shields.io/badge/PHPStan-Level%20Max-4F5D95.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.com/ui-awesome/model/actions/workflows/static.yml)
 [![Quality](https://img.shields.io/github/actions/workflow/status/ui-awesome/model/quality.yml?style=for-the-badge&label=Quality&logo=github)](https://github.com/ui-awesome/model/actions/workflows/quality.yml)
-[![StyleCI](https://img.shields.io/badge/StyleCI-Passed-44CC11.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/773929534?branch=main)
+[![StyleCI](https://img.shields.io/badge/StyleCI-Passing-555555.svg?style=for-the-badge&logo=github&logoColor=white)](https://github.styleci.io/repos/773929534?branch=main)
+
+## Security
+
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/ui-awesome/model/badge?style=for-the-badge)](https://scorecard.dev/viewer/?uri=github.com/ui-awesome/model)
+[![Zizmor](https://img.shields.io/github/actions/workflow/status/ui-awesome/model/security.yml?style=for-the-badge&label=Zizmor&logo=github)](https://github.com/ui-awesome/model/actions/workflows/security.yml)
 
 ## Our social networks
 

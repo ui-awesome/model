@@ -45,6 +45,9 @@
     "extra": {
         "branch-alias": {
             "dev-main": "0.3.x-dev"
+        },
+        "skills": {
+            "source": "skills"
         }
     },
     "config": {

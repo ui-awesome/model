@@ -54,6 +54,8 @@ final class User extends BaseModel
 - `isEmpty()` indicates whether loaded raw data is empty.
 
 ```php
+$model = new User();
+
 $model->load(
     [
         'User' => [
@@ -113,7 +115,14 @@ $model->setValue('displayName', '');
 - Invalid date strings and overflow-normalized dates (for example `2026-02-30`) throw `InvalidArgumentException`.
 
 ```php
-$model->setValue('publishedAt', '2026-03-01T10:00:00+00:00');
+final class Article extends \UIAwesome\Model\BaseModel
+{
+    public ?\DateTimeImmutable $publishedAt = null;
+}
+
+$article = new Article();
+$article->setValue('publishedAt', '2026-03-01T10:00:00+00:00');
+// $article->publishedAt is a DateTimeImmutable instance.
 ```
 
 ## Array serialization
@@ -130,7 +139,7 @@ $payload = $model->toArray(snakeCase: true, exceptProperties: ['updatedAt']);
     'display_name' => 'Guest',
     'email' => 'dev@example.com',
     'name' => 'Ada Lovelace',
-    'public_email_personal' => 'dev@example.com',
+    'public_email_personal' => '',
     'tags' => [],
 ]
 */

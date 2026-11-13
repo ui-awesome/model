@@ -16,8 +16,18 @@ use function trim;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final readonly class MapFrom
 {
+    /**
+     * Identifies the external input key mapped to this property.
+     */
     public string $key;
 
+    /**
+     * Configures the external input key.
+     *
+     * @param string $key Nonempty input key.
+     *
+     * @throws InvalidArgumentException When the key is empty.
+     */
     public function __construct(string $key)
     {
         if (trim($key) === '') {

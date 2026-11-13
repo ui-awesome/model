@@ -24,6 +24,8 @@ abstract class BaseModel implements ModelInterface
      */
     private int $collectorWriteDepth = 0;
     /**
+     * Stores raw input retained after loading.
+     *
      * @phpstan-var mixed[]
      */
     private array $data = [];
@@ -32,12 +34,17 @@ abstract class BaseModel implements ModelInterface
      */
     private TypeCollector|null $typeCollector = null;
 
+    /**
+     * Registers a property and its supported types.
+     */
     public function add(string $property, string|array $type): void
     {
         $this->typeCollector(true)->add($property, $type);
     }
 
     /**
+     * Returns the raw input retained after loading.
+     *
      * @phpstan-return mixed[]
      */
     public function getData(): array
@@ -45,12 +52,17 @@ abstract class BaseModel implements ModelInterface
         return $this->data;
     }
 
+    /**
+     * Returns the model class name used as the default input scope.
+     */
     public function getModelName(): string
     {
         return Reflector::shortName(static::class);
     }
 
     /**
+     * Returns property names, expanding nested models with dot notation.
+     *
      * @phpstan-return list<string>
      */
     public function getNames(): array
@@ -59,6 +71,8 @@ abstract class BaseModel implements ModelInterface
     }
 
     /**
+     * Returns collected property types indexed by property name.
+     *
      * @phpstan-return array<string, list<string>|string>
      */
     public function getTypes(): array
@@ -66,26 +80,41 @@ abstract class BaseModel implements ModelInterface
         return $this->typeCollector()->getTypes();
     }
 
+    /**
+     * Returns a property value, including nested model paths.
+     */
     public function getValue(string $property): mixed
     {
         return $this->typeCollector()->getValue($property);
     }
 
+    /**
+     * Checks whether a property or nested model path exists.
+     */
     public function has(string $property): bool
     {
         return $this->typeCollector()->has($property);
     }
 
+    /**
+     * Checks whether the loaded raw input is empty.
+     */
     public function isEmpty(): bool
     {
         return $this->data === [];
     }
 
+    /**
+     * Checks whether a property supports the requested type.
+     */
     public function isType(string $property, string $type): bool
     {
         return $this->typeCollector()->isType($property, $type);
     }
 
+    /**
+     * Assigns scoped or unscoped input and retains its raw keys.
+     */
     public function load(iterable $data, string|null $modelName = null): bool
     {
         $this->data = [];
@@ -103,6 +132,9 @@ abstract class BaseModel implements ModelInterface
         return $rawData !== [];
     }
 
+    /**
+     * Assigns a property value using its attributes and type metadata.
+     */
     public function setValue(string $property, mixed $value): void
     {
         $collector = $this->typeCollector(true);
@@ -116,6 +148,8 @@ abstract class BaseModel implements ModelInterface
     }
 
     /**
+     * Assigns input values while excluding the selected property names.
+     *
      * @phpstan-param array<array-key, mixed> $data
      * @phpstan-param list<string> $except
      */
@@ -132,6 +166,8 @@ abstract class BaseModel implements ModelInterface
     }
 
     /**
+     * Exports property values with optional top-level snake_case keys.
+     *
      * @phpstan-param list<string> $exceptProperties
      * @phpstan-return array<string, mixed>
      */
