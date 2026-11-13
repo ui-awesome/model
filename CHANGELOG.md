@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - fix: support present nullable model paths consistently and reject nested reads through non-model values.
 - docs: remove usage examples from attribute classes and interfaces for cleaner documentation.
 - fix: isolate cloned model collectors, including custom clone hooks, while preserving registered types, values and metadata.
-- docs: add package skill, AI guidance and discovery links; add README Security section with Scorecard and move Coverage to header.
+- docs: add package skill, AI guidance and discovery links; add `README.md` Security section with Scorecard and move Coverage to header.
 
 ## 0.2.1 July 29, 2026
 
