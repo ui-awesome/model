@@ -5,10 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 0.2.3 Under development
+## 0.2.3 November 15, 2026
 
 - docs: update StyleCI badge in `README.md` to use dynamic XML for real-time status.
-- docs: link README guides and feature images to their online sources.
+- docs: link `README.md` guides and feature images to their online sources.
 
 ## 0.2.2 November 13, 2026
 
