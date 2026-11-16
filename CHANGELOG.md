@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.2.4 Under development
 
 - chore: update `.gitattributes` and `.gitignore` for improved file handling and exclusions.
+- chore: remove obsolete `.coderabbit.yaml` configuration file.
 
 ## 0.2.3 November 15, 2026
 
